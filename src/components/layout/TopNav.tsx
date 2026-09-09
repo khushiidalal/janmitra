@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Bell,
@@ -7,13 +7,12 @@ import {
   User,
   LogOut,
   CheckCircle2,
-  Search,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { logout } from '../../lib/api';
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { logout } from "../../lib/api";
 
 export default function TopNav() {
   const router = useRouter();
@@ -24,24 +23,26 @@ export default function TopNav() {
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const [storedName, setStoredName] = useState('Officer');
-  const [profilePhoto, setProfilePhoto] = useState('');
+  const [storedName, setStoredName] = useState("Officer");
+  const [profilePhoto, setProfilePhoto] = useState("");
 
   useEffect(() => {
     const updateFromStorage = () => {
-      const name = localStorage.getItem('userName');
+      const name = localStorage.getItem("userName");
       if (name) {
         setStoredName(name);
       }
 
-      const storedUser = localStorage.getItem('user');
+      const storedUser = localStorage.getItem("user");
       if (storedUser) {
         try {
           const user = JSON.parse(storedUser);
+
           if (user.fullName) {
             setStoredName(user.fullName);
           }
-          if (typeof user.profilePhoto === 'string') {
+
+          if (typeof user.profilePhoto === "string") {
             setProfilePhoto(user.profilePhoto);
           }
         } catch {}
@@ -53,35 +54,39 @@ export default function TopNav() {
     const handleProfileUpdate = (event: Event) => {
       const customEvt = event as CustomEvent<any>;
       const user = customEvt.detail;
+
       if (user) {
         if (user.fullName) setStoredName(user.fullName);
-        if (typeof user.profilePhoto === 'string') setProfilePhoto(user.profilePhoto);
+        if (typeof user.profilePhoto === "string") {
+          setProfilePhoto(user.profilePhoto);
+        }
       }
     };
 
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === 'userName' || event.key === 'user') {
+      if (event.key === "userName" || event.key === "user") {
         updateFromStorage();
       }
     };
 
-    window.addEventListener('janmitra:profile-updated', handleProfileUpdate);
-    window.addEventListener('storage', handleStorage);
+    window.addEventListener("janmitra:profile-updated", handleProfileUpdate);
+    window.addEventListener("storage", handleStorage);
 
     return () => {
-      window.removeEventListener('janmitra:profile-updated', handleProfileUpdate);
-      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener(
+        "janmitra:profile-updated",
+        handleProfileUpdate,
+      );
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
-  const nameParts = storedName.trim().split(' ');
-  const firstName = nameParts[0] || 'User';
-  const lastName =
-    nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+  const nameParts = storedName.trim().split(" ");
+  const firstName = nameParts[0] || "User";
+  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
   const initials = (
-    (firstName[0] || '') +
-    (lastName[0] || firstName[1] || '')
+    (firstName[0] || "") + (lastName[0] || firstName[1] || "")
   ).toUpperCase();
 
   useEffect(() => {
@@ -101,53 +106,27 @@ export default function TopNav() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
-    return () =>
-      document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSignOut = () => {
     logout();
-    router.push('/');
+    router.push("/");
   };
 
   const handleProfileClick = () => {
     setIsProfileOpen(false);
-    router.push('/settings');
+    router.push("/settings");
   };
 
   return (
     <header className="flex h-[64px] items-center justify-between border-b border-slate-200 bg-white px-4">
-      {/* LEFT SEARCH */}
-      <div className="w-full max-w-[360px]">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-          <input
-            type="text"
-            placeholder="Search by Case ID, FIR, Title ..."
-            className="
-              h-9
-              w-full
-              rounded-lg
-              border
-              border-slate-200
-              bg-slate-50
-              pl-10
-              pr-4
-              text-xs
-              text-slate-700
-              outline-none
-              transition
-              placeholder:text-slate-400
-              focus:border-blue-400
-              focus:bg-white
-              focus:ring-2
-              focus:ring-blue-100
-            "
-          />
-        </div>
+      <div className="min-w-0">
+        <p className="text-lg font-extrabold tracking-wide text-[#0b2f73]">
+          Legal Investigation System
+        </p>
       </div>
 
       {/* RIGHT CONTROLS */}
@@ -240,7 +219,7 @@ export default function TopNav() {
 
                 <div className="max-h-[300px] space-y-1 overflow-y-auto p-2">
                   <div className="flex cursor-pointer items-start gap-3 rounded-lg p-3 hover:bg-slate-50">
-                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700">
                       <Bell className="h-4 w-4" />
                     </div>
 
@@ -248,9 +227,7 @@ export default function TopNav() {
                       <p className="text-sm font-medium leading-tight text-slate-800">
                         New case assigned to you
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        2 mins ago
-                      </p>
+                      <p className="mt-1 text-xs text-slate-500">2 mins ago</p>
                     </div>
                   </div>
 
@@ -263,9 +240,7 @@ export default function TopNav() {
                       <p className="text-sm font-medium leading-tight text-slate-800">
                         FIR-2023-089 approved
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        1 hour ago
-                      </p>
+                      <p className="mt-1 text-xs text-slate-500">1 hour ago</p>
                     </div>
                   </div>
                 </div>
@@ -309,13 +284,13 @@ export default function TopNav() {
               </span>
 
               <span className="max-w-[115px] truncate text-[10px] leading-tight text-slate-500">
-                {lastName || 'Officer'}
+                {lastName || "Officer"}
               </span>
             </div>
 
             <ChevronDown
               className={`h-4 w-4 text-slate-500 transition-transform ${
-                isProfileOpen ? 'rotate-180' : ''
+                isProfileOpen ? "rotate-180" : ""
               }`}
             />
           </motion.button>

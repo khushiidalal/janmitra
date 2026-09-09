@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -147,7 +147,7 @@ export default function Login() {
       {/* ================= MAIN CONTENT ================= */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* ================= HEADER ================= */}
-        <header className="flex items-start justify-between px-8 py-5">
+        <header className="flex items-start justify-between px-8 py-5 pr-2">
           {/* JANMITRA BRAND */}
           <div className="flex items-center gap-3">
             <div className="h-16 w-16 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden">

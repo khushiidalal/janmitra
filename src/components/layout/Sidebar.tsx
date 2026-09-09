@@ -73,7 +73,6 @@ export default function Sidebar() {
         select-none
       "
     >
-      {/* KORA BRANDING */}
       <Link
         href="/dashboard"
         className="
@@ -92,8 +91,8 @@ export default function Sidebar() {
           whileHover={{ scale: 1.04 }}
           className="
             flex
-            h-11
-            w-11
+            h-15
+            w-15
             shrink-0
             items-center
             justify-center
@@ -106,7 +105,7 @@ export default function Sidebar() {
         >
           <img
             src="/logo.jpg"
-            alt="KORA Logo"
+            alt="JANMITRA Logo"
             className="h-full w-full object-cover"
           />
         </motion.div>
