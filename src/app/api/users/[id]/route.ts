@@ -52,6 +52,21 @@ export async function PATCH(req: NextRequest, context: Context) {
     }
 
     const { fullName, role } = await req.json();
+
+    if (role !== undefined && currentUser.role !== 'Admin') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Only administrators can modify user roles' },
+        { status: 403 }
+      );
+    }
+
+    if (currentUser.role !== 'Admin' && String(currentUser._id) !== String(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: You can only edit your own profile' },
+        { status: 403 }
+      );
+    }
+
     if (fullName !== undefined) user.fullName = fullName.trim();
     if (role !== undefined) user.role = role;
 
@@ -79,6 +94,13 @@ export async function DELETE(req: NextRequest, context: Context) {
     const currentUser = await getAuthenticatedUser(req);
     if (!currentUser) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (currentUser.role !== 'Admin') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Only administrators can delete users' },
+        { status: 403 }
+      );
     }
 
     const { id } = await context.params;

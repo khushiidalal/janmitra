@@ -4,6 +4,7 @@ import fs from 'fs';
 import { connectDB } from '@/lib/db';
 import DocumentModel from '@/models/Document';
 import { getAbsoluteFilePath } from '@/lib/server/storage';
+import { getAuthenticatedUser } from '@/lib/server/auth';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -12,6 +13,14 @@ interface Context {
 export async function GET(req: NextRequest, context: Context) {
   try {
     await connectDB();
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await context.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
