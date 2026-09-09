@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { register, sendEmailOTP, verifyEmailOTP } from "@/lib/api";
+import { register } from "@/lib/api";
 import {
   ArrowLeft,
   ArrowRight,
@@ -10,17 +10,15 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
-  Fingerprint,
   Glasses,
   Lightbulb,
   LockKeyhole,
-  Mail,
   ScanFace,
   Scale,
   ShieldCheck,
 } from "lucide-react";
 
-type VerificationStep = 1 | 2 | 3 | 4;
+type VerificationStep = 1 | 2 | 4;
 
 export default function RegistrationStep3() {
   const router = useRouter();
@@ -33,7 +31,6 @@ export default function RegistrationStep3() {
   const [profilePhoto, setProfilePhoto] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
-  const [biometricVerified, setBiometricVerified] = useState(false);
 
   // Password state (typed, not PIN pad — so we can satisfy 8-digit backend rule
   // while giving the user a real password input they can see/hide)
@@ -46,23 +43,9 @@ export default function RegistrationStep3() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [registeredUser, setRegisteredUser] = useState<any>(null);
-  const [otpCode, setOtpCode] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [emailOtpSent, setEmailOtpSent] = useState(false);
-  const [emailOtpVerified, setEmailOtpVerified] = useState(false);
-  const [officialEmailDisplay, setOfficialEmailDisplay] = useState("");
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const savedStep2Raw = sessionStorage.getItem("registrationStep2");
-    if (savedStep2Raw) {
-      try {
-        const parsed = JSON.parse(savedStep2Raw);
-        setOfficialEmailDisplay(parsed.officialEmail || "");
-      } catch {
-        // ignore
-      }
-    }
   }, []);
 
   useEffect(() => {
@@ -138,77 +121,7 @@ export default function RegistrationStep3() {
     setTimeout(() => setVerificationStep(2), 400);
   };
 
-  const handleBiometricScan = () => {
-    setBiometricVerified(true);
-    setTimeout(() => setVerificationStep(3), 400);
-  };
-
-  // ---------- Resend Email OTP handlers ----------
-
-  const handleSendEmailOTP = async () => {
-    const savedStep2Raw = sessionStorage.getItem("registrationStep2");
-    if (!savedStep2Raw) {
-      setError("Registration data is missing. Please go back and complete Step 2.");
-      return;
-    }
-
-    const savedStep2 = JSON.parse(savedStep2Raw);
-    const email = String(savedStep2.officialEmail || "").trim().toLowerCase();
-
-    if (!email) {
-      setError("Official email address is required before sending OTP.");
-      return;
-    }
-
-    setOtpLoading(true);
-    setError("");
-
-    try {
-      await sendEmailOTP(email);
-      setEmailOtpSent(true);
-      setEmailOtpVerified(false);
-    } catch (err: any) {
-      setError(err.message || "Unable to send OTP email via Resend.");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleVerifyEmailOTP = async () => {
-    const savedStep2Raw = sessionStorage.getItem("registrationStep2");
-    if (!savedStep2Raw) {
-      setError("Registration data is missing. Please go back and complete Step 2.");
-      return;
-    }
-
-    const savedStep2 = JSON.parse(savedStep2Raw);
-    const email = String(savedStep2.officialEmail || "").trim().toLowerCase();
-
-    if (!email) {
-      setError("Official email address is required before OTP verification.");
-      return;
-    }
-
-    if (!otpCode.trim() || otpCode.trim().length !== 6) {
-      setError("Please enter the 6-digit OTP received in your email.");
-      return;
-    }
-
-    setOtpLoading(true);
-    setError("");
-
-    try {
-      await verifyEmailOTP(email, otpCode.trim());
-      setEmailOtpVerified(true);
-      setError("");
-    } catch (err: any) {
-      setError(err.message || "Invalid or expired OTP. Please check your inbox or resend.");
-      setEmailOtpVerified(false);
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
+  
   const handleSubmitRegistration = async () => {
     const savedStep2Raw = sessionStorage.getItem("registrationStep2");
     if (!savedStep2Raw) {
@@ -282,7 +195,7 @@ export default function RegistrationStep3() {
 
       sessionStorage.setItem(
         "registrationStep3",
-        JSON.stringify({ faceVerified, biometricVerified, pinCreated: true })
+        JSON.stringify({ faceVerified, pinCreated: true })
       );
 
       setVerificationStep(4);
@@ -474,53 +387,12 @@ export default function RegistrationStep3() {
                     <ChevronRight size={15} />
                   </button>
 
-                  {/* BIOMETRIC */}
+                  {/* PASSWORD */}
                   <button
                     type="button"
                     onClick={() => setVerificationStep(2)}
                     className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition ${
                       verificationStep === 2
-                        ? "border-green-400 bg-green-50"
-                        : "border-slate-200 bg-[#fafcff]"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                        {biometricVerified ? (
-                          <CheckCircle2 size={17} className="text-green-600" />
-                        ) : (
-                          <Fingerprint size={17} />
-                        )}
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="flex h-4 w-4 items-center justify-center rounded bg-green-600 text-[10px] text-white">
-                            2
-                          </span>
-
-                          <p className="text-xs font-semibold text-slate-900">
-                            Device Biometric
-                          </p>
-                        </div>
-
-                        <p className="mt-1 text-[12px] leading-4 text-slate-500">
-                          Authenticate using your device
-                          <br />
-                          biometric security.
-                        </p>
-                      </div>
-                    </div>
-
-                    <ChevronRight size={15} />
-                  </button>
-
-                  {/* PASSWORD */}
-                  <button
-                    type="button"
-                    onClick={() => setVerificationStep(3)}
-                    className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition ${
-                      verificationStep === 3
                         ? "border-orange-300 bg-orange-50"
                         : "border-slate-200 bg-[#fafcff]"
                     }`}
@@ -537,7 +409,7 @@ export default function RegistrationStep3() {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="flex h-4 w-4 items-center justify-center rounded bg-orange-500 text-[10px] text-white">
-                            3
+                            2
                           </span>
 
                           <p className="text-xs font-semibold text-slate-900">
@@ -586,7 +458,7 @@ export default function RegistrationStep3() {
                     </h3>
 
                     <p className="mt-1 text-[12px] text-blue-600">
-                      Step 1 of 3
+                      Step 1 of 2
                     </p>
                   </div>
 
@@ -665,77 +537,14 @@ export default function RegistrationStep3() {
                 </div>
               )}
 
-              {/* ================= RIGHT SCREEN 2: BIOMETRIC ================= */}
+              {/* ================= RIGHT SCREEN 2: PASSWORD ================= */}
               {verificationStep === 2 && (
-                <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
-                  <div className="text-center">
-                    <h3 className="text-sm font-semibold">
-                      Biometric Verification
-                    </h3>
-
-                    <p className="mt-1 text-[12px] text-blue-600">
-                      Step 2 of 3
-                    </p>
-                  </div>
-
-                  <div className="mx-auto mt-4 flex h-[205px] max-w-[280px] items-center justify-center rounded-lg border border-slate-200 bg-[#fafcff]">
-                    <Fingerprint
-                      size={115}
-                      strokeWidth={1.2}
-                      className="text-blue-500"
-                    />
-                  </div>
-
-                  <p className="mt-2 text-center text-[12px] text-slate-600">
-                    Position your finger on the machine
-                  </p>
-
-                  <div className="mt-3 flex justify-center gap-4 text-[12px] text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Fingerprint size={10} className="text-blue-500" />
-                      Fix finger
-                    </span>
-
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck size={10} className="text-blue-500" />
-                      Clean machine
-                    </span>
-
-                    <span className="flex items-center gap-1">
-                      <Fingerprint size={10} className="text-blue-500" />
-                      Finger should be healthy
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
-                    <button
-                      type="button"
-                      onClick={() => setVerificationStep(1)}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-xs"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleBiometricScan}
-                      className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700"
-                    >
-                      <Fingerprint size={13} />
-                      {biometricVerified ? "✓ Verified" : "Start Scan"}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* ================= RIGHT SCREEN 3: PASSWORD ================= */}
-              {verificationStep === 3 && (
                 <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
                   <div className="text-center">
                     <h3 className="text-sm font-semibold">Secure Password</h3>
 
                     <p className="mt-1 text-[12px] text-blue-600">
-                      Step 3 of 3
+                      Step 2 of 2
                     </p>
                   </div>
 
@@ -834,57 +643,6 @@ export default function RegistrationStep3() {
                     numeric digits (e.g. 12345678). Keep it confidential.
                   </div>
 
-                  <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <Mail size={14} className="text-blue-700" />
-                          <p className="text-[12px] font-semibold text-blue-700">Email OTP Verification (Resend)</p>
-                        </div>
-                        <p className="mt-1 text-[11px] text-slate-600">
-                          {emailOtpVerified
-                            ? "✓ Email verified successfully via Resend."
-                            : officialEmailDisplay
-                            ? `Send OTP to ${officialEmailDisplay}`
-                            : "Send OTP to your registered email address."}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleSendEmailOTP}
-                        disabled={otpLoading || emailOtpVerified}
-                        className="rounded-md bg-blue-600 px-3 py-2 text-[11px] font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {otpLoading ? "Sending..." : emailOtpSent ? "Resend OTP" : "Send OTP"}
-                      </button>
-                    </div>
-
-                    {emailOtpSent && !emailOtpVerified && (
-                      <div className="mt-3">
-                        <label className="mb-1 block text-[12px] font-semibold text-slate-700">Enter 6-digit Email OTP</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={otpCode}
-                            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                            maxLength={6}
-                            placeholder="123456"
-                            className="h-[36px] flex-1 rounded-[5px] border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                          />
-
-                          <button
-                            type="button"
-                            onClick={handleVerifyEmailOTP}
-                            disabled={otpLoading}
-                            className="rounded-md bg-green-600 px-3 py-2 text-[11px] font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            Verify OTP
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
 
@@ -941,7 +699,7 @@ export default function RegistrationStep3() {
                       </span>
 
                       <span className="rounded-full bg-green-100 px-3 py-1 text-[9px] font-semibold text-green-700">
-                        {emailOtpVerified ? "✓ EMAIL VERIFIED (RESEND)" : "✓ APPROVED"}
+                        ✓ APPROVED
                       </span>
                     </div>
                   </div>
@@ -983,9 +741,7 @@ export default function RegistrationStep3() {
                       onClick={() =>
                         verificationStep === 1
                           ? router.push("/register/step2")
-                          : setVerificationStep(
-                              (verificationStep - 1) as VerificationStep
-                            )
+                          : setVerificationStep(1)
                       }
                       className="flex h-[34px] items-center gap-1.5 rounded-md border border-slate-400 bg-white px-4 text-xs font-medium text-slate-700 hover:bg-slate-50"
                     >
@@ -993,27 +749,22 @@ export default function RegistrationStep3() {
                       Back
                     </button>
 
-                    {verificationStep < 3 ? (
+                    {verificationStep === 1 ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          setVerificationStep(
-                            (verificationStep + 1) as VerificationStep
-                          )
-                        }
+                        onClick={() => setVerificationStep(2)}
                         className="flex h-[34px] items-center gap-1.5 rounded-md bg-blue-600 px-4 text-xs font-medium text-white hover:bg-blue-700"
                       >
                         Continue
                         <ArrowRight size={13} />
                       </button>
                     ) : (
-                      /* Step 3 → Submit Registration button */
+                      /* Step 2 → Submit Registration button */
                       <button
                         type="button"
                         onClick={handleSubmitRegistration}
                         disabled={
                           !faceVerified ||
-                          !biometricVerified ||
                           !passwordValid ||
                           !passwordsMatch ||
                           loading
