@@ -23,6 +23,30 @@ import Badge from '@/components/ui/Badge';
 import { getCases, getDocuments } from '@/lib/api';
 import SecurityAlertsCard from '@/components/dashboard/SecurityAlertsCard';
 
+function latestTimestamp(values: unknown[]): string | null {
+  const timestamps = values
+    .map((value) => {
+      const timestamp = new Date(String(value || '')).getTime();
+      return Number.isNaN(timestamp) ? null : timestamp;
+    })
+    .filter((timestamp): timestamp is number => timestamp !== null);
+
+  return timestamps.length > 0
+    ? new Date(Math.max(...timestamps)).toISOString()
+    : null;
+}
+
+function formatTimestamp(label: string, timestamp: string | null): string {
+  if (!timestamp) {
+    return `${label}: No data yet`;
+  }
+
+  return `${label}: ${new Date(timestamp).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })}`;
+}
+
 export default function Dashboard() {
   const router = useRouter();
 
@@ -39,31 +63,104 @@ export default function Dashboard() {
 
   const [allCases, setAllCases] = useState<any[]>([]);
   const [documentCount, setDocumentCount] = useState(0);
+  const [lastActiveCaseUpdate, setLastActiveCaseUpdate] = useState<string | null>(null);
+  const [lastPendingCaseUpdate, setLastPendingCaseUpdate] = useState<string | null>(null);
+  const [lastDocumentUpload, setLastDocumentUpload] = useState<string | null>(null);
+  const [lastPendingDocumentUpload, setLastPendingDocumentUpload] = useState<string | null>(null);
 
   useEffect(() => {
-    getCases()
-      .then((data) => {
-        setAllCases(Array.isArray(data) ? data : []);
-      })
-      .catch(() => {
-        setAllCases([]);
-      });
+    let isMounted = true;
 
-    getDocuments()
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setDocumentCount(data.length);
-        } else if (data && Array.isArray(data.documents)) {
-          setDocumentCount(data.documents.length);
-        } else if (data && typeof data.count === 'number') {
-          setDocumentCount(data.count);
-        } else {
-          setDocumentCount(0);
-        }
-      })
-      .catch(() => {
-        setDocumentCount(0);
-      });
+    const loadDashboardData = async () => {
+      const [casesResult, documentsResult] = await Promise.allSettled([
+        getCases(),
+        getDocuments(),
+      ]);
+
+      if (!isMounted) {
+        return;
+      }
+
+      const cases =
+        casesResult.status === 'fulfilled' && Array.isArray(casesResult.value)
+          ? casesResult.value
+          : [];
+      setAllCases(cases);
+
+      const activeCases = cases.filter((currentCase) => currentCase.status === 'Active');
+      const pendingCases = cases.filter((currentCase) => currentCase.status === 'Pending');
+      setLastActiveCaseUpdate(
+        latestTimestamp(activeCases.map((currentCase) => currentCase.updatedAt))
+      );
+      setLastPendingCaseUpdate(
+        latestTimestamp(pendingCases.map((currentCase) => currentCase.updatedAt))
+      );
+
+      const documentData =
+        documentsResult.status === 'fulfilled' ? documentsResult.value : null;
+      const standaloneDocuments = Array.isArray(documentData)
+        ? documentData
+        : documentData && Array.isArray(documentData.documents)
+          ? documentData.documents
+          : [];
+      const standaloneDocumentCount = Array.isArray(documentData)
+        ? documentData.length
+        : documentData && Array.isArray(documentData.documents)
+          ? documentData.documents.length
+          : documentData && typeof documentData.count === 'number'
+            ? documentData.count
+            : 0;
+      const caseDocumentCount = cases.reduce(
+        (total, currentCase) =>
+          total +
+          (Array.isArray(currentCase.documents)
+            ? currentCase.documents.length
+            : 0),
+        0
+      );
+
+      setDocumentCount(standaloneDocumentCount + caseDocumentCount);
+      setLastDocumentUpload(
+        latestTimestamp([
+          ...standaloneDocuments.map((currentDocument: any) => currentDocument.createdAt),
+          ...cases
+            .filter((currentCase) => Array.isArray(currentCase.documents) && currentCase.documents.length > 0)
+            .map((currentCase) => currentCase.updatedAt),
+        ])
+      );
+
+      const pendingCaseIds = new Set(
+        pendingCases.map((currentCase) => currentCase.id || currentCase.caseId)
+      );
+      setLastPendingDocumentUpload(
+        latestTimestamp([
+          ...standaloneDocuments
+            .filter((currentDocument: any) => pendingCaseIds.has(currentDocument.caseId))
+            .map((currentDocument: any) => currentDocument.createdAt),
+          ...pendingCases
+            .filter((currentCase) => Array.isArray(currentCase.documents) && currentCase.documents.length > 0)
+            .map((currentCase) => currentCase.updatedAt),
+        ])
+      );
+    };
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void loadDashboardData();
+      }
+    };
+
+    void loadDashboardData();
+    const refreshInterval = window.setInterval(loadDashboardData, 5000);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    window.addEventListener('focus', refreshWhenVisible);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(refreshInterval);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+      window.removeEventListener('focus', refreshWhenVisible);
+    };
   }, []);
 
   const activeCount = allCases.filter(
@@ -79,7 +176,7 @@ export default function Dashboard() {
       label: 'Active Cases',
       value: activeCount.toString().padStart(2, '0'),
       icon: FolderOpen,
-      change: '20% from last month',
+      change: formatTimestamp('Last updated', lastActiveCaseUpdate),
       changeType: 'up',
       iconBg: 'bg-blue-50',
       iconColor: 'text-blue-500',
@@ -88,7 +185,7 @@ export default function Dashboard() {
       label: 'Pending Cases',
       value: pendingCount.toString().padStart(2, '0'),
       icon: Hourglass,
-      change: '12% from last month',
+      change: formatTimestamp('Last updated', lastPendingCaseUpdate),
       changeType: 'up',
       iconBg: 'bg-orange-50',
       iconColor: 'text-orange-500',
@@ -97,7 +194,7 @@ export default function Dashboard() {
       label: 'Total Documents',
       value: documentCount.toString(),
       icon: FileText,
-      change: 'Live from backend',
+      change: formatTimestamp('Last uploaded', lastDocumentUpload),
       changeType: 'up',
       iconBg: 'bg-blue-50',
       iconColor: 'text-blue-500',
@@ -106,7 +203,7 @@ export default function Dashboard() {
       label: 'Pending Approvals',
       value: pendingCount.toString().padStart(2, '0'),
       icon: FileCheck2,
-      change: '10% from last month',
+      change: formatTimestamp('Last updated', lastPendingDocumentUpload),
       changeType: 'down',
       iconBg: 'bg-green-50',
       iconColor: 'text-green-600',

@@ -1,8 +1,39 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+type InformationTopic = "privacy" | "terms" | "support";
+
+const informationContent: Record<
+  InformationTopic,
+  { title: string; items: string[] }
+> = {
+  privacy: {
+    title: "Privacy Policy",
+    items: [
+      "Safeguards confidential law enforcement and judicial documents, such as FIRs and charge sheets, processed under the National Crime Records Bureau.",
+      "Employs advanced cryptographic standards and strict role-based access control to protect sensitive case files and personally identifiable information.",
+      "Adheres to national statutory frameworks for secure data retention, handling, and eventual purging of unsealed records.",
+    ],
+  },
+  terms: {
+    title: "Terms of Use",
+    items: [
+      "Restricts platform access exclusively to authorized personnel from law enforcement agencies, courts, and investigative departments under the Ministry of Home Affairs.",
+      "Records every document interaction, view, and transfer in an immutable audit log to maintain strict legal chain-of-custody integrity.",
+      "Strictly prohibits credential sharing, unauthorized data extraction, or the export of confidential files to unencrypted personal devices.",
+    ],
+  },
+  support: {
+    title: "Help & Support",
+    items: [
+      "Provides a dedicated technical helpdesk and email channel (support-ncrb@gov.in) for resolving system errors, login issues, and upload failures.",
+      "Maintains a 24/7 Security Operations Center (SOC) escalation pathway for immediate reporting of suspected security breaches or compromised credentials.",
+    ],
+  },
+};
 
 export default function Login() {
   const router = useRouter();
@@ -17,6 +48,19 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [openInformation, setOpenInformation] =
+    useState<InformationTopic | null>(null);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenInformation(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
 
   // STEP 1 → STEP 2
   const handleNext = (e: React.FormEvent) => {
@@ -428,25 +472,80 @@ export default function Login() {
             </p>
 
             <div className="flex items-center gap-4 text-gray-300">
-              <button className="hover:text-white transition">
+              <button
+                type="button"
+                onClick={() => setOpenInformation("privacy")}
+                className="hover:text-white transition"
+              >
                 Privacy Policy
               </button>
 
               <span className="text-gray-500">|</span>
 
-              <button className="hover:text-white transition">
+              <button
+                type="button"
+                onClick={() => setOpenInformation("terms")}
+                className="hover:text-white transition"
+              >
                 Terms of Use
               </button>
 
               <span className="text-gray-500">|</span>
 
-              <button className="hover:text-white transition">
+              <button
+                type="button"
+                onClick={() => setOpenInformation("support")}
+                className="hover:text-white transition"
+              >
                 Help & Support
               </button>
             </div>
           </div>
         </footer>
       </div>
+
+      {openInformation && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-6 backdrop-blur-md"
+          role="presentation"
+          onClick={() => setOpenInformation(null)}
+        >
+          <section
+            aria-labelledby="information-modal-title"
+            aria-modal="true"
+            className="relative max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-white/70 bg-white/90 p-7 text-slate-900 shadow-2xl backdrop-blur-xl sm:p-9"
+            role="dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Close information"
+              onClick={() => setOpenInformation(null)}
+              className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xl text-slate-500 transition hover:bg-slate-200 hover:text-slate-900"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+
+            <div className="mb-6 pr-10">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                JANMITRA
+              </p>
+              <h2 id="information-modal-title" className="text-2xl font-bold">
+                {informationContent[openInformation].title}
+              </h2>
+            </div>
+
+            <ul className="space-y-4 text-sm leading-6 text-slate-600">
+              {informationContent[openInformation].items.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
