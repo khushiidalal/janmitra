@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 const LOCAL_UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'documents');
 
@@ -14,9 +15,12 @@ export async function saveUploadedFile(file: File): Promise<{
   fileName: string;
   mimeType: string;
   fileSize: number;
+  sha256: string;
 }> {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
+
+  const sha256 = crypto.createHash('sha256').update(buffer).digest('hex');
 
   const timestamp = Date.now();
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -34,7 +38,16 @@ export async function saveUploadedFile(file: File): Promise<{
     fileName: file.name,
     mimeType: file.type || 'application/octet-stream',
     fileSize: file.size,
+    sha256,
   };
+}
+
+export async function computeFileSha256(filePath: string): Promise<string> {
+  if (!fs.existsSync(filePath)) {
+    throw new Error('File not found on storage disk');
+  }
+  const buffer = await fs.promises.readFile(filePath);
+  return crypto.createHash('sha256').update(buffer).digest('hex');
 }
 
 export async function deleteUploadedFile(document: { storageKey?: string; filePath?: string }) {

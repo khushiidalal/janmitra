@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Card from '@/components/ui/Card';
+import OcrTextModal from '@/components/documents/OcrTextModal';
 
 import {
   getCases,
@@ -20,6 +21,8 @@ import {
   uploadDocument,
   deleteDocument,
   downloadDocument,
+  runDocumentOCR,
+  getMe,
 } from '@/lib/api';
 
 export default function Documents() {
@@ -31,6 +34,9 @@ export default function Documents() {
 
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [ocrRunningId, setOcrRunningId] = useState<string | null>(null);
+  const [activeOcrDoc, setActiveOcrDoc] = useState<any | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [selectedCase, setSelectedCase] = useState('');
@@ -78,7 +84,62 @@ export default function Documents() {
 
   useEffect(() => {
     loadData();
+
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        if (parsed?.role) {
+          setCurrentUserRole(parsed.role);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    getMe()
+      .then((user) => {
+        if (user?.role) {
+          setCurrentUserRole(user.role);
+          try {
+            localStorage.setItem('user', JSON.stringify(user));
+          } catch {}
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  const canEditCase =
+    !currentUserRole ||
+    [
+      'Admin',
+      'Senior Officer',
+      'Investigator',
+      'Officer',
+      'Clerk',
+    ].includes(currentUserRole || '');
+
+  const handleRunOcr = async (documentId: string) => {
+    if (!documentId) return;
+    setOcrRunningId(documentId);
+    setError('');
+    setSuccess('');
+
+    try {
+      const res = await runDocumentOCR(documentId);
+      await loadData();
+      if (res && res.document && res.ocrStatus === 'completed') {
+        setActiveOcrDoc(res.document);
+        setSuccess('Text extracted successfully via OCR.');
+      }
+    } catch (err: any) {
+      console.error('OCR error:', err);
+      setError(err?.message || 'Failed to extract text from document.');
+      await loadData();
+    } finally {
+      setOcrRunningId(null);
+    }
+  };
 
   // --------------------------------------------------
   // FILE SELECT
@@ -238,6 +299,9 @@ export default function Documents() {
         .toLowerCase()
         .includes(query) ||
       String(document.caseId || '')
+        .toLowerCase()
+        .includes(query) ||
+      String(document.ocrText || '')
         .toLowerCase()
         .includes(query)
     );
@@ -579,9 +643,32 @@ export default function Documents() {
                     {/* INFO */}
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800">
-                        {name}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-slate-800">
+                          {name}
+                        </p>
+
+                        {/* OCR Status Badge */}
+                        {document.ocrStatus === 'completed' ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            OCR: Completed
+                          </span>
+                        ) : document.ocrStatus === 'processing' || ocrRunningId === documentId ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
+                            OCR: Processing...
+                          </span>
+                        ) : document.ocrStatus === 'failed' ? (
+                          <span
+                            className="inline-flex items-center gap-1 rounded-md bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-700"
+                            title={document.ocrError || 'OCR processing failed'}
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                            OCR: Failed
+                          </span>
+                        ) : null}
+                      </div>
 
                       <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
                         <span>{type}</span>
@@ -597,6 +684,12 @@ export default function Documents() {
                             )}
                           </span>
                         ) : null}
+
+                        {document.sha256 ? (
+                          <span title={`SHA-256: ${document.sha256}`}>
+                            SHA-256: {document.sha256.slice(0, 10)}...
+                          </span>
+                        ) : null}
                       </div>
 
                       {document.description && (
@@ -608,7 +701,45 @@ export default function Documents() {
 
                     {/* ACTIONS */}
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex flex-wrap shrink-0 items-center gap-2">
+                      {/* View Extracted Text */}
+                      {document.ocrStatus === 'completed' && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveOcrDoc(document)}
+                          className="flex h-8 items-center gap-1 rounded-md bg-blue-50 px-2.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+                        >
+                          View Text
+                        </button>
+                      )}
+
+                      {/* OCR Trigger Actions for authorized roles */}
+                      {canEditCase && (
+                        <>
+                          {(!document.ocrStatus || document.ocrStatus === 'not_started') && (
+                            <button
+                              type="button"
+                              disabled={ocrRunningId === documentId}
+                              onClick={() => handleRunOcr(documentId)}
+                              className="flex h-8 items-center gap-1 rounded-md bg-indigo-50 px-2.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                            >
+                              {ocrRunningId === documentId ? 'Extracting...' : 'Extract Text'}
+                            </button>
+                          )}
+
+                          {document.ocrStatus === 'failed' && (
+                            <button
+                              type="button"
+                              disabled={ocrRunningId === documentId}
+                              onClick={() => handleRunOcr(documentId)}
+                              className="flex h-8 items-center gap-1 rounded-md bg-amber-50 px-2.5 text-xs font-medium text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+                            >
+                              {ocrRunningId === documentId ? 'Retrying...' : 'Retry OCR'}
+                            </button>
+                          )}
+                        </>
+                      )}
+
                       <button
                         onClick={() =>
                           handleDownload(
@@ -639,6 +770,37 @@ export default function Documents() {
           </div>
         )}
       </Card>
+
+      {/* OCR Text Modal */}
+      {activeOcrDoc && (
+        <OcrTextModal
+          isOpen={!!activeOcrDoc}
+          onClose={() => setActiveOcrDoc(null)}
+          documentName={activeOcrDoc.name || activeOcrDoc.fileName || 'Document'}
+          documentType={activeOcrDoc.documentType || activeOcrDoc.type}
+          ocrText={activeOcrDoc.ocrText || ''}
+          normalizedOcrText={activeOcrDoc.normalizedOcrText || activeOcrDoc.ocrText || ''}
+          ocrConfidence={activeOcrDoc.ocrConfidence}
+          ocrQuality={activeOcrDoc.ocrQuality}
+          pageCount={activeOcrDoc.pageCount}
+          ocrProcessedAt={activeOcrDoc.ocrProcessedAt}
+          sha256={activeOcrDoc.sha256}
+          canEdit={canEditCase}
+          onRerunOcr={async () => {
+            const docId = activeOcrDoc._id || activeOcrDoc.id;
+            if (docId) {
+              await handleRunOcr(docId);
+              const updatedDocs = await getDocuments();
+              const docsList = Array.isArray(updatedDocs) ? updatedDocs : (updatedDocs?.documents || []);
+              const refreshed = docsList.find((d: any) => (d._id || d.id) === docId);
+              if (refreshed) {
+                setActiveOcrDoc(refreshed);
+              }
+            }
+          }}
+          isRerunning={ocrRunningId === (activeOcrDoc._id || activeOcrDoc.id)}
+        />
+      )}
     </div>
   );
 }

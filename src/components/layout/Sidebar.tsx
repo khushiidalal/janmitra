@@ -61,6 +61,7 @@ export default function Sidebar() {
         bottom-4
         z-40
         flex
+        h-[calc(100vh-2rem)]
         w-[220px]
         flex-col
         overflow-hidden
@@ -69,6 +70,7 @@ export default function Sidebar() {
         border-blue-100
         bg-[#f7fbff]
         shadow-sm
+        select-none
       "
     >
       {/* KORA BRANDING */}
@@ -76,11 +78,12 @@ export default function Sidebar() {
         href="/dashboard"
         className="
           flex
+          shrink-0
           items-center
           gap-3
-          px-5
-          pb-4
-          pt-5
+          px-4.5
+          pb-2.5
+          pt-4
           transition
           hover:bg-blue-50/50
         "
@@ -89,8 +92,8 @@ export default function Sidebar() {
           whileHover={{ scale: 1.04 }}
           className="
             flex
-            h-12
-            w-12
+            h-11
+            w-11
             shrink-0
             items-center
             justify-center
@@ -120,10 +123,10 @@ export default function Sidebar() {
       </Link>
 
       {/* DIVIDER */}
-      <div className="mx-4 border-t border-slate-200" />
+      <div className="mx-3.5 shrink-0 border-t border-slate-200/80" />
 
       {/* NAVIGATION */}
-      <nav className="flex-1 space-y-1 px-3 py-3">
+      <nav className="shrink-0 space-y-1 px-2.5 py-2">
         {navItems.map((item) => {
           const currentPath = pathname || '';
           const isActive =
@@ -140,71 +143,77 @@ export default function Sidebar() {
               className={twMerge(
                 clsx(
                   `
+                    group
                     block
-                    rounded-md
-                    text-[12px]
+                    rounded-lg
+                    text-[14.5px]
                     font-medium
                     transition-all
                   `,
                   isActive
-                    ? 'bg-blue-600 text-white shadow-sm'
+                    ? 'bg-blue-600 text-white shadow-sm font-semibold'
                     : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
                 )
               )}
             >
               <motion.div
                 whileHover={{ x: isActive ? 0 : 3 }}
-                className="flex w-full items-center gap-3 px-3 py-2.5"
+                className="flex h-10 w-full items-center gap-2.5 px-3"
               >
                 <item.icon
                   className={clsx(
-                    'h-4 w-4 shrink-0',
-                    isActive ? 'text-white' : 'text-slate-500'
+                    'h-5 w-5 shrink-0 transition-colors',
+                    isActive ? 'text-white' : 'text-slate-500 group-hover:text-blue-600'
                   )}
                 />
 
-                <span>{item.label}</span>
+                <span className="truncate tracking-[-0.01em]">{item.label}</span>
               </motion.div>
             </Link>
           );
         })}
       </nav>
 
-      {/* COURT + TRICOLOR ILLUSTRATION */}
-      <div
-        className="relative h-[180px] w-full overflow-hidden bg-no-repeat"
-        style={{
-          backgroundImage: "url('/sidebar-tricolor.png')",
-          backgroundSize: '125% auto',
-          backgroundPosition: 'center 62%',
-        }}
-      />
+      {/* FLEXIBLE FILLER & COURT + TRICOLOR ILLUSTRATION */}
+      <div className="flex flex-1 flex-col justify-end min-h-0 overflow-hidden">
+        <div
+          className="relative w-full h-full min-h-[85px] max-h-[175px] shrink bg-no-repeat transition-all"
+          style={{
+            backgroundImage: "url('/sidebar-tricolor.png')",
+            backgroundSize: '130% auto',
+            backgroundPosition: 'center 60%',
+          }}
+        />
+      </div>
 
       {/* SYSTEM STATUS */}
-      <div className="mx-3 mb-3">
+      <div className="mx-2.5 mb-2.5 shrink-0">
         <div
           className="
             flex
             items-center
             justify-between
-            rounded-lg
+            rounded-xl
             border
-            border-slate-200
+            border-slate-200/90
             bg-white
             px-3
             py-2.5
-            shadow-sm
+            shadow-xs
           "
         >
-          <div className="flex items-start gap-2">
-            <div className="mt-1.5 h-2 w-2 rounded-full bg-green-500" />
+          <div className="flex items-center gap-2">
+            <div className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            </div>
 
             <div>
-              <p className="text-[9px] font-semibold text-slate-700">
+              <p className="text-[11.5px] font-semibold leading-tight text-slate-800">
                 System Status
               </p>
 
-              <p className="mt-0.5 text-[8px] text-slate-400">
+              <p className="mt-0.5 text-[10.5px] font-medium leading-none text-slate-500">
                 All Systems Operational
               </p>
             </div>
@@ -213,16 +222,16 @@ export default function Sidebar() {
       </div>
 
       {/* BOTTOM INDIA LINE */}
-      <div className="mx-4 mb-3">
-        <div className="flex h-[3px] overflow-hidden rounded-full">
-          <div className="flex-1 bg-orange-400" />
-          <div className="flex-1 bg-white" />
-          <div className="flex-1 bg-green-500" />
+      <div className="mx-3 mb-2.5 shrink-0">
+        <div className="flex h-[3px] overflow-hidden rounded-full shadow-xs">
+          <div className="flex-1 bg-orange-500" />
+          <div className="flex-1 bg-white border-y border-slate-200" />
+          <div className="flex-1 bg-green-600" />
         </div>
       </div>
 
       {/* SECURITY FOOTER */}
-      <div className="mx-3 mb-4 flex items-center gap-2 px-1">
+      <div className="mx-2.5 mb-3 flex shrink-0 items-center gap-2 px-1">
         <div
           className="
             flex
@@ -232,18 +241,19 @@ export default function Sidebar() {
             items-center
             justify-center
             rounded-full
-            bg-blue-100
+            bg-blue-100/90
+            text-blue-700
           "
         >
           <ShieldCheck className="h-4 w-4 text-blue-700" />
         </div>
 
-        <div>
-          <p className="text-[9px] font-semibold text-blue-700">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10.5px] font-semibold leading-tight text-blue-700">
             Justice. Integrity. Service.
           </p>
 
-          <p className="mt-0.5 text-[8px] text-slate-400">
+          <p className="mt-0.5 text-[9.5px] leading-normal text-slate-500">
             Protected. Confidential. Trusted.
           </p>
         </div>

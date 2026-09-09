@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   fullName: string;
-  role: 'Admin' | 'Senior Officer' | 'Investigator' | 'Clerk' | 'Viewer';
+  role: 'Admin' | 'Senior Officer' | 'Investigator' | 'Officer' | 'Clerk' | 'Viewer';
   dateOfBirth?: string;
   gender?: string;
   govIdType?: string;
@@ -35,7 +35,7 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ['Admin', 'Senior Officer', 'Investigator', 'Clerk', 'Viewer'],
+      enum: ['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk', 'Viewer'],
       default: 'Viewer',
       required: true,
     },

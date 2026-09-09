@@ -215,6 +215,7 @@ export function logout(): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem('token');
   localStorage.removeItem(NAME_KEY);
+  localStorage.removeItem('user');
   sessionStorage.removeItem('token');
 }
 
@@ -237,6 +238,10 @@ function persistSession(data: any): void {
       NAME_KEY,
       name
     );
+  }
+
+  if (data && data.user) {
+    localStorage.setItem('user', JSON.stringify(data.user));
   }
 }
 
@@ -496,6 +501,54 @@ export function deleteDocument(
   );
 }
 
+// ---------- OCR ----------
+
+export function runDocumentOCR(
+  id: string
+): Promise<any> {
+  return request(
+    `/documents/${encodeURIComponent(id)}/ocr`,
+    {
+      method: 'POST',
+    }
+  );
+}
+
+export function getDocumentOCR(
+  id: string
+): Promise<any> {
+  return request(
+    `/documents/${encodeURIComponent(id)}/ocr`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
+export function runCaseDocumentOCR(
+  caseId: string,
+  docId: string
+): Promise<any> {
+  return request(
+    `/cases/${encodeURIComponent(caseId)}/documents/${encodeURIComponent(docId)}/ocr`,
+    {
+      method: 'POST',
+    }
+  );
+}
+
+export function getCaseDocumentOCR(
+  caseId: string,
+  docId: string
+): Promise<any> {
+  return request(
+    `/cases/${encodeURIComponent(caseId)}/documents/${encodeURIComponent(docId)}/ocr`,
+    {
+      method: 'GET',
+    }
+  );
+}
+
 // ---------- Draft ----------
 
 export function getDraft(): Promise<any> {
@@ -516,8 +569,24 @@ export function clearDraft(): Promise<any> {
     method: 'DELETE',
   });
 }
-// ---------- Audit Trail ----------
+// ---------- Audit Trail & Security Activity ----------
 
-export function getAuditLogs(): Promise<any[]> {
-  return request('/audit');
+export function getAuditLogs(params?: {
+  type?: string;
+  limit?: number;
+  since?: string;
+  status?: string;
+}): Promise<any[]> {
+  const query = new URLSearchParams();
+  if (params?.type) query.set('type', params.type);
+  if (params?.limit) query.set('limit', params.limit.toString());
+  if (params?.since) query.set('since', params.since);
+  if (params?.status) query.set('status', params.status);
+  const qs = query.toString();
+  return request(`/audit${qs ? `?${qs}` : ''}`);
 }
+
+export function getSecurityAlerts(limit: number = 5): Promise<any[]> {
+  return getAuditLogs({ type: 'login', limit });
+}
+

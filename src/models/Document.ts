@@ -12,6 +12,9 @@ export const DOCUMENT_TYPES = [
 
 export const STORAGE_PROVIDERS = ['local', 'S3', 'GCS'] as const;
 
+export const OCR_STATUSES = ['not_started', 'processing', 'completed', 'failed'] as const;
+export type OcrStatus = typeof OCR_STATUSES[number];
+
 export interface IDocument extends MongooseDoc {
   _id: mongoose.Types.ObjectId;
   caseId: string;
@@ -25,6 +28,15 @@ export interface IDocument extends MongooseDoc {
   storageProvider: typeof STORAGE_PROVIDERS[number];
   storageKey?: string;
   filePath?: string;
+  sha256?: string;
+  ocrText?: string;
+  normalizedOcrText?: string;
+  ocrConfidence?: number;
+  ocrQuality?: 'High' | 'Medium' | 'Low';
+  pageCount?: number;
+  ocrStatus: OcrStatus;
+  ocrError?: string;
+  ocrProcessedAt?: Date;
   uploadedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -85,6 +97,43 @@ const documentSchema = new Schema<IDocument>(
     filePath: {
       type: String,
       default: '',
+    },
+    sha256: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    ocrText: {
+      type: String,
+      default: '',
+    },
+    normalizedOcrText: {
+      type: String,
+      default: '',
+    },
+    ocrConfidence: {
+      type: Number,
+    },
+    ocrQuality: {
+      type: String,
+      enum: ['High', 'Medium', 'Low'],
+    },
+    pageCount: {
+      type: Number,
+      default: 1,
+    },
+    ocrStatus: {
+      type: String,
+      enum: OCR_STATUSES,
+      default: 'not_started',
+      index: true,
+    },
+    ocrError: {
+      type: String,
+      default: '',
+    },
+    ocrProcessedAt: {
+      type: Date,
     },
     uploadedBy: {
       type: Schema.Types.ObjectId,

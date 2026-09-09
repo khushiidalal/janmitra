@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
         { fileName: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
         { caseId: { $regex: search, $options: 'i' } },
+        { ocrText: { $regex: search, $options: 'i' } },
       ];
     }
 
@@ -77,6 +78,8 @@ export async function POST(req: NextRequest) {
       storageProvider: storageMeta.storageProvider,
       storageKey: storageMeta.storageKey,
       filePath: storageMeta.filePath,
+      sha256: storageMeta.sha256,
+      ocrStatus: 'not_started',
       uploadedBy: user?._id,
     })) as any;
 

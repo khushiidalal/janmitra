@@ -34,11 +34,21 @@ const personSchema = new Schema(
 
 export interface ICaseDocument {
   id?: string;
+  _id?: any;
   name: string;
   type?: string;
   size?: string;
   dataUrl?: string;
   category?: string;
+  sha256?: string;
+  ocrText?: string;
+  normalizedOcrText?: string;
+  ocrConfidence?: number;
+  ocrQuality?: 'High' | 'Medium' | 'Low';
+  pageCount?: number;
+  ocrStatus?: 'not_started' | 'processing' | 'completed' | 'failed';
+  ocrError?: string;
+  ocrProcessedAt?: Date;
 }
 
 const documentSchema = new Schema(
@@ -48,6 +58,19 @@ const documentSchema = new Schema(
     size: { type: String, default: '' },
     dataUrl: { type: String, default: '' },
     category: { type: String, default: 'FIR Copy' },
+    sha256: { type: String, default: '' },
+    ocrText: { type: String, default: '' },
+    normalizedOcrText: { type: String, default: '' },
+    ocrConfidence: { type: Number },
+    ocrQuality: { type: String, enum: ['High', 'Medium', 'Low'] },
+    pageCount: { type: Number, default: 1 },
+    ocrStatus: {
+      type: String,
+      enum: ['not_started', 'processing', 'completed', 'failed'],
+      default: 'not_started',
+    },
+    ocrError: { type: String, default: '' },
+    ocrProcessedAt: { type: Date },
   },
   { _id: true, toJSON: subTransform }
 );

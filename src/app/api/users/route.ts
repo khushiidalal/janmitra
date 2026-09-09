@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import { getAuthenticatedUser } from '@/lib/server/auth';
 
-const VALID_ROLES = ['Admin', 'Senior Officer', 'Investigator', 'Clerk', 'Viewer'];
+const VALID_ROLES = ['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk', 'Viewer'];
 
 export async function GET(req: NextRequest) {
   try {

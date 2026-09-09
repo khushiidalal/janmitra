@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import { getCases, getDocuments } from '@/lib/api';
+import SecurityAlertsCard from '@/components/dashboard/SecurityAlertsCard';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -427,31 +428,8 @@ export default function Dashboard() {
         {/* RIGHT SIDE */}
         <div className="space-y-3">
 
-          {/* SECURITY ALERT */}
-          <Card className="rounded-xl border border-red-200 bg-red-50/30 p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-4 w-4" />
-
-              <h3 className="text-sm font-semibold">
-                Security Alerts
-              </h3>
-            </div>
-
-            <div className="rounded-lg border border-red-100 bg-white p-3">
-              <h4 className="text-xs font-semibold text-red-700">
-                Unusual Login Attempt
-              </h4>
-
-              <p className="mt-1 text-[10px] leading-4 text-slate-600">
-                Detected from a new IP address on Oct 30, 02:45 AM.
-                Review activity log.
-              </p>
-
-              <button className="mt-3 rounded-md border border-red-300 px-3 py-1.5 text-[10px] font-medium text-red-600 transition hover:bg-red-50">
-                Review Activity
-              </button>
-            </div>
-          </Card>
+          {/* REAL-TIME SECURITY ALERTS */}
+          <SecurityAlertsCard />
 
           {/* QUICK ACTION */}
           <Card className="rounded-xl border border-slate-200 p-0 shadow-sm">

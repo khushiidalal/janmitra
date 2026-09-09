@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/db';
-import User, { IUser } from '@/models/User';
+import User, { type IUser } from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'janmitra_super_secret_jwt_key_2026';
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d') as any;

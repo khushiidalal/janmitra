@@ -44,6 +44,28 @@ export async function PATCH(req: NextRequest, context: Context) {
   try {
     await connectDB();
     const user = await getAuthenticatedUser(req);
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const allowedEditRoles = [
+      'Admin',
+      'Senior Officer',
+      'Investigator',
+      'Officer',
+    ];
+
+    if (!allowedEditRoles.includes(user.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await context.params;
     const updates = await req.json();
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
-import Audit from '@/models/Audit';
 import { signToken } from '@/lib/server/auth';
+import { recordLoginSecurityEvent } from '@/lib/server/security';
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,6 +20,14 @@ export async function POST(req: NextRequest) {
     const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
     if (!user || !(await user.comparePassword(password))) {
+      // Record failed authentication security event
+      await recordLoginSecurityEvent({
+        req,
+        user: user || null,
+        attemptedEmail: normalizedEmail,
+        status: 'failed',
+      });
+
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -28,15 +36,13 @@ export async function POST(req: NextRequest) {
 
     const token = signToken(user);
 
-    try {
-      await Audit.create({
-        type: 'login',
-        text: `User ${user.fullName} logged in`,
-        accessedBy: user.fullName,
-      });
-    } catch (auditError) {
-      console.error('Login audit log error:', auditError);
-    }
+    // Record successful login security event
+    await recordLoginSecurityEvent({
+      req,
+      user,
+      attemptedEmail: normalizedEmail,
+      status: 'success',
+    });
 
     return NextResponse.json({
       success: true,

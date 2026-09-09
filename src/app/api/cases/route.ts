@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Case from '@/models/Case';
+import DocumentModel from '@/models/Document';
 import Audit from '@/models/Audit';
 import { generateCaseId, formatDisplayDate } from '@/lib/server/caseId';
 import { getAuthenticatedUser } from '@/lib/server/auth';
@@ -22,12 +23,27 @@ export async function GET(req: NextRequest) {
       filter.category = category;
     }
     if (search) {
+      let matchingDocCaseIds: string[] = [];
+      try {
+        matchingDocCaseIds = await DocumentModel.distinct('caseId', {
+          $or: [
+            { ocrText: { $regex: search, $options: 'i' } },
+            { normalizedOcrText: { $regex: search, $options: 'i' } },
+          ],
+        });
+      } catch (docErr) {
+        console.warn('Document OCR search warning:', docErr);
+      }
+
       filter.$or = [
         { title: { $regex: search, $options: 'i' } },
         { caseId: { $regex: search, $options: 'i' } },
         { location: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
         { 'people.name': { $regex: search, $options: 'i' } },
+        { 'documents.ocrText': { $regex: search, $options: 'i' } },
+        { 'documents.normalizedOcrText': { $regex: search, $options: 'i' } },
+        ...(matchingDocCaseIds.length > 0 ? [{ caseId: { $in: matchingDocCaseIds } }] : []),
       ];
     }
 
