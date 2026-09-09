@@ -47,7 +47,10 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const cases = await Case.find(filter).sort({ createdAt: -1 });
+    const includeDataUrl = searchParams.get('includeDataUrl') === 'true';
+    const projection = includeDataUrl ? {} : { 'documents.dataUrl': 0 };
+
+    const cases = await Case.find(filter, projection).sort({ createdAt: -1 });
     return NextResponse.json(cases.map((c) => c.toJSON()));
   } catch (error: any) {
     console.error('Fetch cases error:', error);

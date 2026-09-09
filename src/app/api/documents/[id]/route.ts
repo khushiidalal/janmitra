@@ -43,6 +43,13 @@ export async function PUT(req: NextRequest, context: Context) {
   try {
     await connectDB();
     const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await context.params;
     const body = await req.json();
 
@@ -93,6 +100,21 @@ export async function DELETE(req: NextRequest, context: Context) {
   try {
     await connectDB();
     const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const allowedDeleteRoles = ['Admin', 'Senior Officer', 'Investigator', 'Officer'];
+    if (!allowedDeleteRoles.includes(user.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Insufficient permissions to delete documents' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await context.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {

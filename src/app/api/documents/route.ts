@@ -48,6 +48,13 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const formData = await req.formData();
 
     const caseId = formData.get('caseId') as string;
@@ -59,6 +66,28 @@ export async function POST(req: NextRequest) {
     if (!caseId || !name || !documentType || !file) {
       return NextResponse.json(
         { success: false, error: 'caseId, name, documentType, and file are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!DOCUMENT_TYPES.includes(documentType as any)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid documentType. Must be one of: ${DOCUMENT_TYPES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: 'File size exceeds the maximum allowed limit of 25 MB' },
+        { status: 400 }
+      );
+    }
+
+    if (file.size === 0) {
+      return NextResponse.json(
+        { success: false, error: 'File is empty (0 bytes)' },
         { status: 400 }
       );
     }

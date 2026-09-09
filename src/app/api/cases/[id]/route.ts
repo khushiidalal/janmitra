@@ -121,6 +121,21 @@ export async function DELETE(req: NextRequest, context: Context) {
   try {
     await connectDB();
     const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const allowedDeleteRoles = ['Admin', 'Senior Officer', 'Investigator'];
+    if (!allowedDeleteRoles.includes(user.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Insufficient permissions to delete cases' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await context.params;
 
     const foundCase = await findCaseById(id);
