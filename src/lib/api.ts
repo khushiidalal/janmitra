@@ -124,6 +124,9 @@ export async function login(
   });
 
   persistSession(data);
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('current_officer_pwd', password);
+  }
 
   return data.user;
 }
@@ -146,13 +149,119 @@ export async function register(
   });
 
   persistSession(data);
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('current_officer_pwd', password);
+  }
 
   return data.user;
+}
+
+export function getSessionPassword(): string {
+  if (typeof window === 'undefined') return '';
+  return sessionStorage.getItem('current_officer_pwd') || '';
+}
+
+export function setSessionPassword(pwd: string): void {
+  if (typeof window === 'undefined') return;
+  sessionStorage.setItem('current_officer_pwd', pwd);
 }
 
 export async function getMe(): Promise<any> {
   const data = await request('/auth/me');
   return data.user;
+}
+
+export async function updateProfile(profileData: Record<string, any>): Promise<any> {
+  const data = await request('/auth/me', {
+    method: 'PATCH',
+    body: profileData,
+  });
+  return data.user;
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<any> {
+  const res = await request('/auth/change-password', {
+    method: 'POST',
+    body: { currentPassword, newPassword },
+  });
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('current_officer_pwd', newPassword);
+  }
+  return res;
+}
+
+export async function getSessions(): Promise<{ sessions: any[]; currentSessionId?: string }> {
+  return request('/auth/sessions');
+}
+
+export async function revokeSession(sessionId: string): Promise<any> {
+  return request(`/auth/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function revokeAllOtherSessions(): Promise<any> {
+  return request('/auth/sessions', {
+    method: 'DELETE',
+  });
+}
+
+export async function getTwoFactorStatus(): Promise<any> {
+  return request('/auth/2fa');
+}
+
+export async function toggleTwoFactor(enabled: boolean, method: string = 'sms'): Promise<any> {
+  return request('/auth/2fa', {
+    method: 'POST',
+    body: { enabled, method },
+  });
+}
+
+export async function getPreferences(): Promise<any> {
+  const data = await request('/auth/preferences');
+  return data.preferences;
+}
+
+export async function updatePreferences(preferences: {
+  language?: string;
+  textSize?: 'Small' | 'Medium' | 'Large';
+  highContrast?: boolean;
+}): Promise<any> {
+  const data = await request('/auth/preferences', {
+    method: 'PATCH',
+    body: preferences,
+  });
+  return data.preferences;
+}
+
+export async function downloadUserData(): Promise<void> {
+  const token = getToken();
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  const res = await fetch(`${BASE}/auth/export-data`, {
+    method: 'GET',
+    headers,
+  });
+  if (!res.ok) {
+    throw new Error(`Export failed (${res.status})`);
+  }
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const contentDisposition = res.headers.get('content-disposition');
+  let filename = 'janmitra-user-data.json';
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^"]+)"?/);
+    if (match && match[1]) filename = match[1];
+  }
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
 }
 
 export async function sendPhoneOTP(phone: string): Promise<any> {
@@ -573,12 +682,16 @@ export function clearDraft(): Promise<any> {
 
 export function getAuditLogs(params?: {
   type?: string;
+  category?: string;
+  caseId?: string;
   limit?: number;
   since?: string;
   status?: string;
 }): Promise<any[]> {
   const query = new URLSearchParams();
   if (params?.type) query.set('type', params.type);
+  if (params?.category) query.set('category', params.category);
+  if (params?.caseId) query.set('caseId', params.caseId);
   if (params?.limit) query.set('limit', params.limit.toString());
   if (params?.since) query.set('since', params.since);
   if (params?.status) query.set('status', params.status);
@@ -588,5 +701,9 @@ export function getAuditLogs(params?: {
 
 export function getSecurityAlerts(limit: number = 5): Promise<any[]> {
   return getAuditLogs({ type: 'login', limit });
+}
+
+export function getCaseActivities(limit: number = 10, caseId?: string): Promise<any[]> {
+  return getAuditLogs({ category: 'case', limit, ...(caseId ? { caseId } : {}) });
 }
 

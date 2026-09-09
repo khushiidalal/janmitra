@@ -476,8 +476,6 @@ export default function AuditTrail() {
                   Accessed By
                 </div>
 
-                <div className="w-8 shrink-0" />
-
               </div>
 
               {/* ACTIVITY ITEMS */}
@@ -518,37 +516,6 @@ export default function AuditTrail() {
                       <div className="w-[220px] shrink-0 text-[14px] font-medium text-gray-700">
                         {item.accessedBy}
                       </div>
-
-                      {/* THREE DOTS */}
-
-                      <button
-                        type="button"
-                        title="More options"
-                        className="ml-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100"
-                      >
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <circle
-                            cx="12"
-                            cy="5"
-                            r="1.6"
-                          />
-                          <circle
-                            cx="12"
-                            cy="12"
-                            r="1.6"
-                          />
-                          <circle
-                            cx="12"
-                            cy="19"
-                            r="1.6"
-                          />
-                        </svg>
-                      </button>
 
                     </div>
                   )

@@ -1,7 +1,5 @@
 // JANMITRA End-to-End Backend Verification Test Suite
 import 'dotenv/config';
-import fs from 'fs';
-import path from 'path';
 
 const BASE_URL = 'http://127.0.0.1:5000/api';
 

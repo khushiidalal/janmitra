@@ -109,8 +109,12 @@ export async function POST(req: NextRequest) {
     try {
       await Audit.create({
         type: 'review',
-        text: `New case ${caseId} created: "${newCase.title}"`,
+        text: `New case ${caseId} registered: "${newCase.title}"`,
         accessedBy: user?.fullName || 'System',
+        caseId,
+        userId: user?._id,
+        userEmail: user?.email,
+        userRole: user?.role,
       });
     } catch (auditErr) {
       console.error('Audit log error:', auditErr);

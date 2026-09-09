@@ -24,25 +24,54 @@ export default function TopNav() {
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const [storedName, setStoredName] = useState('Arsh Pratap Singh');
+  const [storedName, setStoredName] = useState('Officer');
   const [profilePhoto, setProfilePhoto] = useState('');
 
   useEffect(() => {
-    const name = localStorage.getItem('userName');
-    if (name) {
-      setStoredName(name);
-    }
-
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        if (typeof user.profilePhoto === 'string') {
-          setProfilePhoto(user.profilePhoto);
-        }
-      } catch {
+    const updateFromStorage = () => {
+      const name = localStorage.getItem('userName');
+      if (name) {
+        setStoredName(name);
       }
-    }
+
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (user.fullName) {
+            setStoredName(user.fullName);
+          }
+          if (typeof user.profilePhoto === 'string') {
+            setProfilePhoto(user.profilePhoto);
+          }
+        } catch {}
+      }
+    };
+
+    updateFromStorage();
+
+    const handleProfileUpdate = (event: Event) => {
+      const customEvt = event as CustomEvent<any>;
+      const user = customEvt.detail;
+      if (user) {
+        if (user.fullName) setStoredName(user.fullName);
+        if (typeof user.profilePhoto === 'string') setProfilePhoto(user.profilePhoto);
+      }
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'userName' || event.key === 'user') {
+        updateFromStorage();
+      }
+    };
+
+    window.addEventListener('janmitra:profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('janmitra:profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   const nameParts = storedName.trim().split(' ');
@@ -84,8 +113,8 @@ export default function TopNav() {
   };
 
   const handleProfileClick = () => {
-    alert(`Viewing profile for ${storedName}`);
     setIsProfileOpen(false);
+    router.push('/settings');
   };
 
   return (

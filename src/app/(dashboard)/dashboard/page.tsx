@@ -7,21 +7,19 @@ import {
   CheckCircle2,
   AlertTriangle,
   ShieldCheck,
-  Upload,
-  KeyRound,
   FileCheck2,
-  MoreVertical,
   Eye,
   UserRound,
 } from 'lucide-react';
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
-import { getCases, getDocuments } from '@/lib/api';
+import { getCases, getDocuments, getCaseActivities } from '@/lib/api';
 import SecurityAlertsCard from '@/components/dashboard/SecurityAlertsCard';
+
 
 function latestTimestamp(values: unknown[]): string | null {
   const timestamps = values
@@ -47,6 +45,71 @@ function formatTimestamp(label: string, timestamp: string | null): string {
   })}`;
 }
 
+function formatActivityDateTime(timeInput: string | Date | undefined) {
+  if (!timeInput) return { date: '—', time: '—' };
+  const d = new Date(timeInput);
+  if (Number.isNaN(d.getTime())) return { date: '—', time: '—' };
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const dateStr = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  return { date: dateStr, time: timeStr };
+}
+
+function getCaseActivityVisuals(activity: any) {
+  const text = (activity?.text || '').toLowerCase();
+  const type = activity?.type || '';
+
+  // 1. Completed / Verified / Closed
+  if (
+    text.includes('verification') ||
+    text.includes('completed') ||
+    text.includes('verified') ||
+    text.includes('closed')
+  ) {
+    return {
+      icon: CheckCircle2,
+      iconColor: 'text-green-500',
+      bg: 'bg-green-50',
+    };
+  }
+
+  // 2. Pending review / Moved status / Review
+  if (
+    text.includes('pending') ||
+    text.includes('moved') ||
+    text.includes('review') ||
+    type === 'review'
+  ) {
+    return {
+      icon: Hourglass,
+      iconColor: 'text-orange-500',
+      bg: 'bg-orange-50',
+    };
+  }
+
+  // 3. Officer / User assigned / Approval
+  if (
+    text.includes('officer') ||
+    text.includes('assigned') ||
+    text.includes('investigator') ||
+    type === 'approval'
+  ) {
+    return {
+      icon: UserRound,
+      iconColor: 'text-blue-500',
+      bg: 'bg-blue-50',
+    };
+  }
+
+  // 4. Document uploaded / OCR / default
+  return {
+    icon: FileText,
+    iconColor: 'text-blue-500',
+    bg: 'bg-blue-50',
+  };
+}
+
 export default function Dashboard() {
   const router = useRouter();
 
@@ -67,6 +130,42 @@ export default function Dashboard() {
   const [lastPendingCaseUpdate, setLastPendingCaseUpdate] = useState<string | null>(null);
   const [lastDocumentUpload, setLastDocumentUpload] = useState<string | null>(null);
   const [lastPendingDocumentUpload, setLastPendingDocumentUpload] = useState<string | null>(null);
+
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(true);
+  const [activityError, setActivityError] = useState<string | null>(null);
+  const lastActivityIdsRef = useRef<string>('');
+
+  const fetchActivities = useCallback(async () => {
+    try {
+      const data = await getCaseActivities(6);
+      if (Array.isArray(data)) {
+        const currentIds = data
+          .map((a: any) => a._id || a.id || `${a.time}-${a.text}`)
+          .join(',');
+        if (currentIds !== lastActivityIdsRef.current) {
+          lastActivityIdsRef.current = currentIds;
+          setActivities(data);
+        }
+        setActivityError(null);
+      }
+    } catch (err: any) {
+      console.error('Failed to poll case activities:', err);
+      if (err?.status === 401) {
+        setActivityError('Authentication required.');
+      } else {
+        setActivityError('Failed to load recent activities.');
+      }
+    } finally {
+      setLoadingActivities(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchActivities();
+    const intervalId = setInterval(fetchActivities, 5000);
+    return () => clearInterval(intervalId);
+  }, [fetchActivities]);
 
   useEffect(() => {
     let isMounted = true;
@@ -219,45 +318,6 @@ export default function Dashboard() {
     },
   ];
 
-  const activities = [
-    {
-      id: 1,
-      text: 'New document uploaded in FIR-2023-089',
-      date: '06/09/2026',
-      time: '11:30 PM',
-      icon: FileText,
-      iconColor: 'text-blue-500',
-      bg: 'bg-blue-50',
-    },
-    {
-      id: 2,
-      text: 'Case verification completed in FIR-2023-089',
-      date: '06/09/2026',
-      time: '11:30 PM',
-      icon: CheckCircle2,
-      iconColor: 'text-green-500',
-      bg: 'bg-green-50',
-    },
-    {
-      id: 3,
-      text: 'Case moved to pending review',
-      date: '06/09/2026',
-      time: '11:30 PM',
-      icon: Hourglass,
-      iconColor: 'text-orange-500',
-      bg: 'bg-orange-50',
-    },
-    {
-      id: 4,
-      text: 'Officer assigned to FIR-2023-089',
-      date: '06/09/2026',
-      time: '11:30 PM',
-      icon: UserRound,
-      iconColor: 'text-blue-500',
-      bg: 'bg-blue-50',
-    },
-  ];
-
   const recentCases = allCases.slice(0, 5);
 
   const fallbackCases = [
@@ -355,13 +415,12 @@ export default function Dashboard() {
               </div>
 
               <p
-                className={`mt-4 text-[11px] ${
-                  stat.changeType === 'down'
+                className={`mt-4 text-[11px] ${stat.changeType === 'down'
                     ? 'text-green-600'
                     : stat.changeType === 'alert'
-                    ? 'text-red-500'
-                    : 'text-blue-500'
-                }`}
+                      ? 'text-red-500'
+                      : 'text-blue-500'
+                  }`}
               >
                 {stat.changeType === 'up' && '↑ '}
                 {stat.changeType === 'down' && '↓ '}
@@ -393,42 +452,84 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div className="divide-y divide-slate-100">
-              {activities.map((item) => {
-                const ActivityIcon = item.icon;
-
-                return (
+            {loadingActivities && activities.length === 0 ? (
+              <div className="divide-y divide-slate-100">
+                {[1, 2, 3, 4].map((i) => (
                   <div
-                    key={item.id}
-                    className="flex items-center gap-3 px-5 py-3"
+                    key={i}
+                    className="flex animate-pulse items-center gap-3 px-5 py-3"
                   >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.bg}`}
-                    >
-                      <ActivityIcon
-                        className={`h-4 w-4 ${item.iconColor}`}
-                      />
-                    </div>
-
-                    <p className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
-                      {item.text}
-                    </p>
-
-                    <span className="hidden text-xs text-slate-500 md:block">
-                      {item.date}
-                    </span>
-
-                    <span className="hidden text-xs text-slate-500 md:block">
-                      {item.time}
-                    </span>
-
-                    <button className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
-                      <MoreVertical className="h-4 w-4" />
-                    </button>
+                    <div className="h-8 w-8 shrink-0 rounded-lg bg-slate-100" />
+                    <div className="h-4 flex-1 rounded bg-slate-100" />
+                    <div className="hidden h-3 w-16 rounded bg-slate-100 md:block" />
+                    <div className="hidden h-3 w-14 rounded bg-slate-100 md:block" />
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            ) : activityError && activities.length === 0 ? (
+              <div className="px-5 py-6 text-center text-xs text-slate-500">
+                <p>{activityError}</p>
+                <button
+                  onClick={() => fetchActivities()}
+                  className="mt-2 font-medium text-blue-600 hover:underline"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : activities.length === 0 ? (
+              <div className="px-5 py-8 text-center">
+                <FileText className="mx-auto h-7 w-7 text-slate-300" />
+                <p className="mt-2 text-xs font-medium text-slate-600">
+                  No case activities recorded yet
+                </p>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Activities will appear here when cases are registered, documents uploaded, or status updated.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {activities.map((item, idx) => {
+                  const visuals = getCaseActivityVisuals(item);
+                  const ActivityIcon = visuals.icon;
+                  const { date, time } = formatActivityDateTime(item.time);
+
+                  return (
+                    <div
+                      key={item._id || item.id || idx}
+                      className="flex items-center gap-3 px-5 py-3 transition hover:bg-slate-50/50"
+                    >
+                      <div
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${visuals.bg}`}
+                      >
+                        <ActivityIcon
+                          className={`h-4 w-4 ${visuals.iconColor}`}
+                        />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-slate-700">
+                          {item.text}
+                        </p>
+                        {item.caseId && (
+                          <p className="text-[11px] text-slate-400">
+                            {item.caseId}
+                            {item.accessedBy ? ` • by ${item.accessedBy}` : ''}
+                          </p>
+                        )}
+                      </div>
+
+                      <span className="hidden whitespace-nowrap text-xs text-slate-500 md:block">
+                        {date}
+                      </span>
+
+                      <span className="hidden whitespace-nowrap text-xs text-slate-500 md:block">
+                        {time}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </Card>
 
           {/* MY CASES */}
@@ -498,7 +599,7 @@ export default function Dashboard() {
                       </td>
 
                       <td className="px-4 py-3">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end">
                           <button
                             onClick={() =>
                               router.push(`/cases/${caseItem.id}`)
@@ -506,11 +607,6 @@ export default function Dashboard() {
                             className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-500 transition hover:bg-slate-100 hover:text-blue-600"
                           >
                             <Eye className="h-3.5 w-3.5" />
-                          </button>
-
-                          <button className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-500 transition hover:bg-slate-100"
-                          >
-                            <MoreVertical className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </td>
@@ -528,43 +624,6 @@ export default function Dashboard() {
           {/* REAL-TIME SECURITY ALERTS */}
           <SecurityAlertsCard />
 
-          {/* QUICK ACTION */}
-          <Card className="rounded-xl border border-slate-200 p-0 shadow-sm">
-            <div className="border-b border-slate-100 px-4 py-3">
-              <h3 className="text-xs font-semibold text-blue-600">
-                ⚡ Quick Action
-              </h3>
-            </div>
-
-            <div className="divide-y divide-slate-100">
-              <button
-                onClick={() => router.push('/documents')}
-                className="flex w-full items-center justify-between px-4 py-3 text-left text-xs text-slate-700 hover:bg-slate-50"
-              >
-                <span className="flex items-center gap-2">
-                  <Upload className="h-4 w-4 text-blue-500" />
-                  Upload Document
-                </span>
-                <span>›</span>
-              </button>
-
-              <button className="flex w-full items-center justify-between px-4 py-3 text-left text-xs text-slate-700 hover:bg-slate-50">
-                <span className="flex items-center gap-2">
-                  <KeyRound className="h-4 w-4 text-blue-500" />
-                  Request Access
-                </span>
-                <span>›</span>
-              </button>
-
-              <button className="flex w-full items-center justify-between px-4 py-3 text-left text-xs text-slate-700 hover:bg-slate-50">
-                <span className="flex items-center gap-2">
-                  <FileCheck2 className="h-4 w-4 text-blue-500" />
-                  Verify Document
-                </span>
-                <span>›</span>
-              </button>
-            </div>
-          </Card>
 
           {/* SYSTEM INTEGRITY */}
           <Card className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm">

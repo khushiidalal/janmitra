@@ -24,3 +24,57 @@
     font-family: inherit;
   }
 }
+
+/* Universal Typography Scaling across entire application */
+html.text-size-small {
+  font-size: 13.5px !important;
+}
+
+html.text-size-medium {
+  font-size: 15px !important;
+}
+
+html.text-size-large {
+  font-size: 17.5px !important;
+}
+
+/* Universal High Contrast Mode across entire application */
+html.high-contrast {
+  filter: contrast(125%) saturate(115%);
+}
+
+html.high-contrast body {
+  background-color: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .bg-white {
+  background-color: #ffffff !important;
+  border-color: #475569 !important;
+  box-shadow: 0 0 0 1px #475569 !important;
+}
+
+html.high-contrast .border-slate-200,
+html.high-contrast .border-slate-100,
+html.high-contrast .border-gray-200,
+html.high-contrast .border-blue-100 {
+  border-color: #64748b !important;
+}
+
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  border-color: #334155 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast aside {
+  border-color: #475569 !important;
+  background-color: #f8fafc !important;
+  box-shadow: 0 0 0 1px #64748b !important;
+}
+
+html.high-contrast header {
+  border-color: #475569 !important;
+  box-shadow: 0 1px 0 0 #475569 !important;
+}

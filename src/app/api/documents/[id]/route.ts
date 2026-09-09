@@ -80,8 +80,12 @@ export async function PUT(req: NextRequest, context: Context) {
     try {
       await Audit.create({
         type: 'document',
-        text: `Document metadata updated: "${doc.name}"`,
+        text: `Document metadata updated: "${doc.name}" in ${doc.caseId}`,
+        caseId: doc.caseId,
         accessedBy: user?.fullName || 'System',
+        userId: user?._id?.toString(),
+        userRole: user?.role,
+        userEmail: user?.email,
       });
     } catch (auditErr) {
       console.error('Audit log error:', auditErr);
@@ -138,8 +142,12 @@ export async function DELETE(req: NextRequest, context: Context) {
     try {
       await Audit.create({
         type: 'document',
-        text: `Document deleted: "${doc.name}"`,
+        text: `Document "${doc.name}" removed from ${doc.caseId}`,
+        caseId: doc.caseId,
         accessedBy: user?.fullName || 'System',
+        userId: user?._id?.toString(),
+        userRole: user?.role,
+        userEmail: user?.email,
       });
     } catch (auditErr) {
       console.error('Audit log error:', auditErr);

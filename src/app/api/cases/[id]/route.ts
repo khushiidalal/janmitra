@@ -77,6 +77,9 @@ export async function PATCH(req: NextRequest, context: Context) {
       );
     }
 
+    const oldStatus = foundCase.status;
+    const oldPeopleCount = (foundCase.people || []).length;
+
     const allowed = [
       'title',
       'incidentDate',
@@ -99,11 +102,65 @@ export async function PATCH(req: NextRequest, context: Context) {
     await foundCase.save();
 
     try {
-      await Audit.create({
-        type: 'review',
-        text: `Case ${foundCase.caseId} was updated`,
-        accessedBy: user?.fullName || 'System',
-      });
+      if (updates.status && updates.status !== oldStatus) {
+        if (updates.status === 'Closed') {
+          await Audit.create({
+            type: 'approval',
+            text: `Case verification completed in ${foundCase.caseId}`,
+            caseId: foundCase.caseId,
+            accessedBy: user?.fullName || 'System',
+            userId: user?._id?.toString(),
+            userRole: user?.role,
+            userEmail: user?.email,
+          });
+        } else if (updates.status.toLowerCase().includes('pending') || updates.status === 'Pending') {
+          await Audit.create({
+            type: 'review',
+            text: `Case moved to pending review (${foundCase.caseId})`,
+            caseId: foundCase.caseId,
+            accessedBy: user?.fullName || 'System',
+            userId: user?._id?.toString(),
+            userRole: user?.role,
+            userEmail: user?.email,
+          });
+        } else {
+          await Audit.create({
+            type: 'review',
+            text: `Case ${foundCase.caseId} moved to ${updates.status}`,
+            caseId: foundCase.caseId,
+            accessedBy: user?.fullName || 'System',
+            userId: user?._id?.toString(),
+            userRole: user?.role,
+            userEmail: user?.email,
+          });
+        }
+      }
+
+      if (
+        updates.people &&
+        Array.isArray(updates.people) &&
+        updates.people.length > oldPeopleCount
+      ) {
+        await Audit.create({
+          type: 'approval',
+          text: `Officer assigned to ${foundCase.caseId}`,
+          caseId: foundCase.caseId,
+          accessedBy: user?.fullName || 'System',
+          userId: user?._id?.toString(),
+          userRole: user?.role,
+          userEmail: user?.email,
+        });
+      } else if (!updates.status || updates.status === oldStatus) {
+        await Audit.create({
+          type: 'review',
+          text: `Case ${foundCase.caseId} was updated`,
+          caseId: foundCase.caseId,
+          accessedBy: user?.fullName || 'System',
+          userId: user?._id?.toString(),
+          userRole: user?.role,
+          userEmail: user?.email,
+        });
+      }
     } catch (auditErr) {
       console.error('Audit log error:', auditErr);
     }
@@ -152,7 +209,11 @@ export async function DELETE(req: NextRequest, context: Context) {
       await Audit.create({
         type: 'review',
         text: `Case ${foundCase.caseId} was deleted`,
+        caseId: foundCase.caseId,
         accessedBy: user?.fullName || 'System',
+        userId: user?._id?.toString(),
+        userRole: user?.role,
+        userEmail: user?.email,
       });
     } catch (auditErr) {
       console.error('Audit log error:', auditErr);

@@ -6,7 +6,6 @@ import {
   Filter,
   CalendarDays,
   Eye,
-  MoreVertical,
   Plus,
   ChevronLeft,
   ChevronRight,
@@ -283,20 +282,13 @@ export default function CaseManagement() {
                       </td>
 
                       <td className="px-5 py-3">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end">
                           <button
                             onClick={() => router.push(`/cases/${caseId}`)}
                             title="View case"
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
                           >
                             <Eye className="h-4 w-4" />
-                          </button>
-
-                          <button
-                            title="More options"
-                            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 transition hover:bg-gray-50"
-                          >
-                            <MoreVertical className="h-4 w-4" />
                           </button>
                         </div>
                       </td>

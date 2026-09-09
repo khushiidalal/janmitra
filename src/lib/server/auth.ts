@@ -6,15 +6,24 @@ import User, { type IUser } from '@/models/User';
 const JWT_SECRET = process.env.JWT_SECRET || 'janmitra_super_secret_jwt_key_2026';
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d') as any;
 
-export function signToken(user: { _id?: any; id?: any }): string {
+export interface TokenPayload {
+  id: string;
+  sessionId?: string;
+}
+
+export function signToken(user: { _id?: any; id?: any }, sessionId?: string): string {
   const id = user.id || user._id;
-  return jwt.sign({ id: id.toString() }, JWT_SECRET, {
+  const payload: TokenPayload = {
+    id: id.toString(),
+    ...(sessionId ? { sessionId } : {}),
+  };
+  return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
 }
 
-export function verifyToken(token: string): { id: string } {
-  return jwt.verify(token, JWT_SECRET) as { id: string };
+export function verifyToken(token: string): TokenPayload {
+  return jwt.verify(token, JWT_SECRET) as TokenPayload;
 }
 
 export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | null> {
@@ -32,6 +41,21 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | nu
 
     await connectDB();
     const user = await User.findById(decoded.id);
+    if (!user) return null;
+
+    // If token has a sessionId and user has tracked sessions, verify it has not been revoked
+    if (decoded.sessionId && Array.isArray(user.sessions) && user.sessions.length > 0) {
+      const activeSession = user.sessions.find((s) => s.sessionId === decoded.sessionId);
+      if (!activeSession) {
+        return null;
+      }
+      User.updateOne(
+        { _id: user._id, 'sessions.sessionId': decoded.sessionId },
+        { $set: { 'sessions.$.lastActive': new Date() } }
+      ).catch(() => {});
+    }
+
+    (user as any).currentSessionId = decoded.sessionId;
     return user;
   } catch (error) {
     console.error('Authentication error:', error);

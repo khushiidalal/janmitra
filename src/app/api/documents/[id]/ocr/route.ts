@@ -148,7 +148,11 @@ export async function POST(req: NextRequest, context: Context) {
         await Audit.create({
           type: 'document',
           text: `Document "${doc.name}" OCR completed (${ocrResult.charCount} chars, ${ocrResult.pageCount} pages, ${ocrResult.confidence}% confidence, Quality: ${ocrResult.quality}) for case ${doc.caseId}`,
+          caseId: doc.caseId,
           accessedBy: user.fullName || 'System',
+          userId: user._id?.toString(),
+          userRole: user.role,
+          userEmail: user.email,
         });
       } catch (auditErr) {
         console.error('Audit log error:', auditErr);
@@ -178,7 +182,11 @@ export async function POST(req: NextRequest, context: Context) {
         await Audit.create({
           type: 'document',
           text: `Document "${doc.name}" OCR extraction failed for case ${doc.caseId}: ${errorMsg}`,
+          caseId: doc.caseId,
           accessedBy: user.fullName || 'System',
+          userId: user._id?.toString(),
+          userRole: user.role,
+          userEmail: user.email,
         });
       } catch (auditErr) {
         console.error('Audit log error:', auditErr);

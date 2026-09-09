@@ -3,10 +3,11 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IAudit extends Document {
   _id: mongoose.Types.ObjectId;
   time: Date;
-  type: 'document' | 'review' | 'login' | 'approval' | 'registration';
+  type: 'document' | 'review' | 'login' | 'approval' | 'registration' | 'security';
   text: string;
   accessedBy: string;
   userId?: mongoose.Types.ObjectId;
+  caseId?: string;
   userEmail?: string;
   userRole?: string;
   ipAddress?: string;
@@ -30,7 +31,7 @@ const auditSchema = new Schema<IAudit>(
     },
     type: {
       type: String,
-      enum: ['document', 'review', 'login', 'approval', 'registration'],
+      enum: ['document', 'review', 'login', 'approval', 'registration', 'security'],
       required: true,
     },
     text: {
@@ -44,6 +45,12 @@ const auditSchema = new Schema<IAudit>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
+      required: false,
+    },
+    caseId: {
+      type: String,
+      trim: true,
+      index: true,
       required: false,
     },
     userEmail: {
@@ -108,6 +115,7 @@ const auditSchema = new Schema<IAudit>(
 );
 
 auditSchema.index({ type: 1, time: -1 });
+auditSchema.index({ caseId: 1, time: -1 });
 auditSchema.index({ userId: 1, type: 1, time: -1 });
 auditSchema.index({ ipAddress: 1, time: -1 });
 

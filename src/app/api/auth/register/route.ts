@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import Audit from '@/models/Audit';
 import { signToken } from '@/lib/server/auth';
+import { extractClientIp, parseUserAgent } from '@/lib/server/security';
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,6 +49,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const sessionId = crypto.randomUUID();
+    const ipAddress = extractClientIp(req);
+    const userAgent = req.headers.get('user-agent') || '';
+    const { browser, operatingSystem, deviceType } = parseUserAgent(userAgent);
+    const device = `${operatingSystem} ${deviceType} · ${browser}`;
+
+    const newSession = {
+      sessionId,
+      device,
+      browser,
+      operatingSystem,
+      deviceType,
+      ipAddress,
+      location: ipAddress === '127.0.0.1' ? 'Local / Secure Intranet' : 'Verified Location',
+      isTrusted: true,
+      createdAt: new Date(),
+      lastActive: new Date(),
+    };
+
     const user = await User.create({
       fullName: fullName.trim(),
       email: normalizedEmail,
@@ -66,6 +87,7 @@ export async function POST(req: NextRequest) {
       officialEmail: (officialEmail || normalizedEmail).trim().toLowerCase(),
       officialPhone: officialPhone?.trim() || '',
       profilePhoto: typeof profilePhoto === 'string' ? profilePhoto : '',
+      sessions: [newSession],
     });
 
     try {
@@ -73,19 +95,25 @@ export async function POST(req: NextRequest) {
         type: 'registration',
         text: `New user ${user.fullName} registered successfully`,
         accessedBy: user.fullName,
+        userId: user._id.toString(),
+        userEmail: user.email,
+        userRole: user.role,
       });
     } catch (auditError) {
       console.error('Audit log error:', auditError);
     }
 
-    const token = signToken(user);
+    const token = signToken(user, sessionId);
+
+    const userJson: any = user.toJSON();
+    userJson.currentSessionId = sessionId;
 
     return NextResponse.json(
       {
         success: true,
         message: 'Account created successfully',
         token,
-        user: user.toJSON(),
+        user: userJson,
       },
       { status: 201 }
     );

@@ -23,6 +23,8 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = req.nextUrl;
     const type = searchParams.get('type');
+    const category = searchParams.get('category');
+    const caseId = searchParams.get('caseId');
     const limitParam = searchParams.get('limit');
     const sinceParam = searchParams.get('since');
     const statusParam = searchParams.get('status');
@@ -39,8 +41,16 @@ export async function GET(req: NextRequest) {
 
     const filter: Record<string, any> = {};
 
+    if (category === 'case') {
+      filter.type = { $in: ['document', 'review', 'approval'] };
+    }
+
     if (type) {
       filter.type = type;
+    }
+
+    if (caseId) {
+      filter.caseId = caseId;
     }
 
     if (statusParam) {

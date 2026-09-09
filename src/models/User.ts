@@ -1,6 +1,25 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+export interface IUserSession {
+  sessionId: string;
+  device: string;
+  browser: string;
+  operatingSystem: string;
+  deviceType: string;
+  ipAddress: string;
+  location?: string;
+  isTrusted?: boolean;
+  createdAt: Date;
+  lastActive: Date;
+}
+
+export interface IUserPreferences {
+  language: string;
+  textSize: 'Small' | 'Medium' | 'Large';
+  highContrast: boolean;
+}
+
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   fullName: string;
@@ -21,6 +40,11 @@ export interface IUser extends Document {
   profilePhoto?: string;
   email: string;
   password?: string;
+  preferences?: IUserPreferences;
+  twoFactorEnabled?: boolean;
+  twoFactorMethod?: string;
+  twoFactorLastVerified?: Date | null;
+  sessions?: IUserSession[];
   comparePassword(candidate: string): Promise<boolean>;
   createdAt: Date;
   updatedAt: Date;
@@ -123,6 +147,37 @@ const userSchema = new Schema<IUser>(
       minlength: [8, 'Password must be at least 8 characters'],
       select: false,
     },
+    preferences: {
+      language: { type: String, default: 'English (US)' },
+      textSize: { type: String, enum: ['Small', 'Medium', 'Large'], default: 'Medium' },
+      highContrast: { type: Boolean, default: false },
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorMethod: {
+      type: String,
+      default: 'sms',
+    },
+    twoFactorLastVerified: {
+      type: Date,
+      default: null,
+    },
+    sessions: [
+      {
+        sessionId: { type: String, required: true },
+        device: { type: String, default: 'Unknown Device' },
+        browser: { type: String, default: 'Unknown' },
+        operatingSystem: { type: String, default: 'Unknown' },
+        deviceType: { type: String, default: 'Desktop' },
+        ipAddress: { type: String, default: '127.0.0.1' },
+        location: { type: String, default: 'Secure Network' },
+        isTrusted: { type: Boolean, default: true },
+        createdAt: { type: Date, default: Date.now },
+        lastActive: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );
