@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(curl -s -m 5 http://localhost:5000/api/health)",
-      "Bash(curl -s -m 5 -o /dev/null -w \"http %{http_code}\\\\n\" http://localhost:5173/)"
-    ]
-  }
-}
