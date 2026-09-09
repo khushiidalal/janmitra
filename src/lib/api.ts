@@ -150,6 +150,11 @@ export async function register(
   return data.user;
 }
 
+export async function getMe(): Promise<any> {
+  const data = await request('/auth/me');
+  return data.user;
+}
+
 export async function sendPhoneOTP(phone: string): Promise<any> {
   return request('/phone-otp/send', {
     method: 'POST',

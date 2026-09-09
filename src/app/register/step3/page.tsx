@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { register, sendEmailOTP, verifyEmailOTP } from "@/lib/api";
 import {
@@ -29,6 +29,10 @@ export default function RegistrationStep3() {
     useState<VerificationStep>(1);
 
   const [faceVerified, setFaceVerified] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
   const [biometricVerified, setBiometricVerified] = useState(false);
 
   // Password state (typed, not PIN pad — so we can satisfy 8-digit backend rule
@@ -61,15 +65,76 @@ export default function RegistrationStep3() {
     }
   }, []);
 
+  useEffect(() => {
+    return () => {
+      cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const stream = cameraStreamRef.current;
+
+    if (!cameraActive || !video || !stream) return;
+
+    video.srcObject = stream;
+    void video.play();
+  }, [cameraActive]);
+
   // ---------- helpers ----------
 
   const passwordValid = /^\d{8}$/.test(password);
   const passwordsMatch = password === confirmPassword && confirmPassword !== "";
 
-  // ---------- fake scan handlers ----------
+  // ---------- camera verification ----------
 
-  const handleFaceScan = () => {
+  const stopCamera = () => {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+    cameraStreamRef.current = null;
+    setCameraActive(false);
+  };
+
+  const handleFaceScan = async () => {
+    if (faceVerified) {
+      setVerificationStep(2);
+      return;
+    }
+
+    if (!cameraActive) {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setError("Camera access is not available in this browser.");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false,
+        });
+
+        cameraStreamRef.current = stream;
+        setError("");
+        setCameraActive(true);
+      } catch {
+        setError("Camera permission was denied or the camera is unavailable.");
+      }
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video || video.readyState < 2) {
+      setError("Camera is still starting. Please try again.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const scale = Math.min(1, 640 / video.videoWidth);
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext("2d")?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    setProfilePhoto(canvas.toDataURL("image/jpeg", 0.82));
     setFaceVerified(true);
+    stopCamera();
     setTimeout(() => setVerificationStep(2), 400);
   };
 
@@ -205,6 +270,7 @@ export default function RegistrationStep3() {
         supervisingOfficer: step2.supervisingOfficer,
         officialEmail: step2.officialEmail,
         officialPhone: step2.officialPhone,
+        profilePhoto,
       };
 
       const user = await register(fullName, email, password, extraProfile);
@@ -525,13 +591,27 @@ export default function RegistrationStep3() {
                   </div>
 
                   <div className="relative mx-auto mt-4 flex h-[205px] max-w-[280px] items-center justify-center rounded-lg border border-slate-200 bg-[#fafcff]">
-                    <div className="flex h-[170px] w-[170px] items-center justify-center overflow-hidden rounded-lg">
+                    {cameraActive ? (
+                      <video
+                        ref={videoRef}
+                        muted
+                        playsInline
+                        aria-label="Live camera preview"
+                        className="h-full w-full rounded-lg object-cover"
+                      />
+                    ) : profilePhoto ? (
+                      <img
+                        src={profilePhoto}
+                        alt="Captured facial verification"
+                        className="h-full w-full rounded-lg object-cover"
+                      />
+                    ) : (
                       <img
                         src="/face-scan.png"
                         alt="Facial verification"
                         className="h-full w-full object-contain"
                       />
-                    </div>
+                    )}
 
                     <div className="absolute left-5 top-5 h-7 w-7 border-l-2 border-t-2 border-blue-500" />
                     <div className="absolute right-5 top-5 h-7 w-7 border-r-2 border-t-2 border-blue-500" />
@@ -575,7 +655,11 @@ export default function RegistrationStep3() {
                       className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700"
                     >
                       <ScanFace size={13} />
-                      {faceVerified ? "✓ Verified" : "Start Scan"}
+                      {faceVerified
+                        ? "Verified"
+                        : cameraActive
+                        ? "Capture Photo"
+                        : "Open Camera"}
                     </button>
                   </div>
                 </div>

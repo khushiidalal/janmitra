@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
       supervisingOfficer,
       officialEmail,
       officialPhone,
+      profilePhoto,
     } = body;
 
     if (!fullName || !email || !password) {
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
       supervisingOfficer: supervisingOfficer?.trim() || '',
       officialEmail: (officialEmail || normalizedEmail).trim().toLowerCase(),
       officialPhone: officialPhone?.trim() || '',
+      profilePhoto: typeof profilePhoto === 'string' ? profilePhoto : '',
     });
 
     try {

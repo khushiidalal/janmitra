@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getMe } from "@/lib/api";
 import {
   ChevronRight,
   CircleAlert,
@@ -17,6 +18,26 @@ type SettingsSection =
   | "security"
   | "preferences"
   | "privacy";
+
+type UserProfile = {
+  fullName?: string;
+  email?: string;
+  role?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  govIdType?: string;
+  govIdNumber?: string;
+  address?: string;
+  department?: string;
+  designation?: string;
+  employeeId?: string;
+  jurisdiction?: string;
+  joiningDate?: string;
+  supervisingOfficer?: string;
+  officialEmail?: string;
+  officialPhone?: string;
+  profilePhoto?: string;
+};
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] =
@@ -154,6 +175,31 @@ export default function SettingsPage() {
 ========================================================= */
 
 function AccountInformation() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
+
+    getMe()
+      .then((currentUser) => {
+        setUser(currentUser);
+        localStorage.setItem("user", JSON.stringify(currentUser));
+        localStorage.setItem("userName", currentUser.fullName || "");
+      })
+      .catch(() => {
+        // Cached signup data remains visible when the profile request fails.
+      });
+  }, []);
+
+  const value = (field: keyof UserProfile) => user?.[field] || "Not provided";
+
   return (
     <section>
       <div className="mb-6 flex items-center gap-3 border-b border-slate-200 pb-4">
@@ -173,27 +219,44 @@ function AccountInformation() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
         <SettingItem
           label="Full Name"
-          value="Johnathan Doe"
+          value={value("fullName")}
         />
 
         <SettingItem
           label="Email Address"
-          value="joh****@example.com"
-          action="Update"
+          value={value("email")}
         />
 
         <SettingItem
           label="System Role"
-          value="Citizen / Complainant"
+          value={value("role")}
         />
 
         <SettingItem
           label="Mobile Number"
-          value="+1 (***) ***-4589"
-          action="Update"
+          value={value("officialPhone")}
+        />
+
+        <SettingItem label="Official Email" value={value("officialEmail")} />
+        <SettingItem label="Department" value={value("department")} />
+        <SettingItem label="Designation" value={value("designation")} />
+        <SettingItem label="Employee ID" value={value("employeeId")} />
+        <SettingItem label="Jurisdiction" value={value("jurisdiction")} />
+        <SettingItem label="Date of Birth" value={value("dateOfBirth")} />
+        <SettingItem label="Gender" value={value("gender")} />
+        <SettingItem label="Government ID Type" value={value("govIdType")} />
+        <SettingItem label="Government ID Number" value={value("govIdNumber")} />
+        <SettingItem label="Joining Date" value={value("joiningDate")} />
+        <SettingItem
+          label="Supervising Officer"
+          value={value("supervisingOfficer")}
+        />
+        <SettingItem label="Address" value={value("address")} />
+        <SettingItem
+          label="Profile Photo"
+          value={user?.profilePhoto ? "Captured during signup" : "Not provided"}
         />
       </div>
     </section>

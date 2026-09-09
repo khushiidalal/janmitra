@@ -18,6 +18,7 @@ export interface IUser extends Document {
   supervisingOfficer?: string;
   officialEmail?: string;
   officialPhone?: string;
+  profilePhoto?: string;
   email: string;
   password?: string;
   comparePassword(candidate: string): Promise<boolean>;
@@ -102,6 +103,10 @@ const userSchema = new Schema<IUser>(
     officialPhone: {
       type: String,
       trim: true,
+      default: '',
+    },
+    profilePhoto: {
+      type: String,
       default: '',
     },
     email: {

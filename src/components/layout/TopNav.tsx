@@ -25,11 +25,23 @@ export default function TopNav() {
   const notifRef = useRef<HTMLDivElement>(null);
 
   const [storedName, setStoredName] = useState('Arsh Pratap Singh');
+  const [profilePhoto, setProfilePhoto] = useState('');
 
   useEffect(() => {
     const name = localStorage.getItem('userName');
     if (name) {
       setStoredName(name);
+    }
+
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        if (typeof user.profilePhoto === 'string') {
+          setProfilePhoto(user.profilePhoto);
+        }
+      } catch {
+      }
     }
   }, []);
 
@@ -250,8 +262,16 @@ export default function TopNav() {
               hover:bg-slate-50
             "
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-50 text-xs font-semibold text-green-700">
-              {initials}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-green-50 text-xs font-semibold text-green-700">
+              {profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt={`${storedName} profile`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                initials
+              )}
             </div>
 
             <div className="hidden min-w-0 flex-col sm:flex">
