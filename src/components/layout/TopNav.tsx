@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Bell,
   Lock,
@@ -9,12 +11,12 @@ import {
 } from 'lucide-react';
 
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '../../lib/api';
 
 export default function TopNav() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -22,7 +24,14 @@ export default function TopNav() {
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const storedName = localStorage.getItem('userName') || 'Arsh Pratap Singh';
+  const [storedName, setStoredName] = useState('Arsh Pratap Singh');
+
+  useEffect(() => {
+    const name = localStorage.getItem('userName');
+    if (name) {
+      setStoredName(name);
+    }
+  }, []);
 
   const nameParts = storedName.trim().split(' ');
   const firstName = nameParts[0] || 'User';
@@ -59,7 +68,7 @@ export default function TopNav() {
 
   const handleSignOut = () => {
     logout();
-    navigate('/');
+    router.push('/');
   };
 
   const handleProfileClick = () => {

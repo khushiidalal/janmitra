@@ -5,13 +5,15 @@
 // from `../lib/data` to `../lib/api` and `await` the calls.
 
 const BASE = (
-  import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+  process.env.NEXT_PUBLIC_API_URL ||
+  '/api'
 ).replace(/\/$/, '');
 
 const TOKEN_KEY = 'kora_token';
 const NAME_KEY = 'userName';
 
 export function getToken(): string {
+  if (typeof window === 'undefined') return '';
   return (
     localStorage.getItem(TOKEN_KEY) ||
     localStorage.getItem('token') ||
@@ -204,6 +206,7 @@ export async function authenticate(
 }
 
 export function logout(): void {
+  if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem('token');
   localStorage.removeItem(NAME_KEY);
@@ -211,6 +214,7 @@ export function logout(): void {
 }
 
 function persistSession(data: any): void {
+  if (typeof window === 'undefined') return;
   if (data && data.token) {
     localStorage.setItem(
       TOKEN_KEY,

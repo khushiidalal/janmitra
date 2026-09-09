@@ -1,4 +1,7 @@
-import { NavLink, Link } from 'react-router-dom';
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -11,7 +14,6 @@ import {
   Settings,
   ClipboardList,
   ShieldCheck,
-
 } from 'lucide-react';
 
 const navItems = [
@@ -48,6 +50,8 @@ const navItems = [
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside
       className="
@@ -69,7 +73,7 @@ export default function Sidebar() {
     >
       {/* KORA BRANDING */}
       <Link
-        to="/dashboard"
+        href="/dashboard"
         className="
           flex
           items-center
@@ -120,12 +124,20 @@ export default function Sidebar() {
 
       {/* NAVIGATION */}
       <nav className="flex-1 space-y-1 px-3 py-3">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              twMerge(
+        {navItems.map((item) => {
+          const currentPath = pathname || '';
+          const isActive =
+            item.path === '/cases/new'
+               ? currentPath.startsWith('/cases/new')
+               : item.path === '/cases'
+               ? currentPath === '/cases' || (currentPath.startsWith('/cases/') && !currentPath.startsWith('/cases/new'))
+               : currentPath === item.path || (item.path !== '/dashboard' && currentPath.startsWith(item.path));
+
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={twMerge(
                 clsx(
                   `
                     block
@@ -138,10 +150,8 @@ export default function Sidebar() {
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
                 )
-              )
-            }
-          >
-            {({ isActive }) => (
+              )}
+            >
               <motion.div
                 whileHover={{ x: isActive ? 0 : 3 }}
                 className="flex w-full items-center gap-3 px-3 py-2.5"
@@ -155,22 +165,20 @@ export default function Sidebar() {
 
                 <span>{item.label}</span>
               </motion.div>
-            )}
-          </NavLink>
-        ))}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* COURT + TRICOLOR ILLUSTRATION */}
-{/* COURT + TRICOLOR ILLUSTRATION */}
-{/* COURT + TRICOLOR ILLUSTRATION */}
-<div
-  className="relative h-[180px] w-full overflow-hidden bg-no-repeat"
-  style={{
-    backgroundImage: "url('/sidebar-tricolor.png')",
-    backgroundSize: '125% auto',
-    backgroundPosition: 'center 62%',
-  }}
-/>
+      <div
+        className="relative h-[180px] w-full overflow-hidden bg-no-repeat"
+        style={{
+          backgroundImage: "url('/sidebar-tricolor.png')",
+          backgroundSize: '125% auto',
+          backgroundPosition: 'center 62%',
+        }}
+      />
 
       {/* SYSTEM STATUS */}
       <div className="mx-3 mb-3">
@@ -201,8 +209,6 @@ export default function Sidebar() {
               </p>
             </div>
           </div>
-
-          {/* <ChevronRight className="h-3.5 w-3.5 text-slate-400" /> */}
         </div>
       </div>
 
