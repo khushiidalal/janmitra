@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'JANMITRA - Legal Investigation System',
   description: 'JANMITRA - Legal Investigation System',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/logo.jpg',
   },
 };
 
