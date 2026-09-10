@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
+import Audit from '@/models/Audit';
 import { getAuthenticatedUser } from '@/lib/server/auth';
-import { recordAdminAction } from '@/lib/server/audit';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -51,8 +51,7 @@ export async function PATCH(req: NextRequest, context: Context) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
-    const body = await req.json();
-    const { fullName, role, department, designation, officialEmail, officialPhone } = body;
+    const { fullName, role } = await req.json();
 
     if (role !== undefined && currentUser.role !== 'Admin') {
       return NextResponse.json(
@@ -68,74 +67,23 @@ export async function PATCH(req: NextRequest, context: Context) {
       );
     }
 
-    const beforeState: Record<string, any> = {};
-    const afterState: Record<string, any> = {};
-
-    if (fullName !== undefined && user.fullName !== fullName.trim()) {
-      beforeState.fullName = user.fullName;
-      afterState.fullName = fullName.trim();
-      user.fullName = fullName.trim();
-    }
-
-    if (role !== undefined && user.role !== role) {
-      beforeState.role = user.role;
-      afterState.role = role;
-      user.role = role;
-    }
-
-    if (currentUser.role === 'Admin') {
-      if (department !== undefined && user.department !== department.trim()) {
-        beforeState.department = user.department;
-        afterState.department = department.trim();
-        user.department = department.trim();
-      }
-      if (designation !== undefined && user.designation !== designation.trim()) {
-        beforeState.designation = user.designation;
-        afterState.designation = designation.trim();
-        user.designation = designation.trim();
-      }
-      if (officialEmail !== undefined && user.officialEmail !== officialEmail.trim().toLowerCase()) {
-        beforeState.officialEmail = user.officialEmail;
-        afterState.officialEmail = officialEmail.trim().toLowerCase();
-        user.officialEmail = officialEmail.trim().toLowerCase();
-      }
-      if (officialPhone !== undefined && user.officialPhone !== officialPhone.trim()) {
-        beforeState.officialPhone = user.officialPhone;
-        afterState.officialPhone = officialPhone.trim();
-        user.officialPhone = officialPhone.trim();
-      }
-    }
+    if (fullName !== undefined) user.fullName = fullName.trim();
+    if (role !== undefined) user.role = role;
 
     await user.save();
 
-    if (Object.keys(afterState).length > 0) {
-      const isRoleChange = beforeState.role !== undefined;
-      await recordAdminAction({
-        req,
-        user: currentUser,
-        action: isRoleChange ? 'USER_ROLE_UPDATED' : 'USER_UPDATED',
-        target: `User: ${user.fullName} (${user.email})`,
-        targetId: user._id.toString(),
-        targetType: 'User',
-        type: 'admin',
-        text: isRoleChange
-          ? `Admin changed role of ${user.fullName} from "${beforeState.role}" to "${afterState.role}"`
-          : `User profile "${user.fullName}" (${user.email}) was updated`,
-        severity: isRoleChange ? 'warning' : 'info',
-        changes: {
-          before: beforeState,
-          after: afterState,
-        },
+    try {
+      await Audit.create({
+        type: 'approval',
+        text: `User "${user.fullName}" (${user.email}) was updated`,
+        accessedBy: currentUser.fullName || currentUser.email,
       });
+    } catch (auditErr) {
+      console.error('Audit log error:', auditErr);
     }
 
-    return NextResponse.json({
-      success: true,
-      data: user.toJSON(),
-      changes: Object.keys(afterState).length > 0 ? { before: beforeState, after: afterState } : null,
-    });
+    return NextResponse.json({ success: true, data: user.toJSON() });
   } catch (error: any) {
-    console.error('Update user error:', error);
     return NextResponse.json({ success: false, error: error.message || 'Failed to update user' }, { status: 500 });
   }
 }
@@ -169,27 +117,21 @@ export async function DELETE(req: NextRequest, context: Context) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
-    const { fullName, email, role, department } = user;
+    const { fullName, email } = user;
     await User.findByIdAndDelete(id);
 
-    await recordAdminAction({
-      req,
-      user: currentUser,
-      action: 'USER_DELETED',
-      target: `User: ${fullName} (${email})`,
-      targetId: id,
-      targetType: 'User',
-      type: 'admin',
-      text: `Admin deleted user account for "${fullName}" (${email}, role: ${role})`,
-      severity: 'critical',
-      changes: {
-        before: { fullName, email, role, department },
-      },
-    });
+    try {
+      await Audit.create({
+        type: 'approval',
+        text: `User "${fullName}" (${email}) was deleted`,
+        accessedBy: currentUser.fullName || currentUser.email,
+      });
+    } catch (auditErr) {
+      console.error('Audit log error:', auditErr);
+    }
 
     return NextResponse.json({ success: true, data: { message: `User "${fullName}" deleted successfully` } });
   } catch (error: any) {
-    console.error('Delete user error:', error);
     return NextResponse.json({ success: false, error: error.message || 'Failed to delete user' }, { status: 500 });
   }
 }

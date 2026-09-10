@@ -7,7 +7,6 @@ import {
   User,
   LogOut,
   CheckCircle2,
-  ShieldAlert,
 } from "lucide-react";
 
 import { useState, useRef, useEffect } from "react";
@@ -180,40 +179,6 @@ export default function TopNav() {
           <span>Session Encrypted</span>
         </motion.div>
 
-        {/* ADMIN CONSOLE ENTRY POINT (ONLY FOR AUTHORIZED ADMIN) */}
-        {userRole === "Admin" && (
-          <motion.button
-            whileHover={{ y: -1, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push("/admin")}
-            className="
-              hidden
-              items-center
-              gap-1.5
-              rounded-full
-              border
-              border-indigo-200
-              bg-indigo-50
-              px-3.5
-              py-1.5
-              text-xs
-              font-bold
-              text-indigo-700
-              shadow-xs
-              transition
-              hover:bg-indigo-100
-              hover:text-indigo-900
-              md:flex
-            "
-          >
-            <ShieldAlert className="h-3.5 w-3.5 text-indigo-600" />
-            <span>Admin Console</span>
-            <span className="rounded bg-indigo-200 px-1 py-0.2 text-[9px] font-extrabold text-indigo-800 uppercase">
-              Admin
-            </span>
-          </motion.button>
-        )}
-
         {/* NOTIFICATION */}
         <div className="relative" ref={notifRef}>
           <motion.button
@@ -378,41 +343,6 @@ export default function TopNav() {
                   shadow-xl
                 "
               >
-                {userRole === "Admin" && (
-                  <>
-                    <button
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        router.push("/admin");
-                      }}
-                      className="
-                        flex
-                        w-full
-                        items-center
-                        justify-between
-                        px-4
-                        py-2.5
-                        text-left
-                        text-sm
-                        font-semibold
-                        text-indigo-700
-                        transition
-                        hover:bg-indigo-50
-                      "
-                    >
-                      <div className="flex items-center gap-2">
-                        <ShieldAlert className="h-4 w-4 text-indigo-600" />
-                        <span>Admin Console</span>
-                      </div>
-                      <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[9px] font-extrabold text-indigo-800 uppercase">
-                        Admin
-                      </span>
-                    </button>
-
-                    <div className="my-1 h-px bg-slate-100" />
-                  </>
-                )}
-
                 <button
                   onClick={handleProfileClick}
                   className="

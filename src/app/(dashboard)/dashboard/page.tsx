@@ -137,40 +137,26 @@ export default function Dashboard() {
   const lastActivityIdsRef = useRef<string>('');
 
   const fetchActivities = useCallback(async () => {
-    let role = '';
     try {
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        role = JSON.parse(stored)?.role || '';
-      }
-    } catch {}
-
-    if (role === 'Admin') {
-      try {
-        const data = await getCaseActivities(6);
-        if (Array.isArray(data)) {
-          const currentIds = data
-            .map((a: any) => a._id || a.id || `${a.time}-${a.text}`)
-            .join(',');
-          if (currentIds !== lastActivityIdsRef.current) {
-            lastActivityIdsRef.current = currentIds;
-            setActivities(data);
-          }
-          setActivityError(null);
+      const data = await getCaseActivities(6);
+      if (Array.isArray(data)) {
+        const currentIds = data
+          .map((a: any) => a._id || a.id || `${a.time}-${a.text}`)
+          .join(',');
+        if (currentIds !== lastActivityIdsRef.current) {
+          lastActivityIdsRef.current = currentIds;
+          setActivities(data);
         }
-      } catch (err: any) {
-        if (err?.status === 401) {
-          setActivityError('Authentication required.');
-        } else if (err?.status === 403) {
-          setActivityError('Restricted to Administrator.');
-        } else {
-          setActivityError('Failed to load recent activities.');
-        }
-      } finally {
-        setLoadingActivities(false);
+        setActivityError(null);
       }
-    } else {
-      // Non-admins: do not query audit logs
+    } catch (err: any) {
+      console.error('Failed to poll case activities:', err);
+      if (err?.status === 401) {
+        setActivityError('Authentication required.');
+      } else {
+        setActivityError('Failed to load recent activities.');
+      }
+    } finally {
       setLoadingActivities(false);
     }
   }, []);
@@ -255,23 +241,6 @@ export default function Dashboard() {
             .map((currentCase) => currentCase.updatedAt),
         ])
       );
-      let role = '';
-      try {
-        const stored = localStorage.getItem('user');
-        if (stored) role = JSON.parse(stored)?.role || '';
-      } catch {}
-
-      if (role !== 'Admin' && cases.length > 0) {
-        setActivities(
-          cases.slice(0, 5).map((c: any) => ({
-            id: c.id || c.caseId,
-            text: `Case ${c.id || c.caseId}: ${c.title || 'Untitled'} (${c.status || 'Active'})`,
-            time: c.updatedAt || c.createdAt || new Date().toISOString(),
-            accessedBy: 'Assigned Officer',
-            type: 'review',
-          }))
-        );
-      }
     };
 
     const refreshWhenVisible = () => {

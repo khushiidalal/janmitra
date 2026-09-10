@@ -729,25 +729,19 @@ export function clearDraft(): Promise<any> {
 
 export function getAuditLogs(params?: {
   type?: string;
-  action?: string;
   category?: string;
   caseId?: string;
   limit?: number;
   since?: string;
   status?: string;
-  severity?: string;
-  search?: string;
 }): Promise<any[]> {
   const query = new URLSearchParams();
   if (params?.type) query.set('type', params.type);
-  if (params?.action) query.set('action', params.action);
   if (params?.category) query.set('category', params.category);
   if (params?.caseId) query.set('caseId', params.caseId);
   if (params?.limit) query.set('limit', params.limit.toString());
   if (params?.since) query.set('since', params.since);
   if (params?.status) query.set('status', params.status);
-  if (params?.severity) query.set('severity', params.severity);
-  if (params?.search) query.set('search', params.search);
   const qs = query.toString();
   return request(`/audit${qs ? `?${qs}` : ''}`);
 }
@@ -759,76 +753,4 @@ export function getSecurityAlerts(limit: number = 5): Promise<any[]> {
 export function getCaseActivities(limit: number = 10, caseId?: string): Promise<any[]> {
   return getAuditLogs({ category: 'case', limit, ...(caseId ? { caseId } : {}) });
 }
-
-// ---------- Dedicated Admin APIs ----------
-
-export async function getAdminStats(): Promise<any> {
-  return request('/admin/stats');
-}
-
-export async function getSystemSettings(): Promise<any> {
-  return request('/admin/settings');
-}
-
-export async function updateSystemSettings(payload: Record<string, any>): Promise<any> {
-  return request('/admin/settings', {
-    method: 'PUT',
-    body: payload,
-  });
-}
-
-export async function adminGetUsers(params?: {
-  role?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-}): Promise<any> {
-  const query = new URLSearchParams();
-  if (params?.role) query.set('role', params.role);
-  if (params?.search) query.set('search', params.search);
-  if (params?.page) query.set('page', params.page.toString());
-  if (params?.limit) query.set('limit', params.limit.toString());
-  const qs = query.toString();
-  return request(`/admin/users${qs ? `?${qs}` : ''}`);
-}
-
-export async function adminCreateUser(payload: {
-  fullName: string;
-  email: string;
-  password?: string;
-  role: string;
-  department?: string;
-  designation?: string;
-  officialEmail?: string;
-  officialPhone?: string;
-}): Promise<any> {
-  return request('/admin/users', {
-    method: 'POST',
-    body: payload,
-  });
-}
-
-export async function adminUpdateUser(
-  id: string,
-  payload: {
-    fullName?: string;
-    role?: string;
-    department?: string;
-    designation?: string;
-    officialEmail?: string;
-    officialPhone?: string;
-  }
-): Promise<any> {
-  return request(`/users/${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    body: payload,
-  });
-}
-
-export async function adminDeleteUser(id: string): Promise<any> {
-  return request(`/users/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-  });
-}
-
 

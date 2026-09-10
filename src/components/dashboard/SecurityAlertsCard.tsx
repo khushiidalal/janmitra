@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ShieldCheck, CheckCircle2, XCircle, Lock } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import { getSecurityAlerts } from '@/lib/api';
 
@@ -39,10 +39,12 @@ function formatRelativeTime(dateInput: string | Date | undefined): string {
   if (diffSec < 90) return '1 minute ago';
   if (diffSec < 3600) return `${Math.floor(diffSec / 60)} minutes ago`;
 
+  // Same day
   if (now.toDateString() === date.toDateString()) {
     return `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   }
 
+  // Yesterday
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   if (yesterday.toDateString() === date.toDateString()) {
@@ -54,31 +56,16 @@ function formatRelativeTime(dateInput: string | Date | undefined): string {
 
 export default function SecurityAlertsCard() {
   const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState(false);
   const [events, setEvents] = useState<SecurityEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const lastEventIdsRef = useRef<string>('');
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        const u = JSON.parse(stored);
-        setIsAdmin(u?.role === 'Admin');
-      }
-    } catch {}
-  }, []);
-
   const fetchAlerts = useCallback(async () => {
-    if (!isAdmin) {
-      setLoading(false);
-      return;
-    }
-
     try {
       const data = await getSecurityAlerts(5);
       if (Array.isArray(data)) {
+        // Compute composite IDs to detect changes without unnecessary re-renders
         const currentIds = data.map((e: any) => e.id || e._id || `${e.time}-${e.accessedBy}`).join(',');
         if (currentIds !== lastEventIdsRef.current) {
           lastEventIdsRef.current = currentIds;
@@ -87,47 +74,33 @@ export default function SecurityAlertsCard() {
         setError(null);
       }
     } catch (err: any) {
+      // Gracefully handle unauthenticated/unauthorized or network errors
       if (err?.status === 403) {
-        setError('Restricted: Security monitoring requires Administrator clearance.');
+        setError('Restricted: Security monitoring requires Officer clearance.');
       } else if (err?.status === 401) {
         setError('Authentication required.');
       } else {
+        // Retain existing events on transient errors
         console.error('Failed to poll security alerts:', err);
       }
     } finally {
       setLoading(false);
     }
-  }, [isAdmin]);
+  }, []);
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchAlerts();
-      const intervalId = setInterval(fetchAlerts, 6000);
-      return () => clearInterval(intervalId);
-    } else {
-      setLoading(false);
-    }
-  }, [isAdmin, fetchAlerts]);
+    // Initial fetch
+    fetchAlerts();
 
-  // If user is not an Admin, render standard security posture without revealing audit trail
-  if (!isAdmin) {
-    return (
-      <Card className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center gap-2 text-slate-800">
-          <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          <h3 className="text-xs font-semibold">Security Posture</h3>
-        </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-slate-600">
-          Your session is protected with end-to-end encryption, multi-factor verification, and tamper-resistant logging.
-        </p>
-        <div className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-[11px] font-medium text-emerald-800">
-          <Lock className="h-3.5 w-3.5 text-emerald-600" />
-          <span>Active Protected Environment</span>
-        </div>
-      </Card>
-    );
-  }
+    // Polling interval: 5 seconds for near-real-time updates without hammering the server
+    const intervalId = setInterval(fetchAlerts, 5000);
 
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [fetchAlerts]);
+
+  // Determine top status
   const hasUnusual = events.some((e) => e.isUnusual || e.status === 'failed' || e.severity === 'critical' || e.severity === 'warning');
 
   return (
@@ -144,10 +117,10 @@ export default function SecurityAlertsCard() {
           ) : (
             <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
           )}
-          <h3 className="text-xs font-semibold">Security Alerts (Admin)</h3>
+          <h3 className="text-sm font-semibold">Security Alerts</h3>
         </div>
 
-        {/* LIVE BADGE */}
+        {/* LIVE PULSING BADGE */}
         <div className="flex items-center gap-1.5" title="Real-time security monitoring active">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -176,7 +149,7 @@ export default function SecurityAlertsCard() {
         <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">
           <CheckCircle2 className="mx-auto h-5 w-5 text-emerald-500" />
           <p className="mt-1 text-xs font-semibold text-slate-800">All Systems Secure</p>
-          <p className="mt-0.5 text-[10px] text-slate-500">No unusual security events recorded.</p>
+          <p className="mt-0.5 text-[10px] text-slate-500">No unusual activity detected.</p>
         </div>
       )}
 
@@ -257,17 +230,17 @@ export default function SecurityAlertsCard() {
         </div>
       )}
 
-      {/* REVIEW ACTIVITY BUTTON (ONLY IN ADMIN PORTAL) */}
+      {/* REVIEW ACTIVITY BUTTON */}
       <button
         type="button"
-        onClick={() => router.push('/admin?tab=audit')}
-        className={`mt-3 w-full rounded-md border px-3 py-1.5 text-[10px] font-semibold transition active:scale-[0.99] ${
+        onClick={() => router.push('/audit-trail')}
+        className={`mt-3 w-full rounded-md border px-3 py-1.5 text-[10px] font-medium transition active:scale-[0.99] ${
           hasUnusual
             ? 'border-red-300 text-red-600 hover:bg-red-50'
-            : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50'
+            : 'border-slate-300 text-slate-700 hover:bg-slate-100'
         }`}
       >
-        Open Admin Audit Trail →
+        Review Activity Log →
       </button>
     </Card>
   );
