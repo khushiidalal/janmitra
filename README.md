@@ -278,7 +278,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ## 9. Final Presentation
 
-📁 [View document on Google Drive](https://drive.google.com/drive/folders/1smgLNGaweEUBsrMaDtDHWLvrD8ppst7Y)
+📁 [View document on Google Drive](https://drive.google.com/drive/folders/1Dzk9dJvvqN17LXLTXyQOjqNstxrNpN14?usp=drive_link)
 
 ---
 
@@ -286,7 +286,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ## Documents
 
-📁 [View document on Google Drive](https://drive.google.com/file/d/1-6Wwrfxj2JHH9Oq_ooewQqxf7cqIL60h/view?usp=sharing)
+📁 [View document on Google Drive](https://drive.google.com/drive/folders/1bqrLbHRrBqGKCheo9prhrcxnNpHqYnB4?usp=drive_link)
 
 ---
 
