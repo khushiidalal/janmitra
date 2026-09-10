@@ -9,10 +9,10 @@
 | Field             | Details                                              |
 |-------------------|------------------------------------------------------|
 | **Project Title** | JanMitra – Secure Case & Document Management         |
-| **PS ID**         | `<YOUR_PS_ID>`                                       |
-| **PS Title**      | `<YOUR_PS_TITLE>`                                    |
+| **PS ID**         | 26190                                     |
+| **PS Title**      | Secure Digital Document Management                                  |
 | **Category**      | Software                                             |
-| **Theme**         | `<YOUR_THEME>`                                       |
+| **Theme**         | Miscellaneous                                       |
 
 ---
 
@@ -45,15 +45,15 @@ Law enforcement agencies and judicial bodies handle a large volume of sensitive 
 
 | Feature | Details |
 |---|---|
-| 🔐 **Secure Authentication** | JWT login, 2FA (SMS & email OTP), forgot-password, session management (device/browser/OS/IP tracked per session) |
-| 🗂️ **Guided Case Management** | Multi-step case creation (5-step wizard), track cases as Active / Pending / Closed, attach Victims, Witnesses, Suspects |
-| 📄 **Document Vault** | Upload FIRs, investigation reports, witness statements, court orders, evidence — with SHA-256 integrity fingerprinting |
-| 🔍 **Automated OCR** | Tesseract.js & pdf-parse extract searchable text automatically; OCR quality graded High / Medium / Low with confidence metrics |
-| 🔴 **Live Security Monitoring** | Dashboard Security Alerts card polls every 5 seconds — flags failed logins, unusual access patterns, and critical severity events in real time |
-| 📋 **Immutable Audit Trail** | Logs document, review, login, approval, registration, and security events — filterable by type, case, severity, and status |
-| 👥 **Role-Based Access Control** | 6 roles (Admin → Senior Officer → Investigator → Officer → Clerk → Viewer) with per-role data visibility rules |
-| ♿ **Accessibility** | High-contrast UI, adjustable text size (Small / Medium / Large), language preferences |
-| 📊 **Dashboard & Analytics** | Case counts, recent documents, live security alerts, and activity overview |
+|  **Secure Authentication** | JWT login, 2FA (SMS & email OTP), forgot-password, session management (device/browser/OS/IP tracked per session) |
+|  **Guided Case Management** | Multi-step case creation (5-step wizard), track cases as Active / Pending / Closed, attach Victims, Witnesses, Suspects |
+|  **Document Vault** | Upload FIRs, investigation reports, witness statements, court orders, evidence — with SHA-256 integrity fingerprinting |
+|  **Automated OCR** | Tesseract.js & pdf-parse extract searchable text automatically; OCR quality graded High / Medium / Low with confidence metrics |
+|  **Live Security Monitoring** | Dashboard Security Alerts card polls every 5 seconds — flags failed logins, unusual access patterns, and critical severity events in real time |
+|  **Immutable Audit Trail** | Logs document, review, login, approval, registration, and security events — filterable by type, case, severity, and status |
+|  **Role-Based Access Control** | 6 roles (Admin → Senior Officer → Investigator → Officer → Clerk → Viewer) with per-role data visibility rules |
+|  **Accessibility** | High-contrast UI, adjustable text size (Small / Medium / Large), language preferences |
+|  **Dashboard & Analytics** | Case counts, recent documents, live security alerts, and activity overview |
 
 ---
 
@@ -406,6 +406,6 @@ The application will be available at `http://localhost:5000`.
 
 ---
 
-*Built for Smart India Hackathon 2026 — `<YOUR_TEAM_NAME>` | `<YOUR_COLLEGE_NAME>`*
+*Built for Smart India Hackathon 2026 — `Astrophage` | `Netaji Subhas University of Technology(NSUT)`*
 
 
