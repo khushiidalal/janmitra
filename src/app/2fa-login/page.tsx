@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function TwoFactorLoginPage() {
+function TwoFactorLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -142,3 +142,11 @@ export default function TwoFactorLoginPage() {
     </main>
   );
 }
+
+export default function TwoFactorLoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">Loading...</div>}>
+      <TwoFactorLoginContent />
+    </Suspense>
+  );
+}

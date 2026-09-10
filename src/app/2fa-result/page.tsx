@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -8,7 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-export default function TwoFactorResultPage() {
+function TwoFactorResultContent() {
   const searchParams = useSearchParams();
 
   const status = searchParams.get("status");
@@ -71,3 +72,11 @@ export default function TwoFactorResultPage() {
     </main>
   );
 }
+
+export default function TwoFactorResultPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">Loading...</div>}>
+      <TwoFactorResultContent />
+    </Suspense>
+  );
+}
