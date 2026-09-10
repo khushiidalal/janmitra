@@ -161,128 +161,117 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ## 8. Repository Structure
 
-```
-janmitra/
-├── README.md                             # Project documentation & SIH specifications
-├── package.json                          # Dependencies, Next.js scripts, and test runner
-├── package-lock.json                     # Deterministic dependency lockfile
-├── next.config.mjs                       # Next.js 16 configuration & external server packages
-├── tailwind.config.js                    # Tailwind CSS v4 styling & color themes
-├── tsconfig.json                         # TypeScript configuration with path aliases (@/*)
-├── vercel.json                           # Vercel deployment configuration
-├── .oxlintrc.json                        # Oxlint code quality configuration
-├── .gitignore                            # Excluded files (build cache, uploads, environment)
-├── .env.example                          # Template for environment configuration
-├── AGENTS.md                             
-├── CLAUDE.md                    
-├── test-backend-e2e.mjs                  # Automated 51-point E2E backend test suite
-│
-├── public/                               # Static UI assets & government insignia
-│   ├── bgimg.png                         # Background portal imagery
-│   ├── face-scan.png                     # Biometric / face scan graphic
-│   ├── logo.jpg                          # JanMitra emblem
-│   ├── national-emblem.png               # National emblem of India
-│   └── sidebar-tricolor.png              # Tiranga brand accent
-│
-├── uploads/                              # Local storage vault (excluded from git)
-│   └── documents/                        # Stored case evidence & uploaded PDF/image files
-│
+```janmitra/
+├── README.md # Project documentation & SIH specifications
+├── package.json # Dependencies, Next.js scripts, and test runner
+├── package-lock.json # Deterministic dependency lockfile
+├── next.config.mjs # Next.js 16 configuration & external server packages
+├── tailwind.config.js # Tailwind CSS v4 styling & color themes
+├── tsconfig.json # TypeScript configuration with path aliases (@/*)
+├── vercel.json # Vercel deployment configuration
+├── .oxlintrc.json # Oxlint code quality configuration
+├── .gitignore # Excluded files (build cache, uploads, environment)
+├── .env.example # Template for environment configuration
+├── AGENTS.md
+├── CLAUDE.md
+├── test-backend-e2e.mjs # Automated 51-point E2E backend test suite
+├── public/ # Static UI assets & government insignia
+│   ├── bgimg.png # Background portal imagery
+│   ├── face-scan.png # Biometric / face scan graphic
+│   ├── logo.jpg # JanMitra emblem
+│   ├── national-emblem.png # National emblem of India
+│   └── sidebar-tricolor.png # Tiranga brand accent
+├── uploads/ # Local storage vault (excluded from git)
+│   └── documents/ # Stored case evidence & uploaded PDF/image files
 └── src/
-    ├── index.css                         # Global CSS & Tailwind directives
-    ├── app/                              # Next.js 16 App Router
-    │   ├── layout.tsx                    # Root layout with theme & font providers
-    │   ├── page.tsx                      # Officer landing & login portal
-    │   │
-    │   ├── register/                     # 3-step officer onboarding wizard
-    │   │   ├── step1/page.tsx            # Personal details & biometric profile
-    │   │   ├── step2/page.tsx            # Official ID & government verification
-    │   │   └── step3/page.tsx            # Role selection, designation & credentials
-    │   │
-    │   ├── 2fa-login/page.tsx            # Two-factor authentication challenge
-    │   ├── 2fa-result/page.tsx           # 2FA verification confirmation
-    │   ├── forgot-password/page.tsx      # Password recovery initiation
-    │   ├── reset-password/page.tsx       # Secure token-based password reset
-    │   │
-    │   ├── (dashboard)/                  # Authenticated portal layout (Sidebar & TopNav)
-    │   │   ├── layout.tsx                # Dashboard shell with role-aware navigation
-    │   │   ├── dashboard/page.tsx        # Overview analytics, case stats & live security alerts
+    ├── index.css # Global CSS & Tailwind directives
+    ├── app/ # Next.js 16 App Router
+    │   ├── layout.tsx # Root layout with theme & font providers
+    │   ├── page.tsx # Officer landing & login portal
+    │   ├── register/ # 3-step officer onboarding wizard
+    │   │   ├── step1/page.tsx # Personal details & biometric profile
+    │   │   ├── step2/page.tsx # Official ID & government verification
+    │   │   └── step3/page.tsx # Role selection, designation & credentials
+    │   ├── 2fa-login/page.tsx # Two-factor authentication challenge
+    │   ├── 2fa-result/page.tsx # 2FA verification confirmation
+    │   ├── forgot-password/page.tsx # Password recovery initiation
+    │   ├── reset-password/page.tsx # Secure token-based password reset
+    │   ├── (dashboard)/ # Authenticated portal layout (Sidebar & TopNav)
+    │   │   ├── layout.tsx # Dashboard shell with role-aware navigation
+    │   │   ├── dashboard/page.tsx # Overview analytics, case stats & live security alerts
     │   │   ├── cases/
-    │   │   │   ├── page.tsx              # FIR Case registry with status filters & search
-    │   │   │   ├── [id]/page.tsx         # Comprehensive case dossier & attached documents
+    │   │   │   ├── page.tsx # FIR Case registry with status filters & search
+    │   │   │   ├── [id]/page.tsx # Comprehensive case dossier & attached documents
     │   │   │   └── new/
-    │   │   │       ├── page.tsx          # Wizard entry router
-    │   │   │       ├── step1/page.tsx    # Step 1: Incident & reporting officer info
-    │   │   │       ├── step2/page.tsx    # Step 2: Victims, witnesses & suspect details
-    │   │   │       ├── step4/page.tsx    # Step 4: Evidence files & initial document uploads
-    │   │   │       └── step5/page.tsx    # Step 5: Final review & formal submission
-    │   │   ├── documents/page.tsx        # Centralized digital evidence vault & OCR viewer
-    │   │   ├── audit-trail/page.tsx      # Immutable audit trail with severity & type filtering
-    │   │   ├── settings/page.tsx         # Account profile, 2FA setup, active sessions & a11y
-    │   │   ├── help/page.tsx             # System guidelines, FAQ & standard procedures
+    │   │   │       ├── page.tsx # Wizard entry router
+    │   │   │       ├── step1/page.tsx # Step 1: Incident & reporting officer info
+    │   │   │       ├── step2/page.tsx # Step 2: Victims, witnesses & suspect details
+    │   │   │       ├── step4/page.tsx # Step 4: Evidence files & initial document uploads
+    │   │   │       └── step5/page.tsx # Step 5: Final review & formal submission
+    │   │   ├── documents/page.tsx # Centralized digital evidence vault & OCR viewer
+    │   │   ├── audit-trail/page.tsx # Immutable audit trail with severity & type filtering
+    │   │   ├── settings/page.tsx # Account profile, 2FA setup, active sessions & a11y
+    │   │   ├── help/page.tsx # System guidelines, FAQ & standard procedures
     │   │   └── help-guidelines/
-    │   │       ├── filing-new-case/      # Standard Operating Procedure for FIR filing
-    │   │       └── tracking-evidence/    # Chain-of-custody tracking protocol
-    │   │
-    │   └── api/                          # Next.js Server-Side API Handlers
-    │       ├── health/route.ts           # System status & DB health probe
+    │   │       ├── filing-new-case/ # Standard Operating Procedure for FIR filing
+    │   │       └── tracking-evidence/ # Chain-of-custody tracking protocol
+    │   └── api/ # Next.js Server-Side API Handlers
+    │       ├── health/route.ts # System status & DB health probe
     │       ├── auth/
-    │       │   ├── login/route.ts        # Credential authentication & session creation
-    │       │   ├── register/route.ts     # Officer account registration with validation
-    │       │   ├── me/route.ts           # Authenticated user session verification
-    │       │   ├── 2fa/route.ts          # Two-factor verification & status updates
-    │       │   ├── change-password/      # In-portal password update
-    │       │   ├── forgot-password/      # Recovery token dispatcher
-    │       │   ├── reset-password/       # Password reset fulfillment
-    │       │   ├── preferences/route.ts  # Accessibility & language settings
-    │       │   ├── sessions/route.ts     # Active device session tracking
-    │       │   ├── sessions/[id]/        # Remote session termination
-    │       │   └── export-data/          # Officer data portability export
+    │       │   ├── login/route.ts # Credential authentication & session creation
+    │       │   ├── register/route.ts # Officer account registration with validation
+    │       │   ├── me/route.ts # Authenticated user session verification
+    │       │   ├── 2fa/route.ts # Two-factor verification & status updates
+    │       │   ├── change-password/ # In-portal password update
+    │       │   ├── forgot-password/ # Recovery token dispatcher
+    │       │   ├── reset-password/ # Password reset fulfillment
+    │       │   ├── preferences/route.ts # Accessibility & language settings
+    │       │   ├── sessions/route.ts # Active device session tracking
+    │       │   ├── sessions/[id]/ # Remote session termination
+    │       │   └── export-data/ # Officer data portability export
     │       ├── cases/
-    │       │   ├── route.ts              # Case collection CRUD & status query
-    │       │   ├── [id]/route.ts         # Single case retrieval, PATCH update & DELETE
+    │       │   ├── route.ts # Case collection CRUD & status query
+    │       │   ├── [id]/route.ts # Single case retrieval, PATCH update & DELETE
     │       │   └── [id]/documents/[docId]/ocr/route.ts # Trigger case-level document OCR
     │       ├── documents/
-    │       │   ├── route.ts              # File upload, storage & document listing
-    │       │   ├── [id]/route.ts         # Document metadata & delete
-    │       │   ├── [id]/download/        # Secure file stream download
-    │       │   └── [id]/ocr/route.ts     # Standalone document OCR extraction
-    │       ├── audit/route.ts            # Audit trail log query & filtering
+    │       │   ├── route.ts # File upload, storage & document listing
+    │       │   ├── [id]/route.ts # Document metadata & delete
+    │       │   ├── [id]/download/ # Secure file stream download
+    │       │   └── [id]/ocr/route.ts # Standalone document OCR extraction
+    │       ├── audit/route.ts # Audit trail log query & filtering
     │       ├── users/
-    │       │   ├── route.ts              # User list query
-    │       │   └── [id]/route.ts         # User role updates (Admin only) & account deletion
-    │       ├── draft/route.ts            # Case draft saving, retrieval & clearing
-    │       ├── otp/                      
-    │       └── phone-otp/              
-    │
+    │       │   ├── route.ts # User list query
+    │       │   └── [id]/route.ts # User role updates (Admin only) & account deletion
+    │       ├── draft/route.ts # Case draft saving, retrieval & clearing
+    │       ├── otp/
+    │       └── phone-otp/
     ├── components/
     │   ├── dashboard/SecurityAlertsCard.tsx # Real-time security alert monitor (5s polling)
-    │   ├── documents/OcrTextModal.tsx       # Extracted OCR text viewer & SHA-256 display
-    │   ├── layout/Sidebar.tsx               # Role-aware navigation sidebar
-    │   ├── layout/TopNav.tsx                # Header bar with user profile & quick controls
-    │   └── ui/                              # Shared UI components (Badge, Card, Stepper)
-    │
+    │   ├── documents/OcrTextModal.tsx # Extracted OCR text viewer & SHA-256 display
+    │   ├── layout/Sidebar.tsx # Role-aware navigation sidebar
+    │   ├── layout/TopNav.tsx # Header bar with user profile & quick controls
+    │   └── ui/ # Shared UI components (Badge, Card, Stepper)
     ├── lib/
-    │   ├── api.ts                        # Unified client fetch client with auth headers
-    │   ├── db.ts                         # Mongoose MongoDB cached connection singleton
-    │   ├── preferences.ts                # Accessibility settings state
-    │   ├── useDraft.ts                   # Autosaving draft React hook
-    │   └── server/                       # Server-only services (Node.js runtime)
-    │       ├── auth.ts                   # JWT signing, verification & cookie extraction
-    │       ├── caseId.ts                 # Sequential FIR Case ID generator (FIR-YYYY-XXX)
-    │       ├── mailer.ts                 # Nodemailer & Resend OTP dispatcher
-    │       ├── ocr.ts                    # Tesseract.js & pdf-parse dual-engine pipeline
-    │       ├── security.ts               # IP extraction, User-Agent parser & unusual login heuristics
-    │       └── storage.ts                # Disk persistence & SHA-256 hash calculator
-    │
-    └── models/                           # Mongoose Data Schemas
-        ├── User.ts                       # 6 user roles, credentials, sessions, preferences
-        ├── Case.ts                       # FIR case schema, victims, witnesses, suspects, docs
-        ├── Document.ts                   # Document metadata, SHA-256 hash, OCR results & quality
-        ├── Audit.ts                      # Non-repudiation log, severity, IP, device, isUnusual
-        ├── Draft.ts                      # Temporary in-progress FIR case drafts
-        ├── EmailOTP.ts                   
-        ├── TwoFactorToken.ts             # 2FA verification tokens
-        └── PasswordResetToken.ts         # Secure password recovery tokens
+    │   ├── api.ts # Unified client fetch client with auth headers
+    │   ├── db.ts # Mongoose MongoDB cached connection singleton
+    │   ├── preferences.ts # Accessibility settings state
+    │   ├── useDraft.ts # Autosaving draft React hook
+    │   └── server/ # Server-only services (Node.js runtime)
+    │       ├── auth.ts # JWT signing, verification & cookie extraction
+    │       ├── caseId.ts # Sequential FIR Case ID generator (FIR-YYYY-XXX)
+    │       ├── mailer.ts # Nodemailer & Resend OTP dispatcher
+    │       ├── ocr.ts # Tesseract.js & pdf-parse dual-engine pipeline
+    │       ├── security.ts # IP extraction, User-Agent parser & unusual login heuristics
+    │       └── storage.ts # Disk persistence & SHA-256 hash calculator
+    └── models/ # Mongoose Data Schemas
+        ├── User.ts # 6 user roles, credentials, sessions, preferences
+        ├── Case.ts # FIR case schema, victims, witnesses, suspects, docs
+        ├── Document.ts # Document metadata, SHA-256 hash, OCR results & quality
+        ├── Audit.ts # Non-repudiation log, severity, IP, device, isUnusual
+        ├── Draft.ts # Temporary in-progress FIR case drafts
+        ├── EmailOTP.ts
+        ├── TwoFactorToken.ts # 2FA verification tokens
+        └── PasswordResetToken.ts # Secure password recovery tokens
 ```
 
 ---
