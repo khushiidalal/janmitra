@@ -26,3 +26,8 @@ out
 *.sw?
 .env
 *.traineddata
+*.tsbuildinfo
+
+uploads/
+
+
