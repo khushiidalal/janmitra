@@ -306,13 +306,15 @@ janmitra/
 
 ## 9. Final Presentation
 
-
+📁 [View document on Google Drive](https://drive.google.com/drive/folders/1smgLNGaweEUBsrMaDtDHWLvrD8ppst7Y)
 
 ---
 
 ## 10. Demo Video
 
+## Documents
 
+📁 [View document on Google Drive](https://drive.google.com/drive/folders/1smgLNGaweEUBsrMaDtDHWLvrD8ppst7Y)
 
 ---
 
