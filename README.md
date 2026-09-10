@@ -338,7 +338,7 @@ Recommended screenshots to include:
 
 ```bash
 # Clone the repository
-git clone <YOUR_REPOSITORY_URL>
+git clone <https://github.com/khushiidalal/janmitra>
 
 
 # Install dependencies
@@ -359,7 +359,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=<your_email>
 SMTP_PASS=<your_app_password>
-APP_URL=http://localhost:5000
+APP_URL=http:https://janmitra-pbbl.vercel.app/
 ```
 
 > **Warning:** Never commit your `.env` file or credentials to the repository. It is already included in `.gitignore`.
