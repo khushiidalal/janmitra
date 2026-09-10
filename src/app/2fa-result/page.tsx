@@ -11,7 +11,6 @@ import {
 
 function TwoFactorResultContent() {
   const searchParams = useSearchParams();
-
   const status = searchParams.get("status");
 
   const success = status === "success";
@@ -37,7 +36,6 @@ function TwoFactorResultContent() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-
         <div className="mb-5 flex justify-center">
           {success ? (
             <CheckCircle2 className="h-14 w-14 text-emerald-600" />
@@ -73,10 +71,22 @@ function TwoFactorResultContent() {
   );
 }
 
+function TwoFactorResultLoading() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <p className="text-sm text-slate-600">
+          Loading verification result...
+        </p>
+      </div>
+    </main>
+  );
+}
+
 export default function TwoFactorResultPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">Loading...</div>}>
+    <Suspense fallback={<TwoFactorResultLoading />}>
       <TwoFactorResultContent />
     </Suspense>
   );
-}
+}

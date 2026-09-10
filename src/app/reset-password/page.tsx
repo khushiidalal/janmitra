@@ -50,7 +50,9 @@ function ResetPasswordContent() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Unable to reset password.");
+        throw new Error(
+          data.message || "Unable to reset password."
+        );
       }
 
       setSuccess(true);
@@ -65,7 +67,6 @@ function ResetPasswordContent() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-
         <h1 className="text-2xl font-bold text-gray-900">
           Reset Password
         </h1>
@@ -76,7 +77,6 @@ function ResetPasswordContent() {
 
         {!success ? (
           <form onSubmit={handleReset}>
-
             <label className="block mb-2 text-sm font-medium">
               New Password
             </label>
@@ -110,7 +110,6 @@ function ResetPasswordContent() {
             >
               {loading ? "Resetting..." : "Reset Password"}
             </button>
-
           </form>
         ) : (
           <Link
@@ -132,7 +131,18 @@ function ResetPasswordContent() {
             {message}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
 
+function ResetPasswordLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
+        <p className="text-center text-sm text-gray-500">
+          Loading password reset...
+        </p>
       </div>
     </div>
   );
@@ -140,8 +150,8 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-gray-100 text-gray-500">Loading...</div>}>
+    <Suspense fallback={<ResetPasswordLoading />}>
       <ResetPasswordContent />
     </Suspense>
   );
-}
+}

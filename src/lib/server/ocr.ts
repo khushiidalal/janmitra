@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { pathToFileURL } from 'url';
 import { createWorker, type Worker } from 'tesseract.js';
 import { PDFParse } from 'pdf-parse';
 import sharp from 'sharp';
@@ -25,50 +24,6 @@ const SUPPORTED_IMAGE_MIMES = [
 ];
 
 const SUPPORTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff', '.pdf'];
-
-let isWorkerConfigured = false;
-
-
-function ensurePdfWorkerConfigured(): void {
-  if (isWorkerConfigured) return;
-  try {
-    const cwd = process.cwd();
-    const candidatePaths = [
-      path.join(cwd, 'node_modules', 'pdfjs-dist', 'legacy', 'build', 'pdf.worker.mjs'),
-      path.join(cwd, 'node_modules', 'pdf-parse', 'dist', 'pdf-parse', 'esm', 'pdf.worker.mjs'),
-      path.join(cwd, 'node_modules', 'pdfjs-dist', 'build', 'pdf.worker.mjs'),
-      path.join(cwd, 'node_modules', 'pdf-parse', 'dist', 'worker', 'pdf.worker.mjs'),
-    ];
-
-    for (const candidate of candidatePaths) {
-      if (fs.existsSync( candidate)) {
-        const fileUrl = pathToFileURL(candidate).href;
-        PDFParse.setWorker(fileUrl);
-        isWorkerConfigured = true;
-
-        
-        const targetDirs = [
-          path.join(cwd, '.next', 'dev', 'server', 'chunks'),
-          path.join(cwd, '.next', 'server', 'chunks'),
-        ];
-        for (const dir of targetDirs) {
-          try {
-            if (fs.existsSync( dir)) {
-              const dest = path.join(dir, 'pdf.worker.mjs');
-              if (!fs.existsSync( dest)) {
-                fs.copyFileSync(candidate, dest);
-              }
-            }
-          } catch {}
-        }
-        return;
-      }
-    }
-  } catch (err) {
-    console.warn('Could not set custom PDF worker path:', err);
-  }
-}
-
 
 export function isOcrSupported(mimeType: string, fileName = ''): boolean {
   const normalizedMime = (mimeType || '').toLowerCase();
@@ -232,8 +187,6 @@ export async function extractTextFromPdf(input: string | Buffer): Promise<{
   pageCount: number;
 }> {
   const buffer = typeof input === 'string' ? await fs.promises.readFile(input) : input;
-  ensurePdfWorkerConfigured();
-
   let parser: PDFParse | null = null;
   try {
     parser = new PDFParse({ data: buffer });
