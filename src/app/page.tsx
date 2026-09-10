@@ -77,61 +77,104 @@ export default function Login() {
   };
 
   // STEP 2 → SIGN IN
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleSignIn = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    setError("");
+  setError("");
 
-    if (!username.trim()) {
-      setError("Please enter your username.");
+  if (!username.trim()) {
+    setError("Please enter your username.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.message ||
+        "Invalid email or password."
+      );
+    }
+
+    // ==========================================
+    // 2FA ENABLED
+    // Login abhi complete nahi hua
+    // ==========================================
+    if (data.requiresTwoFactor) {
+      setError(
+        data.message ||
+        "Verification link sent to your registered email. Please check your email to complete login."
+      );
+
       return;
     }
 
-    setLoading(true);
+    // ==========================================
+    // 2FA DISABLED
+    // Normal login
+    // ==========================================
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    const user = data.user;
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid email or password.");
-      }
-
-      const user = data.user;
-      if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
-      }
-
-      if (rememberMe) {
-        localStorage.setItem("kora_token", data.token);
-        localStorage.setItem("token", data.token);
-        sessionStorage.removeItem("token");
-      } else {
-        localStorage.removeItem("kora_token");
-        localStorage.removeItem("token");
-        sessionStorage.setItem("token", data.token);
-      }
-
-      localStorage.setItem("userName", username.trim());
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(
-        err.message || "Unable to connect to the server. Please try again.",
+    if (user) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify(user)
       );
-    } finally {
-      setLoading(false);
     }
-  };
+
+    if (rememberMe) {
+      localStorage.setItem(
+        "kora_token",
+        data.token
+      );
+
+      localStorage.setItem(
+        "token",
+        data.token
+      );
+
+      sessionStorage.removeItem("token");
+    } else {
+      localStorage.removeItem("kora_token");
+      localStorage.removeItem("token");
+
+      sessionStorage.setItem(
+        "token",
+        data.token
+      );
+    }
+
+    localStorage.setItem(
+      "userName",
+      username.trim()
+    );
+
+    router.push("/dashboard");
+  } catch (err: any) {
+    setError(
+      err.message ||
+      "Unable to connect to the server. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gray-900">
@@ -351,12 +394,12 @@ export default function Login() {
                         </span>
                       </label>
 
-                      <button
-                        type="button"
+                      <Link
+                         href="/forgot-password"
                         className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
                       >
                         Forgot Password?
-                      </button>
+                      </Link>
                     </div>
 
                     {/* NEXT */}

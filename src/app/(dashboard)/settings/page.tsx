@@ -10,6 +10,7 @@ import {
   revokeAllOtherSessions,
   getTwoFactorStatus,
   toggleTwoFactor,
+  sendTwoFactorVerificationLink,
   updatePreferences,
   downloadUserData,
   getSessionPassword,
@@ -786,26 +787,44 @@ function SecuritySettings({
   };
 
   // Toggle 2FA
-  const handleToggleTwoFa = async () => {
-    setTwoFaLoading(true);
-    setTwoFaMessage(null);
-    try {
-      const nextState = !twoFaEnabled;
-      const res = await toggleTwoFactor(nextState, "sms");
-      setTwoFaEnabled(res.twoFactorEnabled);
-      setTwoFaMessage(
-        res.twoFactorEnabled
-          ? "Two-Factor Authentication is now ENABLED."
-          : "Two-Factor Authentication is now DISABLED."
+ const handleToggleTwoFa = async () => {
+  setTwoFaLoading(true);
+  setTwoFaMessage(null);
+
+  try {
+    if (twoFaEnabled) {
+      const res = await toggleTwoFactor(
+        false,
+        "email-link"
       );
-      onRefreshUser();
-      setTimeout(() => setTwoFaMessage(null), 3000);
-    } catch (err: any) {
-      setTwoFaMessage(err.message || "Failed to update 2FA status");
-    } finally {
-      setTwoFaLoading(false);
+
+      setTwoFaEnabled(false);
+
+      setTwoFaMessage(
+        res.message ||
+          "Two-Factor Authentication is now DISABLED."
+      );
+
+      await onRefreshUser();
+      return;
     }
-  };
+
+    const res =
+      await sendTwoFactorVerificationLink();
+
+    setTwoFaMessage(
+      res.message ||
+        "Verification link sent. Please check your registered email."
+    );
+  } catch (err: any) {
+    setTwoFaMessage(
+      err.message ||
+        "Failed to update 2FA."
+    );
+  } finally {
+    setTwoFaLoading(false);
+  }
+};
 
   // Revoke specific session
   const handleRevokeSession = async (sessionId: string) => {

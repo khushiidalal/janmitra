@@ -123,12 +123,30 @@ export async function login(
     },
   });
 
-  persistSession(data);
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('current_officer_pwd', password);
+  // 2FA enabled - login abhi complete nahi hua
+  if (data?.requiresTwoFactor) {
+    return {
+      requiresTwoFactor: true,
+      message:
+        data.message ||
+        'Verification link sent to your registered email.',
+    };
   }
 
-  return data.user;
+  // 2FA disabled - normal login
+  persistSession(data);
+
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem(
+      'current_officer_pwd',
+      password
+    );
+  }
+
+  return {
+    requiresTwoFactor: false,
+    user: data.user,
+  };
 }
 
 export async function register(
@@ -210,10 +228,20 @@ export async function getTwoFactorStatus(): Promise<any> {
   return request('/auth/2fa');
 }
 
-export async function toggleTwoFactor(enabled: boolean, method: string = 'sms'): Promise<any> {
+export async function toggleTwoFactor(
+  enabled: boolean,
+  method: string = 'email-link'
+): Promise<any> {
   return request('/auth/2fa', {
     method: 'POST',
     body: { enabled, method },
+  });
+}
+
+// EMAIL LINK SE 2FA ENABLE KARNE KE LIYE
+export async function sendTwoFactorVerificationLink(): Promise<any> {
+  return request('/auth/2fa/send-link', {
+    method: 'POST',
   });
 }
 
