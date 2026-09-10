@@ -289,7 +289,7 @@ janmitra/
 
 ## 9. Final Presentation
 
-📁 [View document on Google Drive](https://drive.google.com/drive/folders/1smgLNGaweEUBsrMaDtDHWLvrD8ppst7Y)
+📁 [View document on Google Drive](https://drive.google.com/file/d/1g1Wihrz8xHPXfilz6JD0cqxvTSIU82lg/view?usp=drive_link)
 
 ---
 
@@ -297,7 +297,7 @@ janmitra/
 
 ## Documents
 
-📁 [View document on Google Drive](https://drive.google.com/drive/folders/1smgLNGaweEUBsrMaDtDHWLvrD8ppst7Y)
+📁 [View document on Google Drive](https://drive.google.com/file/d/1g1Wihrz8xHPXfilz6JD0cqxvTSIU82lg/view?usp=drive_link)
 
 ---
 
