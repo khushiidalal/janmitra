@@ -383,7 +383,7 @@ npm run build
 npm run start
 ```
 
-The application will be available at `http://localhost:5000`.
+The application will be available at `https://janmitra-pbbl.vercel.app/`.
 
 ---
 
