@@ -27,12 +27,20 @@ export function verifyToken(token: string): TokenPayload {
 }
 
 export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | null> {
+  let token: string | undefined;
+
   const authHeader = req.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
   }
 
-  const token = authHeader.split(' ')[1];
+  // Fallback to cookies if Bearer header is not present
+  if (!token) {
+    token = req.cookies.get('token')?.value ||
+            req.cookies.get('kora_token')?.value ||
+            req.cookies.get('auth_token')?.value;
+  }
+
   if (!token) return null;
 
   try {

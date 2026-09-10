@@ -46,15 +46,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Prefer official email; fall back to account email.
-    const verificationEmail =
-      user.officialEmail?.trim() || user.email;
+    // Use the authenticated user's registered account email specifically
+    const verificationEmail = user.email?.trim().toLowerCase();
 
     if (!verificationEmail) {
       return NextResponse.json(
         {
           success: false,
-          error: "No email address is registered for this account.",
+          error: "No registered account email found for this user.",
         },
         { status: 400 }
       );
@@ -83,15 +82,18 @@ export async function POST(req: NextRequest) {
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
     });
 
-    const appUrl =
-      process.env.APP_URL || "http://localhost:3000";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || (req.url.startsWith("https") ? "https" : "http");
+    const requestOrigin = host ? `${proto}://${host}` : req.nextUrl.origin;
+    const appUrl = (process.env.APP_URL || requestOrigin || "http://localhost:5000").replace(/\/$/, "");
 
     const verificationLink =
       `${appUrl}/api/auth/2fa/verify-link?token=${encodeURIComponent(token)}`;
 
     const transporter = getMailer();
+    console.log("2FA recipient:", verificationEmail);
 
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"JANMITRA Security" <${process.env.SMTP_USER}>`,
       to: verificationEmail,
 
@@ -160,6 +162,22 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+
+    console.log("MAIL ACCEPTED:", info.accepted);
+    console.log("MAIL REJECTED:", info.rejected);
+    console.log("MAIL RESPONSE:", info.response);
+
+    const isAccepted = Array.isArray(info.accepted) && info.accepted.length > 0;
+    if (!isAccepted) {
+      console.error("2FA email delivery was not accepted by the SMTP server:", info.response);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Verification email was not accepted for delivery by the mail server.",
+        },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

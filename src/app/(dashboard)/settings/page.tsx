@@ -718,6 +718,7 @@ function SecuritySettings({
   const [twoFaEnabled, setTwoFaEnabled] = useState(user?.twoFactorEnabled ?? false);
   const [twoFaLoading, setTwoFaLoading] = useState(false);
   const [twoFaMessage, setTwoFaMessage] = useState<string | null>(null);
+  const [twoFaError, setTwoFaError] = useState(false);
 
   // Sessions state
   const [sessions, setSessions] = useState<SessionItem[]>([]);
@@ -787,44 +788,56 @@ function SecuritySettings({
   };
 
   // Toggle 2FA
- const handleToggleTwoFa = async () => {
-  setTwoFaLoading(true);
-  setTwoFaMessage(null);
+  const handleToggleTwoFa = async () => {
+    setTwoFaLoading(true);
+    setTwoFaMessage(null);
+    setTwoFaError(false);
 
-  try {
-    if (twoFaEnabled) {
-      const res = await toggleTwoFactor(
-        false,
-        "email-link"
-      );
+    try {
+      if (twoFaEnabled) {
+        const res = await toggleTwoFactor(
+          false,
+          "email-link"
+        );
 
-      setTwoFaEnabled(false);
+        if (res && res.success === false) {
+          throw new Error(res.error || res.message || "Failed to disable 2FA.");
+        }
 
+        setTwoFaEnabled(false);
+        setTwoFaError(false);
+
+        setTwoFaMessage(
+          res?.message ||
+            "Two-Factor Authentication is now DISABLED."
+        );
+
+        await onRefreshUser();
+        return;
+      }
+
+      const res =
+        await sendTwoFactorVerificationLink();
+
+      if (res && res.success === false) {
+        throw new Error(res.error || res.message || "Failed to send verification link.");
+      }
+
+      setTwoFaError(false);
       setTwoFaMessage(
-        res.message ||
-          "Two-Factor Authentication is now DISABLED."
+        res?.message ||
+          "Verification link sent. Please check your registered email."
       );
-
-      await onRefreshUser();
-      return;
+    } catch (err: any) {
+      setTwoFaError(true);
+      setTwoFaMessage(
+        err.message ||
+          "Failed to update 2FA."
+      );
+    } finally {
+      setTwoFaLoading(false);
     }
-
-    const res =
-      await sendTwoFactorVerificationLink();
-
-    setTwoFaMessage(
-      res.message ||
-        "Verification link sent. Please check your registered email."
-    );
-  } catch (err: any) {
-    setTwoFaMessage(
-      err.message ||
-        "Failed to update 2FA."
-    );
-  } finally {
-    setTwoFaLoading(false);
-  }
-};
+  };
 
   // Revoke specific session
   const handleRevokeSession = async (sessionId: string) => {
@@ -990,9 +1003,15 @@ function SecuritySettings({
           </div>
 
           {twoFaMessage && (
-            <p className="mt-2 text-xs font-medium text-blue-600 animate-fade-in">
+            <div
+              className={`mt-3 rounded-lg border px-3 py-2 text-xs font-medium animate-fade-in ${
+                twoFaError
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-800"
+              }`}
+            >
               {twoFaMessage}
-            </p>
+            </div>
           )}
         </SettingCard>
       </div>

@@ -12,8 +12,10 @@ export async function GET(req: NextRequest) {
     const token =
       req.nextUrl.searchParams.get("token");
 
-    const appUrl =
-      process.env.APP_URL || "http://localhost:3000";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || (req.url.startsWith("https") ? "https" : "http");
+    const requestOrigin = host ? `${proto}://${host}` : req.nextUrl.origin;
+    const appUrl = (process.env.APP_URL || requestOrigin || "http://localhost:5000").replace(/\/$/, "");
 
     if (!token) {
       return NextResponse.redirect(
@@ -75,9 +77,10 @@ export async function GET(req: NextRequest) {
       error
     );
 
-    const appUrl =
-      process.env.APP_URL ||
-      "http://localhost:3000";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || (req.url.startsWith("https") ? "https" : "http");
+    const requestOrigin = host ? `${proto}://${host}` : req.nextUrl.origin;
+    const appUrl = (process.env.APP_URL || requestOrigin || "http://localhost:5000").replace(/\/$/, "");
 
     return NextResponse.redirect(
       `${appUrl}/2fa-result?status=error`

@@ -63,10 +63,24 @@ async function request(
 
   let res: Response;
 
+  let url: string;
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    url = path;
+  } else if (BASE.endsWith('/api') && path.startsWith('/api/')) {
+    url = `${BASE.slice(0, -4)}${path}`;
+  } else if (BASE && path.startsWith('/')) {
+    url = `${BASE}${path}`;
+  } else if (BASE) {
+    url = `${BASE}/${path}`;
+  } else {
+    url = path;
+  }
+
   try {
-    res = await fetch(`${BASE}${path}`, {
+    res = await fetch(url, {
       method,
       headers,
+      credentials: 'include',
       body:
         body === undefined
           ? undefined
