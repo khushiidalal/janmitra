@@ -34,10 +34,10 @@ Law enforcement agencies and judicial bodies handle a large volume of sensitive 
 - Strict **Role-Based Access Control (RBAC)** across six permission levels
 - **Immutable audit trails** — every document view, upload, case update, and login event is logged with user identity, IP address, device, severity, and timestamp
 - **OCR-assisted document workflows** via a dual pipeline (Tesseract.js and pdf-parse) — scanned documents and PDFs become searchable text automatically
-- **Two-Factor Authentication (2FA)** via SMS OTP (Twilio) and email OTP (Nodemailer / Resend)
+- **Two-Factor Authentication (2FA)** password and email OTP (Nodemailer)
 - **SHA-256 document fingerprinting** for tamper-evident chain-of-custody records
 - **Real-time security monitoring** — dashboard polls for suspicious logins and unusual activity every 5 seconds
-- Accessibility controls (high-contrast mode, font size, language preferences)
+
 
 ---
 
@@ -45,7 +45,7 @@ Law enforcement agencies and judicial bodies handle a large volume of sensitive 
 
 | Feature | Details |
 |---|---|
-|  **Secure Authentication** | JWT login, 2FA (SMS & email OTP), forgot-password, session management (device/browser/OS/IP tracked per session) |
+|  **Secure Authentication** | JWT login, 2FA ,session management (device/browser/OS/IP tracked per session) |
 |  **Guided Case Management** | Multi-step case creation (5-step wizard), track cases as Active / Pending / Closed, attach Victims, Witnesses, Suspects |
 |  **Document Vault** | Upload FIRs, investigation reports, witness statements, court orders, evidence — with SHA-256 integrity fingerprinting |
 |  **Automated OCR** | Tesseract.js & pdf-parse extract searchable text automatically; OCR quality graded High / Medium / Low with confidence metrics |
@@ -190,8 +190,8 @@ janmitra/
 ├── .oxlintrc.json                        # Oxlint code quality configuration
 ├── .gitignore                            # Excluded files (build cache, uploads, environment)
 ├── .env.example                          # Template for environment configuration
-├── AGENTS.md                             # Humanized architecture & agent handbook
-├── CLAUDE.md                             # Claude Code developer guide
+├── AGENTS.md                             
+├── CLAUDE.md                    
 ├── test-backend-e2e.mjs                  # Automated 51-point E2E backend test suite
 │
 ├── public/                               # Static UI assets & government insignia
@@ -268,8 +268,8 @@ janmitra/
     │       │   ├── route.ts              # User list query
     │       │   └── [id]/route.ts         # User role updates (Admin only) & account deletion
     │       ├── draft/route.ts            # Case draft saving, retrieval & clearing
-    │       ├── otp/                      # Email OTP generation & verification
-    │       └── phone-otp/                # Twilio SMS OTP generation & verification
+    │       ├── otp/                      
+    │       └── phone-otp/              
     │
     ├── components/
     │   ├── dashboard/SecurityAlertsCard.tsx # Real-time security alert monitor (5s polling)
@@ -297,7 +297,7 @@ janmitra/
         ├── Document.ts                   # Document metadata, SHA-256 hash, OCR results & quality
         ├── Audit.ts                      # Non-repudiation log, severity, IP, device, isUnusual
         ├── Draft.ts                      # Temporary in-progress FIR case drafts
-        ├── EmailOTP.ts                   # Timed email OTP tokens
+        ├── EmailOTP.ts                   
         ├── TwoFactorToken.ts             # 2FA verification tokens
         └── PasswordResetToken.ts         # Secure password recovery tokens
 ```
