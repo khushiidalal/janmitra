@@ -306,31 +306,21 @@ janmitra/
 
 ## 9. Final Presentation
 
-Keep your final SIH presentation in the repository whenever the file size allows it.
 
-See [`submission/PRESENTATION.md`](./submission/PRESENTATION.md) for the required format.  
-If the file is too large for GitHub, upload to Google Drive / OneDrive and paste the shareable link in `submission/PRESENTATION.md`.
 
 ---
 
 ## 10. Demo Video
 
-A demo video is optional but recommended.  
-Add the YouTube / Google Drive link in [`submission/DEMO.md`](./submission/DEMO.md).
+
 
 ---
 
 ## 11. Screenshots / Prototype Photos
 
-Add important screenshots to `assets/screenshots/`.
+## Project Screenshots
 
-Recommended screenshots to include:
-- Login page with 2FA flow
-- Dashboard with Security Alerts card (live ping indicator)
-- Case creation wizard (multi-step)
-- Document vault with SHA-256 fingerprints
-- OCR text extraction modal
-- Audit Trail page with severity filters
+[📁 View all screenshots](uploads/documents/)
 
 ---
 
