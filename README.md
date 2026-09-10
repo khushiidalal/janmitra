@@ -383,7 +383,7 @@ npm run build
 npm run start
 ```
 
-The application will be available at `https://janmitra-pbbl.vercel.app/`.
+The application is live at **[Jam Mitra](https://jammitra-pbbl.vercel.app/)**.
 
 ---
 
