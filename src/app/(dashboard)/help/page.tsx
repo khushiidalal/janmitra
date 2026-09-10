@@ -48,7 +48,7 @@ export default function HelpGuidelinesPage() {
 
   return (
     <div className="space-y-5">
-      {/* Page Header */}
+      {}
       <div>
         <h1 className="text-[26px] font-semibold text-gray-900">
           Help & Guidelines
@@ -61,9 +61,9 @@ export default function HelpGuidelinesPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_300px]">
-        {/* LEFT CONTENT */}
+        {}
         <div className="space-y-6">
-          {/* Getting Started */}
+          {}
           <section>
             <div className="mb-3 flex items-center gap-2">
               <Rocket className="h-4 w-4 text-gray-700" />
@@ -73,7 +73,7 @@ export default function HelpGuidelinesPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* Filing a New Case */}
+              {}
               <Link
                 href="/help-guidelines/filing-new-case"
                 className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -94,7 +94,7 @@ export default function HelpGuidelinesPage() {
                 </Card>
               </Link>
 
-              {/* Tracking Evidence */}
+              {}
               <Link
                 href="/help-guidelines/tracking-evidence"
                 className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -117,7 +117,7 @@ export default function HelpGuidelinesPage() {
             </div>
           </section>
 
-          {/* FAQ */}
+          {}
           <section>
             <div className="mb-3 flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-gray-700" />
@@ -163,9 +163,9 @@ export default function HelpGuidelinesPage() {
           </section>
         </div>
 
-        {/* RIGHT SIDEBAR */}
+        {}
         <div className="space-y-4">
-          {/* Support */}
+          {}
           <Card className="border-t-2 border-t-blue-600 p-5">
             <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
               <Headphones className="h-5 w-5 text-blue-600" />
@@ -207,7 +207,7 @@ export default function HelpGuidelinesPage() {
             </div>
           </Card>
 
-          {/* Glossary */}
+          {}
           <Card className="p-5">
             <div className="mb-4 flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-gray-700" />

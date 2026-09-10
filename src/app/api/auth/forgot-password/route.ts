@@ -21,12 +21,12 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check whether user exists
+    
     const user = await User.findOne({
       email: normalizedEmail,
     });
 
-    // Don't reveal whether email is registered
+    
     if (!user) {
       return NextResponse.json({
         message:
@@ -34,16 +34,16 @@ export async function POST(request: Request) {
       });
     }
 
-    // Generate random reset token
+    
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Store hash instead of actual token
+    
     const tokenHash = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // Link expires after 15 minutes
+    
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     await PasswordResetToken.findOneAndUpdate(
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     const resetLink =
       `${appUrl}/reset-password?token=${resetToken}`;
 
-    // Gmail / SMTP connection
+    
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.gmail.com",
       port: Number(process.env.SMTP_PORT || 587),
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // Send email
+    
     await transporter.sendMail({
       from: `"JANMITRA" <${process.env.SMTP_USER}>`,
       to: normalizedEmail,

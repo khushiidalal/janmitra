@@ -119,7 +119,7 @@ export default function CaseManagement() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
+      {}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-[26px] font-semibold text-gray-900">
@@ -141,10 +141,10 @@ export default function CaseManagement() {
         </button>
       </div>
 
-      {/* Filters */}
+      {}
       <Card className="p-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-          {/* Search */}
+          {}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
 
@@ -160,7 +160,7 @@ export default function CaseManagement() {
             />
           </div>
 
-          {/* Status */}
+          {}
           <div className="min-w-[160px]">
             <select
               value={statusFilter}
@@ -178,7 +178,7 @@ export default function CaseManagement() {
             </select>
           </div>
 
-          {/* Date */}
+          {}
           <div className="relative min-w-[175px]">
             <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
 
@@ -193,7 +193,7 @@ export default function CaseManagement() {
             />
           </div>
 
-          {/* Filter button */}
+          {}
           <button
             onClick={handleClearFilters}
             title="Clear filters"
@@ -204,7 +204,7 @@ export default function CaseManagement() {
         </div>
       </Card>
 
-      {/* Table */}
+      {}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[850px] text-left">
@@ -309,7 +309,7 @@ export default function CaseManagement() {
           </table>
         </div>
 
-        {/* Footer / Pagination */}
+        {}
         <div className="flex flex-col gap-3 border-t border-gray-200 bg-white px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-gray-500">
             Showing{" "}

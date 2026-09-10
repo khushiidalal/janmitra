@@ -29,7 +29,7 @@ export default function CaseDetail() {
   const [updating, setUpdating] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
-  // ---------- Documents ----------
+  
   const [documents, setDocuments] = useState<any[]>([]);
   const [documentsLoading, setDocumentsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -55,7 +55,7 @@ export default function CaseDetail() {
         }
       }
     } catch {
-      // ignore
+      
     }
 
     getMe()
@@ -80,7 +80,7 @@ export default function CaseDetail() {
       "Clerk",
     ].includes(currentUserRole || "");
 
-  // ---------- Load Case ----------
+  
   useEffect(() => {
     let active = true;
 
@@ -119,7 +119,7 @@ export default function CaseDetail() {
     };
   }, [id]);
 
-  // ---------- Load Documents ----------
+  
   const loadDocuments = async () => {
     if (!id) return;
 
@@ -147,7 +147,7 @@ export default function CaseDetail() {
     loadDocuments();
   }, [id]);
 
-  // ---------- Filter Documents ----------
+  
   const filteredDocuments = useMemo(() => {
     const query = documentSearch.trim().toLowerCase();
 
@@ -176,7 +176,7 @@ export default function CaseDetail() {
     });
   }, [documents, documentSearch, documentFilter]);
 
-  // ---------- Upload Document ----------
+  
   const handleDocumentUpload = async () => {
     if (!id) {
       alert("Case ID is missing.");
@@ -193,7 +193,7 @@ export default function CaseDetail() {
       return;
     }
 
-    // Frontend file size validation
+    
     const maxSize = 10 * 1024 * 1024;
 
     if (selectedFile.size > maxSize) {
@@ -237,7 +237,7 @@ export default function CaseDetail() {
     }
   };
 
-  // ---------- Download Document ----------
+  
   const handleDocumentDownload = async (
     documentId: string,
     fileName?: string,
@@ -271,7 +271,7 @@ export default function CaseDetail() {
     }
   };
 
-  // ---------- Delete Document ----------
+  
   const handleDocumentDelete = async (documentId: string) => {
     if (!documentId) {
       alert("Document ID is missing.");
@@ -302,7 +302,7 @@ export default function CaseDetail() {
     }
   };
 
-  // ---------- OCR ----------
+  
   const handleRunOcr = async (documentId: string) => {
     if (!documentId) return;
 
@@ -374,7 +374,7 @@ export default function CaseDetail() {
     link.remove();
   };
 
-  // ---------- Case Status ----------
+  
   const handleStatusChange = async (status: string) => {
     if (!id) return;
 
@@ -395,12 +395,12 @@ export default function CaseDetail() {
     }
   };
 
-  // ---------- Loading ----------
+  
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading case...</div>;
   }
 
-  // ---------- Case Not Found ----------
+  
   if (!caseItem) {
     return (
       <div className="space-y-4 p-8 text-center">
@@ -424,7 +424,7 @@ export default function CaseDetail() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      {/* Back */}
+      {}
       <button
         onClick={() => router.back()}
         className="flex items-center space-x-2 font-medium text-gray-500 hover:text-gray-900"
@@ -433,7 +433,7 @@ export default function CaseDetail() {
         <span>Back</span>
       </button>
 
-      {/* Case Header */}
+      {}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{caseId}</h1>
@@ -444,15 +444,15 @@ export default function CaseDetail() {
         <Badge status={caseStatus as any} className="px-4 py-2 text-sm" />
       </div>
 
-      {/* Main Grid */}
+      {}
       <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Left Section */}
+        {}
         <Card className="space-y-6 p-6 md:col-span-2">
           <h3 className="border-b border-gray-100 pb-2 text-lg font-bold">
             Incident Information
           </h3>
 
-          {/* Incident Info */}
+          {}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <p className="text-sm font-medium text-gray-500">Incident Date</p>
@@ -489,7 +489,7 @@ export default function CaseDetail() {
             )}
           </div>
 
-          {/* Description */}
+          {}
           <div>
             <p className="mb-1 text-sm font-medium text-gray-500">
               Description
@@ -501,7 +501,7 @@ export default function CaseDetail() {
             </p>
           </div>
 
-          {/* People */}
+          {}
           {Array.isArray(caseItem.people) && caseItem.people.length > 0 && (
             <div>
               <p className="mb-2 text-sm font-medium text-gray-500">
@@ -527,7 +527,7 @@ export default function CaseDetail() {
             </div>
           )}
 
-          {/* Existing Case Documents */}
+          {}
           {Array.isArray(caseItem.documents) &&
             caseItem.documents.length > 0 && (
               <div>
@@ -559,7 +559,7 @@ export default function CaseDetail() {
                                 "Untitled Document"}
                             </span>
 
-                            {/* OCR Status Badge */}
+                            {}
                             {doc.ocrStatus === "completed" ? (
                               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -598,7 +598,7 @@ export default function CaseDetail() {
                         </div>
 
                         <div className="flex flex-wrap shrink-0 items-center gap-2">
-                          {/* View Extracted Text */}
+                          {}
                           {doc.ocrStatus === "completed" && (
                             <button
                               type="button"
@@ -609,7 +609,7 @@ export default function CaseDetail() {
                             </button>
                           )}
 
-                          {/* Extract Text / Retry OCR */}
+                          {}
                           {(!doc.ocrStatus || doc.ocrStatus === "not_started") && (
                             <button
                               type="button"
@@ -632,7 +632,7 @@ export default function CaseDetail() {
                             </button>
                           )}
 
-                          {/* Preview / View */}
+                          {}
                           {doc.dataUrl && (
                             <button
                               type="button"
@@ -643,7 +643,7 @@ export default function CaseDetail() {
                             </button>
                           )}
 
-                          {/* Download */}
+                          {}
                           {doc.dataUrl && (
                             <button
                               type="button"
@@ -661,9 +661,9 @@ export default function CaseDetail() {
               </div>
             )}
 
-          {/* DOCUMENT MANAGEMENT */}
+          {}
           <div className="space-y-5 border-t border-gray-100 pt-6">
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-gray-900">
@@ -681,12 +681,12 @@ export default function CaseDetail() {
               </span>
             </div>
 
-            {/* Upload Document */}
+            {}
             <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
               <h4 className="font-semibold text-gray-900">Upload Document</h4>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {/* Document Name */}
+                {}
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Document Name
@@ -701,7 +701,7 @@ export default function CaseDetail() {
                   />
                 </div>
 
-                {/* Document Type */}
+                {}
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Document Type
@@ -729,7 +729,7 @@ export default function CaseDetail() {
                 </div>
               </div>
 
-              {/* Description */}
+              {}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Description
@@ -744,7 +744,7 @@ export default function CaseDetail() {
                 />
               </div>
 
-              {/* File */}
+              {}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   File
@@ -762,7 +762,7 @@ export default function CaseDetail() {
                 </p>
               </div>
 
-              {/* Upload Button */}
+              {}
               <button
                 type="button"
                 onClick={handleDocumentUpload}
@@ -773,7 +773,7 @@ export default function CaseDetail() {
               </button>
             </div>
 
-            {/* Search + Filter */}
+            {}
             <div className="flex flex-col gap-3 md:flex-row">
               <input
                 type="text"
@@ -806,7 +806,7 @@ export default function CaseDetail() {
               </select>
             </div>
 
-            {/* Documents List */}
+            {}
             {documentsLoading ? (
               <div className="py-6 text-center text-gray-500">
                 Loading documents...
@@ -843,7 +843,7 @@ export default function CaseDetail() {
                             {name}
                           </p>
 
-                          {/* OCR Status Badge */}
+                          {}
                           {doc.ocrStatus === "completed" ? (
                             <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -888,7 +888,7 @@ export default function CaseDetail() {
                       </div>
 
                       <div className="flex flex-wrap shrink-0 items-center gap-2">
-                        {/* View Extracted Text */}
+                        {}
                         {doc.ocrStatus === "completed" && (
                           <button
                             type="button"
@@ -899,7 +899,7 @@ export default function CaseDetail() {
                           </button>
                         )}
 
-                        {/* OCR Trigger Actions for authorized roles */}
+                        {}
                         {canEditCase && (
                           <>
                             {(!doc.ocrStatus || doc.ocrStatus === "not_started") && (
@@ -926,7 +926,7 @@ export default function CaseDetail() {
                           </>
                         )}
 
-                        {/* Download */}
+                        {}
                         <button
                           type="button"
                           disabled={!documentId}
@@ -941,7 +941,7 @@ export default function CaseDetail() {
                           Download
                         </button>
 
-                        {/* Delete */}
+                        {}
                         <button
                           type="button"
                           disabled={!documentId}
@@ -959,7 +959,7 @@ export default function CaseDetail() {
           </div>
         </Card>
 
-        {/* Quick Actions */}
+        {}
         <Card className="space-y-6 p-6">
           <h3 className="border-b border-gray-100 pb-2 text-lg font-bold">
             Quick Actions
@@ -992,7 +992,7 @@ export default function CaseDetail() {
         </Card>
       </div>
 
-      {/* OCR Text Modal */}
+      {}
       {activeOcrDoc && (
         <OcrTextModal
           isOpen={!!activeOcrDoc}

@@ -30,12 +30,12 @@ export default function DashboardLayout({
 
     setAuthorized(true);
 
-    // Apply stored preferences immediately
+    
     const initialPrefs = getStoredPreferences();
     setPreferences(initialPrefs);
     applyGlobalPreferences(initialPrefs);
 
-    // Fetch latest preferences from database
+    
     getPreferences()
       .then((backendPrefs) => {
         if (backendPrefs) {
@@ -52,10 +52,10 @@ export default function DashboardLayout({
         }
       })
       .catch(() => {
-        // Fallback to cached preferences
+        
       });
 
-    // Real-time custom event listener
+    
     const handlePrefChange = (event: Event) => {
       const customEvt = event as CustomEvent<UserPreferences>;
       if (customEvt.detail) {
@@ -64,7 +64,7 @@ export default function DashboardLayout({
       }
     };
 
-    // Real-time storage listener across tabs
+    
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === 'userPreferences' && event.newValue) {
         try {

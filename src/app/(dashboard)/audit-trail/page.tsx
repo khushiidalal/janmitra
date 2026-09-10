@@ -99,7 +99,7 @@ export default function AuditTrail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ================= FETCH AUDIT LOGS =================
+  
 
   useEffect(() => {
     const loadAuditLogs = async () => {
@@ -169,7 +169,7 @@ export default function AuditTrail() {
     loadAuditLogs();
   }, []);
 
-  // ================= FILTER DATA =================
+  
 
   const latestAuditDate = useMemo(() => {
     if (auditData.length === 0) {
@@ -302,12 +302,12 @@ export default function AuditTrail() {
     latestAuditDate,
   ]);
 
-  // ================= UI =================
+  
 
   return (
     <div className="min-h-full bg-[#f8fafc] px-7 py-6">
 
-      {/* HEADER */}
+      {}
 
       <div className="mb-6 flex items-start justify-between">
         <div>
@@ -321,23 +321,13 @@ export default function AuditTrail() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="flex h-11 items-center gap-2 rounded-md bg-blue-600 px-5 text-[14px] font-semibold text-white shadow-sm transition hover:bg-blue-700"
-        >
-          <span className="text-[21px] leading-none">
-            +
-          </span>
-
-          <span>File New Complaint</span>
-        </button>
       </div>
 
-      {/* SEARCH / FILTER */}
+      {}
 
       <div className="mb-6 flex min-h-[62px] items-center gap-3 rounded-lg border border-gray-300 bg-white px-4 shadow-sm">
 
-        {/* SEARCH */}
+        {}
 
         <div className="relative flex-1">
           <svg
@@ -364,7 +354,7 @@ export default function AuditTrail() {
           />
         </div>
 
-        {/* STATUS */}
+        {}
 
         <select
           value={status}
@@ -380,7 +370,7 @@ export default function AuditTrail() {
           <option>Logged In</option>
         </select>
 
-        {/* DATE */}
+        {}
 
         <select
           value={dateRange}
@@ -395,7 +385,7 @@ export default function AuditTrail() {
           <option>This month</option>
         </select>
 
-        {/* FILTER */}
+        {}
 
         <button
           type="button"
@@ -417,7 +407,7 @@ export default function AuditTrail() {
         </button>
       </div>
 
-      {/* LOADING */}
+      {}
 
       {loading && (
         <div className="rounded-lg border border-gray-200 bg-white py-16 text-center shadow-sm">
@@ -427,7 +417,7 @@ export default function AuditTrail() {
         </div>
       )}
 
-      {/* ERROR */}
+      {}
 
       {!loading && error && (
         <div className="rounded-lg border border-red-200 bg-white py-16 text-center shadow-sm">
@@ -441,7 +431,7 @@ export default function AuditTrail() {
         </div>
       )}
 
-      {/* AUDIT GROUPS */}
+      {}
 
       {!loading && !error && (
         <div className="space-y-5">
@@ -452,7 +442,7 @@ export default function AuditTrail() {
               className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm"
             >
 
-              {/* DATE */}
+              {}
 
               <div className="px-5 pb-3 pt-5">
                 <h2 className="text-[16px] font-semibold text-gray-800">
@@ -460,7 +450,7 @@ export default function AuditTrail() {
                 </h2>
               </div>
 
-              {/* COLUMN HEADERS */}
+              {}
 
               <div className="flex items-center border-b border-gray-100 px-5 pb-2">
 
@@ -478,7 +468,7 @@ export default function AuditTrail() {
 
               </div>
 
-              {/* ACTIVITY ITEMS */}
+              {}
 
               <div className="px-5 pb-4">
 
@@ -489,13 +479,13 @@ export default function AuditTrail() {
                       className="flex min-h-[50px] items-center"
                     >
 
-                      {/* TIME */}
+                      {}
 
                       <div className="w-[95px] shrink-0 text-[14px] text-gray-600">
                         {item.time}
                       </div>
 
-                      {/* ACTIVITY */}
+                      {}
 
                       <div className="flex flex-1 items-center">
 
@@ -511,7 +501,7 @@ export default function AuditTrail() {
 
                       </div>
 
-                      {/* ACCESSED BY */}
+                      {}
 
                       <div className="w-[220px] shrink-0 text-[14px] font-medium text-gray-700">
                         {item.accessedBy}
@@ -525,7 +515,7 @@ export default function AuditTrail() {
             </section>
           ))}
 
-          {/* NO RESULTS */}
+          {}
 
           {filteredGroups.length === 0 && (
             <div className="rounded-lg border border-gray-200 bg-white py-16 text-center shadow-sm">

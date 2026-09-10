@@ -72,7 +72,7 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    // RBAC: Only authorized roles can trigger or re-run OCR
+    
     if (!ALLOWED_OCR_ROLES.includes(user.role)) {
       return NextResponse.json(
         { success: false, error: 'Forbidden. You do not have permission to trigger OCR on case documents.' },
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    // Check if the file format is supported
+    
     if (!isOcrSupported(doc.mimeType, doc.fileName)) {
       return NextResponse.json(
         {
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    // Mark status as processing and record start audit
+    
     doc.ocrStatus = 'processing';
     doc.ocrError = '';
     await doc.save();
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest, context: Context) {
       console.error('Audit log error:', auditErr);
     }
 
-    // Execute OCR processing
+    
     try {
       const ocrResult = await processDocumentOcr(filePath, doc.mimeType, doc.fileName);
 

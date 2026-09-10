@@ -1,8 +1,8 @@
-// Central API client for the KORA / Janmitra backend.
-//
-// It intentionally mirrors the old localStorage helpers in ./data (same function
-// names and payload/response shapes) so components only need to switch the import
-// from `../lib/data` to `../lib/api` and `await` the calls.
+
+
+
+
+
 
 const BASE = (
   process.env.NEXT_PUBLIC_API_URL ||
@@ -48,7 +48,7 @@ async function request(
     ...extraHeaders,
   };
 
-  // Only send JSON content type when the body is NOT FormData.
+  
   if (!(body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
@@ -122,7 +122,7 @@ async function request(
   return data;
 }
 
-// ---------- Auth ----------
+
 
 export async function login(
   email: string,
@@ -137,7 +137,7 @@ export async function login(
     },
   });
 
-  // 2FA enabled - login abhi complete nahi hua
+  
   if (data?.requiresTwoFactor) {
     return {
       requiresTwoFactor: true,
@@ -147,7 +147,7 @@ export async function login(
     };
   }
 
-  // 2FA disabled - normal login
+  
   persistSession(data);
 
   if (typeof window !== 'undefined') {
@@ -252,7 +252,7 @@ export async function toggleTwoFactor(
   });
 }
 
-// EMAIL LINK SE 2FA ENABLE KARNE KE LIYE
+
 export async function sendTwoFactorVerificationLink(): Promise<any> {
   return request('/auth/2fa/send-link', {
     method: 'POST',
@@ -338,7 +338,6 @@ export async function verifyEmailOTP(email: string, otp: string): Promise<any> {
   });
 }
 
-// Register-or-login
 export async function authenticate(
   fullName: string,
   email: string,
@@ -401,7 +400,6 @@ function persistSession(data: any): void {
   }
 }
 
-// ---------- Cases ----------
 
 export function getCases(): Promise<any[]> {
   return request('/cases');
@@ -438,7 +436,6 @@ export function updateCase(
   );
 }
 
-// ---------- Documents ----------
 
 export async function getDocuments(
   caseId?: string,
@@ -657,7 +654,6 @@ export function deleteDocument(
   );
 }
 
-// ---------- OCR ----------
 
 export function runDocumentOCR(
   id: string
@@ -705,7 +701,6 @@ export function getCaseDocumentOCR(
   );
 }
 
-// ---------- Draft ----------
 
 export function getDraft(): Promise<any> {
   return request('/draft');
@@ -725,7 +720,7 @@ export function clearDraft(): Promise<any> {
     method: 'DELETE',
   });
 }
-// ---------- Audit Trail & Security Activity ----------
+
 
 export function getAuditLogs(params?: {
   type?: string;

@@ -8,18 +8,15 @@ export interface ParsedUserAgent {
   deviceType: string;
 }
 
-/**
- * Safely extracts the real client IP address from proxy headers or socket info.
- * Normalizes localhost addresses (::1, ::ffff:127.0.0.1) to 127.0.0.1.
- */
+
 export function extractClientIp(req: NextRequest): string {
-  // 1. Cloudflare connecting IP
+  
   const cfConnectingIp = req.headers.get('cf-connecting-ip');
   if (cfConnectingIp && cfConnectingIp.trim()) {
     return normalizeIp(cfConnectingIp.trim());
   }
 
-  // 2. Standard X-Forwarded-For header (first entry is original client)
+  
   const forwardedFor = req.headers.get('x-forwarded-for');
   if (forwardedFor && forwardedFor.trim()) {
     const firstIp = forwardedFor.split(',')[0].trim();
@@ -28,13 +25,13 @@ export function extractClientIp(req: NextRequest): string {
     }
   }
 
-  // 3. X-Real-IP header
+  
   const realIp = req.headers.get('x-real-ip');
   if (realIp && realIp.trim()) {
     return normalizeIp(realIp.trim());
   }
 
-  // 4. NextRequest.ip property if available from platform
+  
   if ((req as any).ip) {
     return normalizeIp(String((req as any).ip).trim());
   }
@@ -46,19 +43,14 @@ function normalizeIp(ip: string): string {
   if (ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost') {
     return '127.0.0.1';
   }
-  // Strip IPv6 prefix if mapped IPv4
+  
   if (ip.startsWith('::ffff:')) {
     return ip.replace('::ffff:', '');
   }
   return ip;
 }
 
-/**
- * Lightweight regex-based User-Agent parser that identifies:
- * - Browser (Chrome, Edge, Firefox, Safari, Opera, etc.)
- * - Operating System (Windows, macOS, Linux, Android, iOS)
- * - Device Type (Desktop, Mobile, Tablet)
- */
+
 export function parseUserAgent(uaString: string | null): ParsedUserAgent {
   if (!uaString || typeof uaString !== 'string') {
     return {
@@ -70,7 +62,7 @@ export function parseUserAgent(uaString: string | null): ParsedUserAgent {
 
   const ua = uaString;
 
-  // 1. Device Type
+  
   let deviceType = 'Desktop';
   if (/iPad|Tablet|(Android(?!.*Mobile))/i.test(ua)) {
     deviceType = 'Tablet';
@@ -78,7 +70,7 @@ export function parseUserAgent(uaString: string | null): ParsedUserAgent {
     deviceType = 'Mobile';
   }
 
-  // 2. Operating System
+  
   let operatingSystem = 'Unknown';
   if (/Windows NT/i.test(ua)) {
     operatingSystem = 'Windows';
@@ -94,7 +86,7 @@ export function parseUserAgent(uaString: string | null): ParsedUserAgent {
     operatingSystem = 'Linux';
   }
 
-  // 3. Browser
+  
   let browser = 'Unknown';
   if (/Edg\//i.test(ua)) {
     browser = 'Edge';
@@ -120,11 +112,7 @@ export interface RecordLoginParams {
   status: 'success' | 'failed';
 }
 
-/**
- * Evaluates login context, checks for unseen IP/device or repeated failures,
- * and records an immutable audit log.
- * Guaranteed never to throw; errors are safely logged server-side.
- */
+
 export async function recordLoginSecurityEvent(params: RecordLoginParams) {
   const { req, user, attemptedEmail, status } = params;
 
@@ -135,7 +123,7 @@ export async function recordLoginSecurityEvent(params: RecordLoginParams) {
     const normalizedEmail = attemptedEmail.toLowerCase().trim();
 
     if (status === 'success' && user) {
-      // Query recent successful logins for this user to evaluate heuristic
+      
       const previousLogins = await Audit.find({
         userId: user._id,
         type: 'login',
@@ -150,7 +138,7 @@ export async function recordLoginSecurityEvent(params: RecordLoginParams) {
       let severity: 'info' | 'warning' | 'critical' = 'info';
 
       if (previousLogins.length === 0) {
-        // First recorded login for this user
+        
         isUnusual = false;
         unusualReason = 'Initial login session established';
         severity = 'info';
@@ -207,7 +195,7 @@ export async function recordLoginSecurityEvent(params: RecordLoginParams) {
         time: new Date(),
       });
     } else {
-      // Failed login attempt
+      
       const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
       const recentFailures = await Audit.countDocuments({
         type: 'login',
@@ -243,7 +231,7 @@ export async function recordLoginSecurityEvent(params: RecordLoginParams) {
       });
     }
   } catch (error) {
-    // Critical: Database or logging failure must NEVER prevent authentication flow
+    
     console.error('Failed to record login security audit event:', error);
   }
 }

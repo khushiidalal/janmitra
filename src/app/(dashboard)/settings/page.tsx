@@ -91,13 +91,13 @@ export default function SettingsPage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Preferences state
+  
   const [textSize, setTextSize] = useState<"Small" | "Medium" | "Large">("Medium");
   const [highContrast, setHighContrast] = useState(false);
   const [language, setLanguage] = useState("English (US)");
   const [prefSaveStatus, setPrefSaveStatus] = useState<string | null>(null);
 
-  // Load user data & preferences
+  
   const fetchUserProfile = async () => {
     try {
       const currentUser = await getMe();
@@ -117,7 +117,7 @@ export default function SettingsPage() {
       }
     } catch (err) {
       console.error("Failed to load user profile:", err);
-      // Fallback to cached data if available
+      
       const stored = localStorage.getItem("user");
       if (stored) {
         try {
@@ -214,7 +214,7 @@ export default function SettingsPage() {
         highContrast ? "contrast-125 saturate-125 bg-slate-100 text-black" : ""
       } ${getTextSizeClass()}`}
     >
-      {/* PAGE HEADER - Duplicate "Session Encrypted" badge removed as requested */}
+      {}
       <div className="mb-5 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
@@ -232,9 +232,9 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* MAIN CARD */}
+      {}
       <div className="flex min-h-[580px] w-full flex-col md:flex-row overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        {/* LEFT SETTINGS MENU */}
+        {}
         <aside className="w-full md:w-[250px] shrink-0 border-b md:border-b-0 md:border-r border-slate-200 bg-[#f8faff] p-4">
           <div className="mb-4 px-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -269,7 +269,7 @@ export default function SettingsPage() {
           </nav>
         </aside>
 
-        {/* RIGHT CONTENT */}
+        {}
         <main className="min-w-0 flex-1 bg-white p-6 sm:p-8">
           {activeSection === "account" && (
             <AccountInformation
@@ -304,9 +304,7 @@ export default function SettingsPage() {
   );
 }
 
-/* =========================================================
-   1. ACCOUNT INFORMATION — REAL USER DATA
-========================================================= */
+
 
 function AccountInformation({
   user,
@@ -393,7 +391,7 @@ function AccountInformation({
 
   return (
     <section className="space-y-6">
-      {/* Top Banner with Officer Badge and Edit Button */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div className="flex items-center gap-4">
           {user?.profilePhoto ? (
@@ -441,7 +439,7 @@ function AccountInformation({
         </button>
       </div>
 
-      {/* 10 Required Fields + Registration Extras */}
+      {}
       <div>
         <div className="mb-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -480,7 +478,7 @@ function AccountInformation({
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
+      {}
       {isEditing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl border border-slate-200 animate-scale-in max-h-[90vh] overflow-y-auto">
@@ -672,9 +670,7 @@ function AccountInformation({
   );
 }
 
-/* =========================================================
-   2. SECURITY SETTINGS — REAL SESSIONS & 2FA & PASSWORDS
-========================================================= */
+
 
 function SecuritySettings({
   user,
@@ -683,7 +679,7 @@ function SecuritySettings({
   user: UserProfile | null;
   onRefreshUser: () => void;
 }) {
-  // Password modal state
+  
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -695,7 +691,7 @@ function SecuritySettings({
   const [passError, setPassError] = useState<string | null>(null);
   const [passSuccess, setPassSuccess] = useState<string | null>(null);
 
-  // Card view password state
+  
   const [showCardPassword, setShowCardPassword] = useState(false);
   const [cardPasswordPlain, setCardPasswordPlain] = useState(() => getSessionPassword());
 
@@ -714,18 +710,18 @@ function SecuritySettings({
     }
   };
 
-  // 2FA state
+  
   const [twoFaEnabled, setTwoFaEnabled] = useState(user?.twoFactorEnabled ?? false);
   const [twoFaLoading, setTwoFaLoading] = useState(false);
   const [twoFaMessage, setTwoFaMessage] = useState<string | null>(null);
   const [twoFaError, setTwoFaError] = useState(false);
 
-  // Sessions state
+  
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  // Load 2FA and Sessions from real APIs
+  
   const fetchSecurityData = async () => {
     try {
       const [twoFaData, sessionsData] = await Promise.all([
@@ -750,7 +746,7 @@ function SecuritySettings({
     fetchSecurityData();
   }, []);
 
-  // Handle password change
+  
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPassError(null);
@@ -787,7 +783,7 @@ function SecuritySettings({
     }
   };
 
-  // Toggle 2FA
+  
   const handleToggleTwoFa = async () => {
     setTwoFaLoading(true);
     setTwoFaMessage(null);
@@ -839,7 +835,7 @@ function SecuritySettings({
     }
   };
 
-  // Revoke specific session
+  
   const handleRevokeSession = async (sessionId: string) => {
     try {
       await revokeSession(sessionId);
@@ -851,7 +847,7 @@ function SecuritySettings({
     }
   };
 
-  // Sign out of all other sessions
+  
   const handleRevokeAllOther = async () => {
     try {
       const res = await revokeAllOtherSessions();
@@ -892,9 +888,9 @@ function SecuritySettings({
         </div>
       )}
 
-      {/* Grid of Security Cards */}
+      {}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* Password Card */}
+        {}
         <SettingCard>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -951,7 +947,7 @@ function SecuritySettings({
           </p>
         </SettingCard>
 
-        {/* Two-Factor Authentication Card */}
+        {}
         <SettingCard>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -1016,7 +1012,7 @@ function SecuritySettings({
         </SettingCard>
       </div>
 
-      {/* Active Sessions & Trusted Devices List */}
+      {}
       <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div>
@@ -1131,7 +1127,7 @@ function SecuritySettings({
         )}
       </div>
 
-      {/* Password Change Modal */}
+      {}
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl border border-slate-200 animate-scale-in">
@@ -1265,9 +1261,7 @@ function SecuritySettings({
   );
 }
 
-/* =========================================================
-   3. PREFERENCES — FUNCTIONAL & PERSISTED
-========================================================= */
+
 
 type PreferencesProps = {
   language: string;
@@ -1316,10 +1310,7 @@ function PreferencesSettings({
             className="mt-3 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
             <option value="English (US)">English (US)</option>
-            <option value="English (UK)">English (UK)</option>
-            <option value="Hindi">हिन्दी (Hindi)</option>
-            <option value="Marathi">मराठी (Marathi)</option>
-            <option value="Tamil">தமிழ் (Tamil)</option>
+            
           </select>
           <p className="mt-2 text-xs text-slate-400">
             Applied to system menus, notifications, and form templates.
@@ -1389,15 +1380,13 @@ function PreferencesSettings({
   );
 }
 
-/* =========================================================
-   4. DATA & PRIVACY — EXPORT & LEGAL POLICIES
-========================================================= */
+
 
 function DataPrivacy() {
   const [downloading, setDownloading] = useState(false);
   const [downloadMessage, setDownloadMessage] = useState<string | null>(null);
 
-  // Accordion state
+  
   const [openPrivacy, setOpenPrivacy] = useState(false);
   const [openTerms, setOpenTerms] = useState(false);
 
@@ -1431,60 +1420,22 @@ function DataPrivacy() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* Download My Data */}
-        <SettingCard>
-          <div className="flex items-center gap-2">
-            <Download className="h-4 w-4 text-blue-600" />
-            <p className="text-sm font-semibold text-slate-900">
-              Download My Data (JSON)
-            </p>
-          </div>
+      <div>
 
-          <p className="mt-2 text-xs leading-5 text-slate-600">
-            Exports your authenticated officer profile, preferences, assigned cases, uploaded document metadata, active session log, and personal audit trail.
-          </p>
-
-          <div className="mt-2 rounded-md bg-slate-100 p-2.5 text-[11px] text-slate-500">
-            <span className="font-semibold text-slate-700">Security Notice: </span>
-            Password hashes, salts, raw JWT tokens, and OTP secrets are strictly excluded from the export for your security.
-          </div>
-
-          <button
-            type="button"
-            disabled={downloading}
-            onClick={handleDownload}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition shadow-sm"
-          >
-            {downloading ? (
-              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Download className="h-3.5 w-3.5" />
-            )}
-            {downloading ? "Generating Export..." : "Download My Data"}
-          </button>
-
-          {downloadMessage && (
-            <p className="mt-2 text-xs font-medium text-blue-600 animate-fade-in">
-              {downloadMessage}
-            </p>
-          )}
-        </SettingCard>
-
-        {/* Data Retention Statement */}
+        {}
         <SettingCard>
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-blue-600" />
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-10px font-semibold text-slate-900">
               Data Retention & Evidentiary Rules
             </p>
           </div>
 
-          <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
             Pursuant to the Bharatiya Nagarik Suraksha Sanhita (BNSS) and statutory digital evidence protocols:
           </p>
 
-          <ul className="mt-2 space-y-1.5 text-xs text-slate-500 list-disc list-inside">
+          <ul className="mt-2 space-y-1.5 text-sm text-slate-500 list-disc list-inside">
             <li>
               <strong className="text-slate-700">Primary Case Files & FIRs:</strong> Retained permanently as legal evidentiary court records.
             </li>
@@ -1498,13 +1449,13 @@ function DataPrivacy() {
         </SettingCard>
       </div>
 
-      {/* Expandable Accordions for Legal Policies */}
+      {}
       <div className="space-y-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
           Legal & Compliance Documentation
         </h3>
 
-        {/* Privacy Policy Accordion */}
+        {}
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <button
             type="button"
@@ -1590,7 +1541,7 @@ function DataPrivacy() {
           )}
         </div>
 
-        {/* Terms of Service Accordion */}
+        {}
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <button
             type="button"
@@ -1694,9 +1645,7 @@ function DataPrivacy() {
   );
 }
 
-/* =========================================================
-   REUSABLE COMPONENTS
-========================================================= */
+
 
 function SettingItem({
   label,

@@ -25,34 +25,13 @@ export default function RegistrationStep1() {
     address: "",
   });
 
-  // const [photo, setPhoto] = useState<File | null>(null);
-
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  // }, []);
-
-  // const photoPreview = useMemo(() => {
-  //   if (!photo) return "";
-
-  //   return URL.createObjectURL(photo);
-  // }, [photo]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     if (photoPreview) {
-  //       URL.revokeObjectURL(photoPreview);
-  //     }
-  //   };
-  // }, [photoPreview]);
-
   const isStep1Complete =
     formData.fullName.trim() !== "" &&
     formData.dateOfBirth !== "" &&
     formData.gender !== "" &&
     formData.govIdType !== "" &&
     formData.govIdNumber.trim() !== "" &&
-    formData.address.trim() !== "" &&
-    photo !== null;
+    formData.address.trim() !== "" ;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -68,14 +47,6 @@ export default function RegistrationStep1() {
 
     if (!selectedFile) return;
 
-    // 5 MB maximum
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      alert("Photo size must be 5MB or less.");
-      e.target.value = "";
-      return;
-    }
-
-    setPhoto(selectedFile);
   };
 
   const handleContinue = (e: React.FormEvent) => {
@@ -87,7 +58,6 @@ export default function RegistrationStep1() {
       "registrationStep1",
       JSON.stringify({
         ...formData,
-        photoName: photo?.name || "",
       }),
     );
 
@@ -96,7 +66,7 @@ export default function RegistrationStep1() {
 
   return (
     <div className="min-h-screen w-full bg-[#f5f9fd] text-slate-900">
-      {/* ================= HEADER ================= */}
+      {}
 
       <header className="flex h-[62px] w-full items-center justify-between border-b border-[#dce6f0] bg-white px-5 lg:px-8">
         <div className="flex items-center gap-2.5">
@@ -122,13 +92,13 @@ export default function RegistrationStep1() {
         </div>
       </header>
 
-      {/* ================= MAIN PAGE ================= */}
+      {}
 
       <div className="flex min-h-[calc(100vh-62px)] w-full">
-        {/* ================= LEFT PANEL ================= */}
+        {}
 
         <aside className="relative hidden w-[255px] shrink-0 overflow-hidden border-r border-[#dce6f0] bg-gradient-to-b from-[#f5faff] via-[#f1f8ff] to-[#eef8ff] lg:block">
-          {/* LEFT TEXT */}
+          {}
           <div className="relative z-10 px-[32px] pt-[70px]">
             <div className="mb-4 flex h-[31px] w-[31px] items-center justify-center rounded-full bg-[#e1efff] text-[#0758ba]">
               <Scale size={17} strokeWidth={2} />
@@ -148,14 +118,14 @@ export default function RegistrationStep1() {
             </p>
           </div>
 
-          {/* COURTHOUSE + TRICOLOR */}
+          {}
           <img
             src="/sidebar-tricolor.png"
             alt=""
             className="absolute bottom-[78px] left-0 w-full object-contain"
           />
 
-          {/* LEFT FOOTER */}
+          {}
           <div className="absolute bottom-[18px] left-[26px] right-[26px]">
             <div className="mb-3 flex items-center gap-8">
               <div className="h-px flex-1 bg-green-600" />
@@ -181,15 +151,15 @@ export default function RegistrationStep1() {
           </div>
         </aside>
 
-        {/* ================= RIGHT SIDE ================= */}
+        {}
 
         <main className="flex min-w-0 flex-1 items-start justify-center p-4 lg:px-6 lg:py-4">
           <div className="w-full max-w-[980px] overflow-hidden rounded-[9px] border border-[#c9d5e2] bg-white shadow-sm">
-            {/* ================= STEPPER ================= */}
+            {}
 
             <div className="border-b border-[#dce4ed] px-7 py-3">
               <div className="flex items-start">
-                {/* STEP 1 */}
+                {}
                 <div className="flex min-w-[105px] flex-col items-center">
                   <div className="flex h-[23px] w-[23px] items-center justify-center rounded-full bg-[#1477e5] text-[15px] font-semibold text-white">
                     1
@@ -202,7 +172,7 @@ export default function RegistrationStep1() {
 
                 <div className="mt-[11px] h-px flex-1 bg-[#c5ced8]" />
 
-                {/* STEP 2 */}
+                {}
                 <div className="flex min-w-[115px] flex-col items-center">
                   <div className="flex h-[23px] w-[23px] items-center justify-center rounded-full bg-[#f0f1f2] text-[15px] font-medium text-[#656d77]">
                     2
@@ -215,7 +185,7 @@ export default function RegistrationStep1() {
 
                 <div className="mt-[11px] h-px flex-1 bg-[#c5ced8]" />
 
-                {/* STEP 3 */}
+                {}
                 <div className="flex min-w-[100px] flex-col items-center">
                   <div className="flex h-[23px] w-[23px] items-center justify-center rounded-full bg-[#f0f1f2] text-[15px] font-medium text-[#656d77]">
                     3
@@ -229,10 +199,10 @@ export default function RegistrationStep1() {
             </div>
 
             <form onSubmit={handleContinue}>
-              {/* ================= FORM FIELDS ================= */}
+              {}
 
               <section className="px-7 py-4">
-                {/* FULL NAME */}
+                {}
                 <div className="mb-2.5">
                   <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
                     Full Legal Name
@@ -249,7 +219,7 @@ export default function RegistrationStep1() {
                   />
                 </div>
 
-                {/* DOB / GENDER */}
+                {}
                 <div className="mb-2.5 grid grid-cols-1 gap-2 md:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
@@ -290,7 +260,7 @@ export default function RegistrationStep1() {
                   </div>
                 </div>
 
-                {/* GOVT ID */}
+                {}
                 <div className="mb-2.5 grid grid-cols-1 gap-2 md:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
@@ -334,7 +304,7 @@ export default function RegistrationStep1() {
                   </div>
                 </div>
 
-                {/* ADDRESS */}
+                {}
                 <div className="mb-3">
                   <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
                     Primary Residential Address
@@ -355,10 +325,10 @@ export default function RegistrationStep1() {
                   </div>
                 </div>
 
-                {/* ================= FOOTER ================= */}
+                {}
 
                 <div className="flex flex-col gap-3 border-t border-[#e5eaf0] pt-3 sm:flex-row sm:items-center sm:justify-between">
-                  {/* SECURITY */}
+                  {}
                   <div className="flex max-w-[380px] items-center gap-2 rounded-[4px] bg-[#eef6ff] px-2.5 py-2 text-[10px] leading-[1.4] text-[#0868d7]">
                     <LockKeyhole size={20} className="shrink-0" />
 
@@ -369,7 +339,7 @@ export default function RegistrationStep1() {
                     </span>
                   </div>
 
-                  {/* BUTTONS */}
+                  {}
                   <div className="flex shrink-0 items-center justify-end gap-2">
                     <button
                       type="button"

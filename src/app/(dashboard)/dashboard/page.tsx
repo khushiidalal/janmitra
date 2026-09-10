@@ -60,7 +60,7 @@ function getCaseActivityVisuals(activity: any) {
   const text = (activity?.text || '').toLowerCase();
   const type = activity?.type || '';
 
-  // 1. Completed / Verified / Closed
+  
   if (
     text.includes('verification') ||
     text.includes('completed') ||
@@ -74,7 +74,7 @@ function getCaseActivityVisuals(activity: any) {
     };
   }
 
-  // 2. Pending review / Moved status / Review
+  
   if (
     text.includes('pending') ||
     text.includes('moved') ||
@@ -88,7 +88,7 @@ function getCaseActivityVisuals(activity: any) {
     };
   }
 
-  // 3. Officer / User assigned / Approval
+  
   if (
     text.includes('officer') ||
     text.includes('assigned') ||
@@ -102,7 +102,7 @@ function getCaseActivityVisuals(activity: any) {
     };
   }
 
-  // 4. Document uploaded / OCR / default
+  
   return {
     icon: FileText,
     iconColor: 'text-blue-500',
@@ -362,7 +362,7 @@ export default function Dashboard() {
       animate={{ opacity: 1 }}
       className="space-y-4"
     >
-      {/* PAGE HEADING */}
+      {}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-950">
@@ -386,7 +386,7 @@ export default function Dashboard() {
         </motion.button>
       </div>
 
-      {/* STATS */}
+      {}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {stats.map((stat, i) => (
           <motion.div
@@ -431,13 +431,13 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* MAIN GRID */}
+      {}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
 
-        {/* LEFT */}
+        {}
         <div className="space-y-4">
 
-          {/* CASE STATUS OVERVIEW */}
+          {}
           <Card className="rounded-xl border border-slate-200 p-0 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
               <h3 className="text-sm font-semibold text-slate-900">
@@ -532,7 +532,7 @@ export default function Dashboard() {
             )}
           </Card>
 
-          {/* MY CASES */}
+          {}
           <Card className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
               <h3 className="text-sm font-semibold text-slate-900">
@@ -618,14 +618,14 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* RIGHT SIDE */}
+        {}
         <div className="space-y-3">
 
-          {/* REAL-TIME SECURITY ALERTS */}
+          {}
           <SecurityAlertsCard />
 
 
-          {/* SYSTEM INTEGRITY */}
+          {}
           <Card className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm">
             <h3 className="text-xs font-semibold text-blue-700">
               System Integrity

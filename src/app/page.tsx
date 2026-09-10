@@ -62,7 +62,7 @@ export default function Login() {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // STEP 1 → STEP 2
+  
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -76,7 +76,7 @@ export default function Login() {
     setStep(2);
   };
 
-  // STEP 2 → SIGN IN
+  
  const handleSignIn = async (e: React.FormEvent) => {
   e.preventDefault();
 
@@ -112,10 +112,10 @@ export default function Login() {
       );
     }
 
-    // ==========================================
-    // 2FA ENABLED
-    // Login abhi complete nahi hua
-    // ==========================================
+    
+    
+    
+    
     if (data.requiresTwoFactor) {
       setError(
         data.message ||
@@ -125,10 +125,10 @@ export default function Login() {
       return;
     }
 
-    // ==========================================
-    // 2FA DISABLED
-    // Normal login
-    // ==========================================
+    
+    
+    
+    
 
     const user = data.user;
 
@@ -182,7 +182,7 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gray-900">
-      {/* ================= BACKGROUND ================= */}
+      {}
       <img
         src="/bgimg.png"
         alt=""
@@ -191,11 +191,11 @@ export default function Login() {
 
       <div className="absolute inset-0 bg-black/20" />
 
-      {/* ================= MAIN CONTENT ================= */}
+      {}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* ================= HEADER ================= */}
+        {}
         <header className="flex items-start justify-between px-8 py-5 pr-2">
-          {/* JANMITRA BRAND */}
+          {}
           <div className="flex items-center gap-3">
             <div className="h-16 w-16 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden">
               <img
@@ -214,7 +214,7 @@ export default function Login() {
             </div>
           </div>
 
-          {/* GOVERNMENT OF INDIA */}
+          {}
           <div className="flex items-center gap-0 text-white drop-shadow-md">
             <div className="text-right">
               <p className="text-lg font-semibold">Government of India</p>
@@ -232,12 +232,12 @@ export default function Login() {
           </div>
         </header>
 
-        {/* ================= LOGIN AREA ================= */}
+        {}
         <main className="flex-1 flex items-center px-8 pb-10">
           <div className="w-full max-w-md">
-            {/* LOGIN CARD */}
+            {}
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-              {/* TOP TRICOLOR STRIPE */}
+              {}
               <div className="h-1.5 flex">
                 <div className="w-1/3 bg-orange-500" />
                 <div className="w-1/3 bg-white border-y border-gray-100" />
@@ -245,7 +245,7 @@ export default function Login() {
               </div>
 
               <div className="px-8 py-8">
-                {/* TITLE */}
+                {}
                 <div className="mb-7">
                   <h2 className="text-2xl font-bold text-gray-900">
                     Welcome to JANMITRA
@@ -258,7 +258,7 @@ export default function Login() {
                   </p>
                 </div>
 
-                {/* STEP INDICATOR */}
+                {}
                 <div className="flex items-center gap-2 mb-6">
                   <div
                     className={`h-2 flex-1 rounded-full ${
@@ -273,17 +273,17 @@ export default function Login() {
                   />
                 </div>
 
-                {/* ERROR */}
+                {}
                 {error && (
                   <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {error}
                   </div>
                 )}
 
-                {/* ================= STEP 1 ================= */}
+                {}
                 {step === 1 && (
                   <form onSubmit={handleNext}>
-                    {/* EMAIL */}
+                    {}
                     <div className="mb-5">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Email Address
@@ -314,7 +314,7 @@ export default function Login() {
                       </div>
                     </div>
 
-                    {/* PASSWORD */}
+                    {}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Password
@@ -343,7 +343,7 @@ export default function Login() {
                           className="w-full rounded-lg border border-gray-300 bg-white py-3 pl-11 pr-11 text-sm text-gray-800 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
                         />
 
-                        {/* EYE */}
+                        {}
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
@@ -383,7 +383,7 @@ export default function Login() {
                       </div>
                     </div>
 
-                    {/* REMEMBER + FORGOT */}
+                    {}
                     <div className="flex items-center justify-between mb-6">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -406,7 +406,7 @@ export default function Login() {
                       </Link>
                     </div>
 
-                    {/* NEXT */}
+                    {}
                     <button
                       type="submit"
                       className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.99]"
@@ -419,7 +419,7 @@ export default function Login() {
                   </form>
                 )}
 
-                {/* ================= STEP 2 ================= */}
+                {}
                 {step === 2 && (
                   <form onSubmit={handleSignIn}>
                     <div className="mb-6">
@@ -486,7 +486,7 @@ export default function Login() {
                   </form>
                 )}
 
-                {/* OR */}
+                {}
                 <div className="my-7 flex items-center gap-3">
                   <div className="h-px flex-1 bg-gray-200" />
 
@@ -495,7 +495,7 @@ export default function Login() {
                   <div className="h-px flex-1 bg-gray-200" />
                 </div>
 
-                {/* SIGN UP */}
+                {}
                 <div className="text-center text-sm text-gray-600">
                   <span>New user? </span>
 
@@ -511,7 +511,7 @@ export default function Login() {
           </div>
         </main>
 
-        {/* ================= FOOTER ================= */}
+        {}
         <footer className="bg-[#0b1f33]/95 px-8 py-3 text-white">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <p className="text-gray-300">

@@ -121,10 +121,10 @@ export default function Sidebar() {
         </div>
       </Link>
 
-      {/* DIVIDER */}
+      {}
       <div className="mx-3.5 shrink-0 border-t border-slate-200/80" />
 
-      {/* NAVIGATION */}
+      {}
       <nav className="shrink-0 space-y-1 px-2.5 py-2">
         {navItems.map((item) => {
           const currentPath = pathname || '';
@@ -173,7 +173,7 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* FLEXIBLE FILLER & COURT + TRICOLOR ILLUSTRATION */}
+      {}
       <div className="flex flex-1 flex-col justify-end min-h-0 overflow-hidden">
         <div
           className="relative w-full h-full min-h-[85px] max-h-[175px] shrink bg-no-repeat transition-all"
@@ -185,7 +185,7 @@ export default function Sidebar() {
         />
       </div>
 
-      {/* SYSTEM STATUS */}
+      {}
       <div className="mx-2.5 mb-2.5 shrink-0">
         <div
           className="
@@ -220,7 +220,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* BOTTOM INDIA LINE */}
+      {}
       <div className="mx-3 mb-2.5 shrink-0">
         <div className="flex h-[3px] overflow-hidden rounded-full shadow-xs">
           <div className="flex-1 bg-orange-500" />
@@ -229,7 +229,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* SECURITY FOOTER */}
+      {}
       <div className="mx-2.5 mb-3 flex shrink-0 items-center gap-2 px-1">
         <div
           className="

@@ -1,4 +1,4 @@
-// JANMITRA End-to-End Backend Verification Test Suite
+
 import 'dotenv/config';
 
 const BASE_URL = 'http://127.0.0.1:5000/api';
@@ -27,7 +27,7 @@ async function run() {
   const testViewerEmail = `test.viewer.${testSuffix}@example.com`;
   const testPassword = 'SecurePassword123!';
 
-  // --- 1. HEALTH CHECK ---
+  
   try {
     const res = await fetch(`${BASE_URL}/health`);
     const data = await res.json();
@@ -36,8 +36,8 @@ async function run() {
     record('GET /api/health', false, err.message);
   }
 
-  // --- 2. AUTH REGISTRATION ---
-  // Failure: Missing fields
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
@@ -49,7 +49,7 @@ async function run() {
     record('POST /api/auth/register (Validation)', false, err.message);
   }
 
-  // Success: Register Admin
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
@@ -71,7 +71,7 @@ async function run() {
     record('POST /api/auth/register (Success Admin)', false, err.message);
   }
 
-  // Failure: Duplicate email
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
@@ -87,7 +87,7 @@ async function run() {
     record('POST /api/auth/register (Conflict)', false, err.message);
   }
 
-  // Success: Register Viewer for RBAC tests
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
@@ -107,8 +107,8 @@ async function run() {
     record('POST /api/auth/register (Success Viewer)', false, err.message);
   }
 
-  // --- 3. AUTH LOGIN ---
-  // Failure: Wrong password
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
@@ -120,7 +120,7 @@ async function run() {
     record('POST /api/auth/login (Invalid credentials)', false, err.message);
   }
 
-  // Success: Login
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
@@ -133,8 +133,8 @@ async function run() {
     record('POST /api/auth/login (Success)', false, err.message);
   }
 
-  // --- 4. AUTH ME ---
-  // Failure: No token
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/me`);
     record('GET /api/auth/me (Unauthorized)', res.status === 401, `status: ${res.status}`);
@@ -142,7 +142,7 @@ async function run() {
     record('GET /api/auth/me (Unauthorized)', false, err.message);
   }
 
-  // Success: With token
+  
   try {
     const res = await fetch(`${BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${adminToken}` },
@@ -153,8 +153,8 @@ async function run() {
     record('GET /api/auth/me (Success)', false, err.message);
   }
 
-  // --- 5. OTP APIS ---
-  // Failure: Missing email
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/otp/send`, {
       method: 'POST',
@@ -166,7 +166,7 @@ async function run() {
     record('POST /api/otp/send (Validation)', false, err.message);
   }
 
-  // Failure: Verify missing params
+  
   try {
     const res = await fetch(`${BASE_URL}/otp/verify`, {
       method: 'POST',
@@ -178,7 +178,7 @@ async function run() {
     record('POST /api/otp/verify (Validation)', false, err.message);
   }
 
-  // Phone OTP Simulation
+  
   try {
     const res = await fetch(`${BASE_URL}/phone-otp/send`, {
       method: 'POST',
@@ -203,8 +203,8 @@ async function run() {
     record('POST /api/phone-otp/verify', false, err.message);
   }
 
-  // --- 6. CASES APIS ---
-  // GET /api/cases
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/cases`);
     const data = await res.json();
@@ -213,7 +213,7 @@ async function run() {
     record('GET /api/cases', false, err.message);
   }
 
-  // POST /api/cases (Failure: missing title)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases`, {
       method: 'POST',
@@ -228,7 +228,7 @@ async function run() {
     record('POST /api/cases (Validation)', false, err.message);
   }
 
-  // POST /api/cases (Success: create new case with sample embedded document)
+  
   const samplePdfBase64 = Buffer.from(
     '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj\n4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n5 0 obj<</Length 44>>stream\nBT\n/F1 24 Tf\n100 700 Td\n(FIR Case Document Legal Report Content) Tj\nET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000052 00000 n \n0000000101 00000 n \n0000000212 00000 n \n0000000283 00000 n \ntrailer<</Size 6/Root 1 0 R>>\nstartxref\n377\n%%EOF'
   ).toString('base64');
@@ -265,7 +265,7 @@ async function run() {
     record('POST /api/cases (Success)', false, err.message);
   }
 
-  // GET /api/cases/[id] (Success)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`);
     const data = await res.json();
@@ -274,7 +274,7 @@ async function run() {
     record('GET /api/cases/[id] (Success)', false, err.message);
   }
 
-  // GET /api/cases/[id] (Failure: non-existent)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/NON_EXISTENT_CASE_99999`);
     record('GET /api/cases/[id] (Not Found)', res.status === 404, `status: ${res.status}`);
@@ -282,7 +282,7 @@ async function run() {
     record('GET /api/cases/[id] (Not Found)', false, err.message);
   }
 
-  // PATCH /api/cases/[id] (Failure: Unauthorized)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`, {
       method: 'PATCH',
@@ -294,7 +294,7 @@ async function run() {
     record('PATCH /api/cases/[id] (Unauthorized)', false, err.message);
   }
 
-  // PATCH /api/cases/[id] (Failure: Forbidden for Viewer role)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`, {
       method: 'PATCH',
@@ -309,7 +309,7 @@ async function run() {
     record('PATCH /api/cases/[id] (Forbidden)', false, err.message);
   }
 
-  // PATCH /api/cases/[id] (Success: Admin update)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`, {
       method: 'PATCH',
@@ -325,8 +325,8 @@ async function run() {
     record('PATCH /api/cases/[id] (Success Admin)', false, err.message);
   }
 
-  // --- 7. CASE DOCUMENT OCR PIPELINE ---
-  // POST /api/cases/[id]/documents/[docId]/ocr
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}/documents/${encodeURIComponent(testCaseDocId)}/ocr`, {
       method: 'POST',
@@ -342,7 +342,7 @@ async function run() {
     record('POST /api/cases/[id]/documents/[docId]/ocr', false, err.message);
   }
 
-  // GET /api/cases/[id]/documents/[docId]/ocr
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}/documents/${encodeURIComponent(testCaseDocId)}/ocr`, {
       headers: { Authorization: `Bearer ${adminToken}` },
@@ -357,8 +357,8 @@ async function run() {
     record('GET /api/cases/[id]/documents/[docId]/ocr', false, err.message);
   }
 
-  // --- 8. STANDALONE DOCUMENTS APIS & FILE UPLOAD ---
-  // POST /api/documents (Failure: Unauthorized)
+  
+  
   try {
     const form = new FormData();
     form.append('caseId', testCaseId);
@@ -375,7 +375,7 @@ async function run() {
     record('POST /api/documents (Unauthorized)', false, err.message);
   }
 
-  // POST /api/documents (Failure: Invalid documentType)
+  
   try {
     const form = new FormData();
     form.append('caseId', testCaseId);
@@ -393,7 +393,7 @@ async function run() {
     record('POST /api/documents (Validation)', false, err.message);
   }
 
-  // POST /api/documents (Success: Upload valid PDF)
+  
   const validPdfBytes = Buffer.from(
     '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>endobj\n4 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n5 0 obj<</Length 50>>stream\nBT\n/F1 24 Tf\n100 700 Td\n(Janmitra Standalone Document Upload Verification) Tj\nET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000052 00000 n \n0000000101 00000 n \n0000000212 00000 n \n0000000283 00000 n \ntrailer<</Size 6/Root 1 0 R>>\nstartxref\n383\n%%EOF'
   );
@@ -418,7 +418,7 @@ async function run() {
     record('POST /api/documents (Success Upload)', false, err.message);
   }
 
-  // GET /api/documents (List documents)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents?caseId=${encodeURIComponent(testCaseId)}`);
     const data = await res.json();
@@ -427,7 +427,7 @@ async function run() {
     record('GET /api/documents (List)', false, err.message);
   }
 
-  // GET /api/documents/[id] (Success)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}`);
     const data = await res.json();
@@ -436,7 +436,7 @@ async function run() {
     record('GET /api/documents/[id] (Success)', false, err.message);
   }
 
-  // GET /api/documents/[id]/download (Failure: Unauthorized)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}/download`);
     record('GET /api/documents/[id]/download (Unauthorized check)', res.status === 401, `status: ${res.status}`);
@@ -444,7 +444,7 @@ async function run() {
     record('GET /api/documents/[id]/download (Unauthorized)', false, err.message);
   }
 
-  // GET /api/documents/[id]/download (Success with token)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}/download`, {
       headers: { Authorization: `Bearer ${adminToken}` },
@@ -455,7 +455,7 @@ async function run() {
     record('GET /api/documents/[id]/download (Success)', false, err.message);
   }
 
-  // POST /api/documents/[id]/ocr (Process Standalone Document OCR)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}/ocr`, {
       method: 'POST',
@@ -471,7 +471,7 @@ async function run() {
     record('POST /api/documents/[id]/ocr', false, err.message);
   }
 
-  // GET /api/documents/[id]/ocr (Fetch OCR Status)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}/ocr`, {
       headers: { Authorization: `Bearer ${adminToken}` },
@@ -482,7 +482,7 @@ async function run() {
     record('GET /api/documents/[id]/ocr', false, err.message);
   }
 
-  // PUT /api/documents/[id] (Failure: Unauthorized)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}`, {
       method: 'PUT',
@@ -494,7 +494,7 @@ async function run() {
     record('PUT /api/documents/[id] (Unauthorized)', false, err.message);
   }
 
-  // PUT /api/documents/[id] (Success with token)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}`, {
       method: 'PUT',
@@ -510,8 +510,8 @@ async function run() {
     record('PUT /api/documents/[id] (Success)', false, err.message);
   }
 
-  // --- 9. DRAFT APIS ---
-  // GET /api/draft (Anonymous empty draft)
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/draft`);
     const data = await res.json();
@@ -520,7 +520,7 @@ async function run() {
     record('GET /api/draft', false, err.message);
   }
 
-  // PUT /api/draft (Save draft)
+  
   try {
     const res = await fetch(`${BASE_URL}/draft`, {
       method: 'PUT',
@@ -536,7 +536,7 @@ async function run() {
     record('PUT /api/draft', false, err.message);
   }
 
-  // DELETE /api/draft (Clear draft)
+  
   try {
     const res = await fetch(`${BASE_URL}/draft`, {
       method: 'DELETE',
@@ -548,8 +548,8 @@ async function run() {
     record('DELETE /api/draft', false, err.message);
   }
 
-  // --- 10. AUDIT TRAIL API ---
-  // GET /api/audit (Failure: Unauthorized)
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/audit`);
     record('GET /api/audit (Unauthorized check)', res.status === 401, `status: ${res.status}`);
@@ -557,7 +557,7 @@ async function run() {
     record('GET /api/audit (Unauthorized)', false, err.message);
   }
 
-  // GET /api/audit (Success: Fetch logs)
+  
   try {
     const res = await fetch(`${BASE_URL}/audit?limit=10`, {
       headers: { Authorization: `Bearer ${adminToken}` },
@@ -568,8 +568,8 @@ async function run() {
     record('GET /api/audit (Success)', false, err.message);
   }
 
-  // --- 11. USERS APIS & RBAC ---
-  // GET /api/users (Failure: Unauthorized)
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/users`);
     record('GET /api/users (Unauthorized check)', res.status === 401, `status: ${res.status}`);
@@ -577,7 +577,7 @@ async function run() {
     record('GET /api/users (Unauthorized)', false, err.message);
   }
 
-  // GET /api/users (Success with token)
+  
   try {
     const res = await fetch(`${BASE_URL}/users`, {
       headers: { Authorization: `Bearer ${adminToken}` },
@@ -588,7 +588,7 @@ async function run() {
     record('GET /api/users (Success)', false, err.message);
   }
 
-  // PATCH /api/users/[id] (Failure: Viewer trying to promote itself to Admin)
+  
   try {
     const res = await fetch(`${BASE_URL}/users/${viewerUser.id}`, {
       method: 'PATCH',
@@ -603,7 +603,7 @@ async function run() {
     record('PATCH /api/users/[id] (RBAC role elevation)', false, err.message);
   }
 
-  // DELETE /api/users/[id] (Failure: Viewer trying to delete user)
+  
   try {
     const res = await fetch(`${BASE_URL}/users/${adminUser.id}`, {
       method: 'DELETE',
@@ -614,7 +614,7 @@ async function run() {
     record('DELETE /api/users/[id] (RBAC delete)', false, err.message);
   }
 
-  // DELETE /api/users/[id] (Failure: Cannot delete own account)
+  
   try {
     const res = await fetch(`${BASE_URL}/users/${adminUser.id}`, {
       method: 'DELETE',
@@ -625,8 +625,8 @@ async function run() {
     record('DELETE /api/users/[id] (Self delete)', false, err.message);
   }
 
-  // --- 12. CLEANUP & DELETION ---
-  // DELETE /api/documents/[id] (Failure: Unauthorized)
+  
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}`, {
       method: 'DELETE',
@@ -636,7 +636,7 @@ async function run() {
     record('DELETE /api/documents/[id] (Unauthorized)', false, err.message);
   }
 
-  // DELETE /api/documents/[id] (Success Admin)
+  
   try {
     const res = await fetch(`${BASE_URL}/documents/${testDocumentId}`, {
       method: 'DELETE',
@@ -648,7 +648,7 @@ async function run() {
     record('DELETE /api/documents/[id] (Success)', false, err.message);
   }
 
-  // DELETE /api/cases/[id] (Failure: Unauthorized)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`, {
       method: 'DELETE',
@@ -658,7 +658,7 @@ async function run() {
     record('DELETE /api/cases/[id] (Unauthorized)', false, err.message);
   }
 
-  // DELETE /api/cases/[id] (Failure: Forbidden for Viewer)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`, {
       method: 'DELETE',
@@ -669,7 +669,7 @@ async function run() {
     record('DELETE /api/cases/[id] (Forbidden)', false, err.message);
   }
 
-  // DELETE /api/cases/[id] (Success Admin)
+  
   try {
     const res = await fetch(`${BASE_URL}/cases/${encodeURIComponent(testCaseId)}`, {
       method: 'DELETE',
@@ -681,7 +681,7 @@ async function run() {
     record('DELETE /api/cases/[id] (Success)', false, err.message);
   }
 
-  // DELETE /api/users/[id] (Success Admin delete Viewer)
+  
   try {
     const res = await fetch(`${BASE_URL}/users/${viewerUser.id}`, {
       method: 'DELETE',
@@ -693,9 +693,9 @@ async function run() {
     record('DELETE /api/users/[id] (Success)', false, err.message);
   }
 
-  // DELETE /api/users/[id] (Cleanup Admin test user)
+  
   try {
-    // To delete adminUser, connect directly to mongoose to remove test user
+    
     const mongoose = (await import('mongoose')).default;
     await mongoose.connect(process.env.MONGODB_URI);
     const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
@@ -706,7 +706,7 @@ async function run() {
     record('Database Test Cleanup', false, err.message);
   }
 
-  // --- SUMMARY ---
+  
   const passed = results.filter(r => r.pass).length;
   const failed = results.filter(r => !r.pass).length;
   console.log(`\n========================================`);

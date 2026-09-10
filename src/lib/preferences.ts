@@ -1,4 +1,4 @@
-// Universal Real-Time Preferences & Profile Event Bus for JANMITRA
+
 
 export interface UserPreferences {
   language?: string;
@@ -17,14 +17,14 @@ export function getStoredPreferences(): UserPreferences {
     const raw = localStorage.getItem(PREF_KEY);
     if (raw) return JSON.parse(raw);
 
-    // Fallback to user.preferences if available
+    
     const userRaw = localStorage.getItem('user');
     if (userRaw) {
       const user = JSON.parse(userRaw);
       if (user?.preferences) return user.preferences;
     }
   } catch {
-    // Ignore JSON errors
+    
   }
 
   return { language: 'English (US)', textSize: 'Medium', highContrast: false };
@@ -35,14 +35,14 @@ export function applyGlobalPreferences(prefs: UserPreferences) {
 
   const html = document.documentElement;
 
-  // High contrast mode
+  
   if (prefs.highContrast) {
     html.classList.add('high-contrast');
   } else {
     html.classList.remove('high-contrast');
   }
 
-  // Text size scaling
+  
   html.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
   if (prefs.textSize === 'Small') {
     html.classList.add('text-size-small');
@@ -65,7 +65,7 @@ export function broadcastPreferencesUpdate(prefs: UserPreferences) {
   try {
     localStorage.setItem(PREF_KEY, JSON.stringify(merged));
 
-    // Also sync to cached user object
+    
     const userRaw = localStorage.getItem('user');
     if (userRaw) {
       const user = JSON.parse(userRaw);
@@ -73,7 +73,7 @@ export function broadcastPreferencesUpdate(prefs: UserPreferences) {
       localStorage.setItem('user', JSON.stringify(user));
     }
   } catch {
-    // Storage quota or error handling
+    
   }
 
   applyGlobalPreferences(merged);
@@ -92,7 +92,7 @@ export function broadcastProfileUpdate(user: any) {
       localStorage.setItem('userName', user.username);
     }
   } catch {
-    // Ignore error
+    
   }
 
   window.dispatchEvent(

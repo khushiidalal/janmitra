@@ -34,7 +34,7 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | nu
     token = authHeader.split(' ')[1];
   }
 
-  // Fallback to cookies if Bearer header is not present
+  
   if (!token) {
     token = req.cookies.get('token')?.value ||
             req.cookies.get('kora_token')?.value ||
@@ -51,7 +51,7 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | nu
     const user = await User.findById(decoded.id);
     if (!user) return null;
 
-    // If token has a sessionId and user has tracked sessions, verify it has not been revoked
+    
     if (decoded.sessionId && Array.isArray(user.sessions) && user.sessions.length > 0) {
       const activeSession = user.sessions.find((s) => s.sessionId === decoded.sessionId);
       if (!activeSession) {

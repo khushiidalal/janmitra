@@ -156,9 +156,9 @@ export default function TopNav() {
         </p>
       </div>
 
-      {/* RIGHT CONTROLS */}
+      {}
       <div className="relative ml-4 flex items-center gap-3">
-        {/* SESSION */}
+        {}
         <motion.div
           whileHover={{ y: -1 }}
           className="
@@ -179,7 +179,7 @@ export default function TopNav() {
           <span>Session Encrypted</span>
         </motion.div>
 
-        {/* NOTIFICATION */}
+        {}
         <div className="relative" ref={notifRef}>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -276,7 +276,7 @@ export default function TopNav() {
           </AnimatePresence>
         </div>
 
-        {/* PROFILE */}
+        {}
         <div className="relative" ref={profileRef}>
           <motion.button
             whileHover={{ y: -1 }}

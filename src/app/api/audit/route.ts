@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     const sinceParam = searchParams.get('since');
     const statusParam = searchParams.get('status');
 
-    // RBAC: Security telemetry and login activities are restricted to authorized investigative staff
+    
     if (type === 'login' && !ALLOWED_SECURITY_ROLES.includes(user.role)) {
       return NextResponse.json(
         { success: false, error: 'Forbidden: Insufficient permissions to view security telemetry' },
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
 
     const logs = await Audit.find(filter).sort({ time: -1 }).limit(limit);
 
-    // If a Viewer accesses general audit logs, sanitize IP addresses
+    
     if (user.role === 'Viewer') {
       return NextResponse.json(
         logs.map((l) => {

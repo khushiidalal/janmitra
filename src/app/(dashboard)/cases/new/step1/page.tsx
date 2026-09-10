@@ -28,7 +28,7 @@ export default function Step1Incident() {
 
   return (
     <div className="mx-auto max-w-[1080px] space-y-3">
-      {/* PAGE HEADING */}
+      {}
       <div>
         <h1 className="text-xl font-bold text-slate-900">
           Case Management
@@ -40,17 +40,17 @@ export default function Step1Incident() {
         </p>
       </div>
 
-      {/* STEPPER */}
+      {}
       <Stepper currentStep={1} />
 
-      {/* FORM CARD */}
+      {}
       <Card className="rounded-xl border border-slate-200 p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold text-slate-900">
           Step 1: Incident Details
         </h2>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
-          {/* TITLE */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Incident Title / Brief
@@ -83,7 +83,7 @@ export default function Step1Incident() {
             />
           </div>
 
-          {/* DATE + TIME */}
+          {}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">
@@ -145,7 +145,7 @@ export default function Step1Incident() {
             </div>
           </div>
 
-          {/* LOCATION */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Location of Incident
@@ -178,7 +178,7 @@ export default function Step1Incident() {
             />
           </div>
 
-          {/* CATEGORY */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Category
@@ -217,7 +217,7 @@ export default function Step1Incident() {
             </select>
           </div>
 
-          {/* NARRATIVE */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Detailed Narrative
@@ -256,7 +256,7 @@ export default function Step1Incident() {
             </p>
           </div>
 
-          {/* FOOTER */}
+          {}
           <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-[10px] font-medium text-green-700">
               <Cloud className="h-3.5 w-3.5" />

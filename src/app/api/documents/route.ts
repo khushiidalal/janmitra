@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+    const MAX_FILE_SIZE = 25 * 1024 * 1024; 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { success: false, error: 'File size exceeds the maximum allowed limit of 25 MB' },

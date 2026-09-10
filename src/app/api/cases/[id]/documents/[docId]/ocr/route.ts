@@ -94,7 +94,7 @@ export async function POST(req: NextRequest, context: Context) {
       return NextResponse.json({ success: false, error: 'Case not found' }, { status: 404 });
     }
 
-    // RBAC: Check if user is an officer/investigator or the creator of the case
+    
     const isCreator = foundCase.createdBy && String(foundCase.createdBy) === String(user._id);
     const hasRolePermission = ALLOWED_OCR_ROLES.includes(user.role);
 
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    // Extract MIME type from dataUrl if present (e.g. data:image/png;base64,...)
+    
     let mimeType = 'application/octet-stream';
     if (doc.dataUrl.startsWith('data:')) {
       const match = doc.dataUrl.match(/^data:([^;]+);base64,/);
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    // Parse base64 data to buffer
+    
     const base64Content = doc.dataUrl.includes(',')
       ? doc.dataUrl.split(',')[1]
       : doc.dataUrl;

@@ -36,9 +36,9 @@ export async function POST(req: NextRequest) {
       email: normalizedEmail,
     }).select('+password');
 
-    // -----------------------------------------
-    // PASSWORD CHECK
-    // -----------------------------------------
+    
+    
+    
 
     if (!user || !(await user.comparePassword(password))) {
       await recordLoginSecurityEvent({
@@ -57,10 +57,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // =====================================================
-    // 2FA ENABLED
-    // Password correct hai, lekin abhi login complete nahi hoga
-    // =====================================================
+    
+    
+    
+    
 
     if (user.twoFactorEnabled) {
       const verificationEmail =
@@ -76,23 +76,23 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Raw secret token
+      
       const verificationToken =
         crypto.randomBytes(32).toString('hex');
 
-      // DB me raw token nahi, sirf hash store hoga
+      
       const tokenHash = crypto
         .createHash('sha256')
         .update(verificationToken)
         .digest('hex');
 
-      // Purane login verification links hata do
+      
       await TwoFactorToken.deleteMany({
         userId: user._id,
         purpose: 'login-2fa',
       });
 
-      // New 10-minute token
+      
       await TwoFactorToken.create({
         userId: user._id,
         tokenHash,
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         process.env.APP_URL ||
         'http://localhost:5000';
 
-      // Ye frontend page hum next banayenge
+      
       const verificationLink =
         `${appUrl}/2fa-login?token=${encodeURIComponent(
           verificationToken
@@ -188,8 +188,8 @@ export async function POST(req: NextRequest) {
         `,
       });
 
-      // IMPORTANT:
-      // YAHAN JWT/session create nahi kar rahe
+      
+      
       return NextResponse.json({
         success: true,
         requiresTwoFactor: true,
@@ -198,10 +198,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // =====================================================
-    // 2FA DISABLED
-    // Normal direct login
-    // =====================================================
+    
+    
+    
+    
 
     const sessionId = crypto.randomUUID();
 

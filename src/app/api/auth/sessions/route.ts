@@ -64,7 +64,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Keep only the current session
+    
     user.sessions = (user.sessions || []).filter(
       (s) => s.sessionId === currentSessionId
     );

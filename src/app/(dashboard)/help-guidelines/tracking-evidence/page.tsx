@@ -157,7 +157,7 @@ export default function TrackingEvidenceGuidelinePage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 pb-12">
-      {/* TOP NAVIGATION / BREADCRUMB */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <Link
           href="/help"
@@ -187,7 +187,7 @@ export default function TrackingEvidenceGuidelinePage() {
         </div>
       </div>
 
-      {/* HEADER HERO */}
+      {}
       <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="space-y-2">
@@ -207,28 +207,19 @@ export default function TrackingEvidenceGuidelinePage() {
             </p>
           </div>
 
-          {/* QUICK STATS / METADATA */}
+          {}
           <div className="flex shrink-0 flex-row gap-3 rounded-xl border border-blue-100 bg-white/90 p-3.5 shadow-xs md:flex-col md:min-w-[190px]">
-            <div>
+            <div className="flex flex-col gap-1">
               <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
                 Total Steps
               </p>
               <p className="text-lg font-bold text-gray-900">7 Milestones</p>
             </div>
-            <div className="hidden border-t border-gray-100 md:block" />
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                Verification Standard
-              </p>
-              <p className="text-sm font-semibold text-blue-700">
-                SHA-256 / BSA Compliant
-              </p>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* CHAIN OF CUSTODY EXPLAINER CARD */}
+      {}
       <Card className="border-blue-100 bg-[#fbfdff] p-5 md:p-6">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
@@ -239,7 +230,8 @@ export default function TrackingEvidenceGuidelinePage() {
               What is the Chain of Custody?
             </h2>
             <p className="text-xs text-gray-500">
-              The continuous, unbroken paper and digital trail proving evidence integrity from scene to court.
+              The continuous, unbroken paper and digital trail proving evidence
+              integrity from scene to court.
             </p>
           </div>
         </div>
@@ -259,7 +251,7 @@ export default function TrackingEvidenceGuidelinePage() {
         </div>
       </Card>
 
-      {/* IMPORTANT INTEGRITY NOTICE */}
+      {}
       <div className="flex items-start gap-3.5 rounded-xl border border-blue-200 bg-blue-50/70 p-4 text-blue-950">
         <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
         <div className="text-xs leading-relaxed">
@@ -267,16 +259,16 @@ export default function TrackingEvidenceGuidelinePage() {
             Cryptographic Integrity & Digital Admissibility
           </p>
           <p className="mt-0.5 text-blue-800">
-            All files ingested into Janmitra are automatically hashed with SHA-256
-            cryptographic algorithms at the time of upload. This hash is
+            All files ingested into Janmitra are automatically hashed with
+            SHA-256 cryptographic algorithms at the time of upload. This hash is
             permanently recorded in the Audit Trail and serves as conclusive
-            proof in judicial proceedings that the evidence has not been tampered
-            with, altered, or replaced.
+            proof in judicial proceedings that the evidence has not been
+            tampered with, altered, or replaced.
           </p>
         </div>
       </div>
 
-      {/* STEP BY STEP TIMELINE CARDS */}
+      {}
       <div className="space-y-4">
         {steps.map((item) => {
           const Icon = item.icon;
@@ -284,7 +276,7 @@ export default function TrackingEvidenceGuidelinePage() {
           return (
             <Card key={item.step} className="p-5 md:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                {/* STEP NUMBER BADGE & ICON */}
+                {}
                 <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-center sm:gap-2">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
                     <Icon className="h-5 w-5" />
@@ -294,7 +286,7 @@ export default function TrackingEvidenceGuidelinePage() {
                   </span>
                 </div>
 
-                {/* STEP CONTENT */}
+                {}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-lg font-semibold text-gray-900">
@@ -309,7 +301,7 @@ export default function TrackingEvidenceGuidelinePage() {
                     {item.description}
                   </p>
 
-                  {/* CHECKLIST */}
+                  {}
                   {item.checklist && item.checklist.length > 0 && (
                     <div className="mt-3.5 rounded-lg border border-gray-100 bg-gray-50/60 p-3.5">
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -326,18 +318,20 @@ export default function TrackingEvidenceGuidelinePage() {
                     </div>
                   )}
 
-                  {/* TIP CALLOUT */}
+                  {}
                   {item.tip && (
                     <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-xs text-blue-900">
                       <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-600" />
                       <p className="leading-relaxed">
-                        <strong className="font-semibold">Best Practice: </strong>
+                        <strong className="font-semibold">
+                          Best Practice:{" "}
+                        </strong>
                         {item.tip}
                       </p>
                     </div>
                   )}
 
-                  {/* WARNING CALLOUT */}
+                  {}
                   {item.warning && (
                     <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
@@ -354,14 +348,16 @@ export default function TrackingEvidenceGuidelinePage() {
         })}
       </div>
 
-      {/* BOTTOM ACTION BANNER */}
+      {}
       <Card className="border-blue-200 bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white shadow-md">
         <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
           <div>
-            <h3 className="text-lg font-bold">Access the Evidence Management Portal</h3>
+            <h3 className="text-lg font-bold">
+              Access the Evidence Management Portal
+            </h3>
             <p className="mt-1 max-w-xl text-xs leading-relaxed text-blue-100 sm:text-sm">
-              Upload documents, inspect OCR transcripts, or track the audit trail
-              for active legal case files.
+              Upload documents, inspect OCR transcripts, or track the audit
+              trail for active legal case files.
             </p>
           </div>
 
@@ -384,11 +380,14 @@ export default function TrackingEvidenceGuidelinePage() {
         </div>
       </Card>
 
-      {/* FOOTER SUPPORT NOTE */}
+      {}
       <div className="flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-1.5">
           <HelpCircle className="h-3.5 w-3.5" />
-          <span>Need technical assistance with OCR or file hashing? Contact Support at 1-800-LEGAL-SYS.</span>
+          <span>
+            Need technical assistance with OCR or file hashing? Contact Support
+            at 1-800-LEGAL-SYS.
+          </span>
         </div>
         <Link href="/help" className="text-blue-600 hover:underline">
           Help & Guidelines Hub

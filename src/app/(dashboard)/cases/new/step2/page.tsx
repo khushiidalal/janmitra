@@ -66,7 +66,7 @@ export default function Step2People() {
   return (
     <div className="mx-auto max-w-[1080px] space-y-3">
 
-      {/* PAGE HEADER */}
+      {}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">
           Case Management
@@ -78,10 +78,10 @@ export default function Step2People() {
         </p>
       </div>
 
-      {/* STEPPER */}
+      {}
       <Stepper currentStep={2} />
 
-      {/* PEOPLE DESCRIPTION */}
+      {}
       <div className="px-1">
         <h2 className="text-base font-semibold text-slate-900">
           People Involved
@@ -93,7 +93,7 @@ export default function Step2People() {
         </p>
       </div>
 
-      {/* SAVED PEOPLE */}
+      {}
       {draft.people?.length > 0 && (
         <div className="space-y-2">
           {draft.people.map((person: any) => (
@@ -104,7 +104,7 @@ export default function Step2People() {
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
 
-                  {/* PERSON ICON */}
+                  {}
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-blue-100">
                     <User className="h-4 w-4 text-blue-600" />
                   </div>
@@ -140,7 +140,7 @@ export default function Step2People() {
                   </div>
                 </div>
 
-                {/* ACTION ICONS */}
+                {}
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -163,10 +163,10 @@ export default function Step2People() {
         </div>
       )}
 
-      {/* ADD PERSON CARD */}
+      {}
       <Card className="rounded-xl border border-blue-300 bg-white p-5 shadow-sm">
 
-        {/* CARD TITLE */}
+        {}
         <div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
           <User className="h-4 w-4 text-slate-800" />
 
@@ -177,7 +177,7 @@ export default function Step2People() {
 
         <div className="space-y-3">
 
-          {/* NAME */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Full Name
@@ -192,7 +192,7 @@ export default function Step2People() {
             />
           </div>
 
-          {/* RELATIONSHIP + CONTACT */}
+          {}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">
@@ -230,7 +230,7 @@ export default function Step2People() {
             </div>
           </div>
 
-          {/* ADDRESS */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Address
@@ -245,7 +245,7 @@ export default function Step2People() {
             />
           </div>
 
-          {/* NOTES */}
+          {}
           <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">
               Notes (Optional)
@@ -260,7 +260,7 @@ export default function Step2People() {
             />
           </div>
 
-          {/* FORM BUTTONS */}
+          {}
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
@@ -282,10 +282,10 @@ export default function Step2People() {
         </div>
       </Card>
 
-      {/* BOTTOM FOOTER */}
+      {}
       <div className="flex flex-col gap-3 border-t border-slate-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
 
-        {/* AUTOSAVE */}
+        {}
         <div className="flex items-center gap-2 text-sm font-medium text-green-700">
           <Cloud className="h-4 w-4" />
 
@@ -294,7 +294,7 @@ export default function Step2People() {
           </span>
         </div>
 
-        {/* NAVIGATION */}
+        {}
         <div className="flex items-center gap-2">
           <button
             type="button"

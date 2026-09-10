@@ -14,8 +14,8 @@ export const EMPTY_DRAFT = {
   documents: [] as any[],
 };
 
-// Loads the server-side draft once on mount, then autosaves (debounced) whenever
-// the draft changes. The initial load itself does NOT trigger a save.
+
+
 export function useDraft() {
   const [draft, setDraft] = useState<any>(EMPTY_DRAFT);
   const [loaded, setLoaded] = useState(false);
@@ -25,7 +25,7 @@ export function useDraft() {
     let active = true;
     getDraft()
       .then((d) => { if (active) setDraft({ ...EMPTY_DRAFT, ...(d || {}) }); })
-      .catch(() => { /* keep the empty draft if the fetch fails */ })
+      .catch(() => {  })
       .finally(() => { if (active) setLoaded(true); });
     return () => { active = false; };
   }, []);
@@ -34,7 +34,7 @@ export function useDraft() {
     if (!loaded) return;
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      saveDraft(draft).catch(() => { /* best-effort autosave */ });
+      saveDraft(draft).catch(() => {  });
     }, 600);
     return () => { if (timer.current) clearTimeout(timer.current); };
   }, [draft, loaded]);

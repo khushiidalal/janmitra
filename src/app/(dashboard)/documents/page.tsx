@@ -49,9 +49,9 @@ export default function Documents() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // --------------------------------------------------
-  // LOAD CASES + DOCUMENTS
-  // --------------------------------------------------
+  
+  
+  
 
   const loadData = async () => {
     setLoading(true);
@@ -94,7 +94,7 @@ export default function Documents() {
         }
       }
     } catch {
-      // ignore
+      
     }
 
     getMe()
@@ -141,9 +141,9 @@ export default function Documents() {
     }
   };
 
-  // --------------------------------------------------
-  // FILE SELECT
-  // --------------------------------------------------
+  
+  
+  
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -160,9 +160,9 @@ export default function Documents() {
     setSuccess('');
   };
 
-  // --------------------------------------------------
-  // UPLOAD
-  // --------------------------------------------------
+  
+  
+  
 
   const handleUpload = async () => {
     setError('');
@@ -220,9 +220,9 @@ export default function Documents() {
     }
   };
 
-  // --------------------------------------------------
-  // DELETE
-  // --------------------------------------------------
+  
+  
+  
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
@@ -250,9 +250,9 @@ export default function Documents() {
     }
   };
 
-  // --------------------------------------------------
-  // DOWNLOAD
-  // --------------------------------------------------
+  
+  
+  
 
   const handleDownload = async (id: string, name: string) => {
     setError('');
@@ -276,9 +276,9 @@ export default function Documents() {
     }
   };
 
-  // --------------------------------------------------
-  // FILTER
-  // --------------------------------------------------
+  
+  
+  
 
   const filteredDocuments = documents.filter((document) => {
     const query = search.toLowerCase();
@@ -307,9 +307,9 @@ export default function Documents() {
     );
   });
 
-  // --------------------------------------------------
-  // CASE NAME
-  // --------------------------------------------------
+  
+  
+  
 
   const getCaseName = (caseId: string) => {
     const foundCase = cases.find(
@@ -329,9 +329,9 @@ export default function Documents() {
     );
   };
 
-  // --------------------------------------------------
-  // FORMAT FILE SIZE
-  // --------------------------------------------------
+  
+  
+  
 
   const formatFileSize = (bytes: number) => {
     if (!bytes) return '—';
@@ -347,13 +347,13 @@ export default function Documents() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  // --------------------------------------------------
-  // UI
-  // --------------------------------------------------
+  
+  
+  
 
   return (
     <div className="space-y-5">
-      {/* HEADER */}
+      {}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -374,7 +374,7 @@ export default function Documents() {
         </button>
       </div>
 
-      {/* MESSAGES */}
+      {}
 
       {error && (
         <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -396,7 +396,7 @@ export default function Documents() {
         </div>
       )}
 
-      {/* UPLOAD */}
+      {}
 
       <Card className="rounded-xl border border-slate-200 p-5 shadow-sm">
         <div className="mb-5">
@@ -410,7 +410,7 @@ export default function Documents() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* CASE */}
+          {}
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -442,7 +442,7 @@ export default function Documents() {
             </select>
           </div>
 
-          {/* DOCUMENT NAME */}
+          {}
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -460,7 +460,7 @@ export default function Documents() {
             />
           </div>
 
-          {/* TYPE */}
+          {}
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -498,7 +498,7 @@ export default function Documents() {
             </select>
           </div>
 
-          {/* FILE */}
+          {}
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -517,7 +517,7 @@ export default function Documents() {
             </p>
           </div>
 
-          {/* DESCRIPTION */}
+          {}
 
           <div className="md:col-span-2">
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
@@ -536,7 +536,7 @@ export default function Documents() {
           </div>
         </div>
 
-        {/* UPLOAD BUTTON */}
+        {}
 
         <div className="mt-5">
           <button
@@ -553,7 +553,7 @@ export default function Documents() {
         </div>
       </Card>
 
-      {/* DOCUMENT LIST */}
+      {}
 
       <Card className="overflow-hidden rounded-xl border border-slate-200 p-0 shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -583,7 +583,7 @@ export default function Documents() {
           </div>
         </div>
 
-        {/* LOADING */}
+        {}
 
         {loading ? (
           <div className="px-5 py-12 text-center text-sm text-slate-500">
@@ -634,13 +634,13 @@ export default function Documents() {
                     key={documentId || index}
                     className="flex flex-col gap-3 px-5 py-4 transition hover:bg-slate-50 md:flex-row md:items-center"
                   >
-                    {/* ICON */}
+                    {}
 
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50">
                       <FileText className="h-5 w-5 text-blue-500" />
                     </div>
 
-                    {/* INFO */}
+                    {}
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -648,7 +648,7 @@ export default function Documents() {
                           {name}
                         </p>
 
-                        {/* OCR Status Badge */}
+                        {}
                         {document.ocrStatus === 'completed' ? (
                           <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -699,10 +699,10 @@ export default function Documents() {
                       )}
                     </div>
 
-                    {/* ACTIONS */}
+                    {}
 
                     <div className="flex flex-wrap shrink-0 items-center gap-2">
-                      {/* View Extracted Text */}
+                      {}
                       {document.ocrStatus === 'completed' && (
                         <button
                           type="button"
@@ -713,7 +713,7 @@ export default function Documents() {
                         </button>
                       )}
 
-                      {/* OCR Trigger Actions for authorized roles */}
+                      {}
                       {canEditCase && (
                         <>
                           {(!document.ocrStatus || document.ocrStatus === 'not_started') && (
@@ -771,7 +771,7 @@ export default function Documents() {
         )}
       </Card>
 
-      {/* OCR Text Modal */}
+      {}
       {activeOcrDoc && (
         <OcrTextModal
           isOpen={!!activeOcrDoc}

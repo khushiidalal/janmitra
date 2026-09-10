@@ -55,14 +55,14 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // NOW 2FA is actually enabled.
+    
     user.twoFactorEnabled = true;
     user.twoFactorMethod = "email-link";
     user.twoFactorLastVerified = new Date();
 
     await user.save();
 
-    // One-time link.
+    
     await TwoFactorToken.deleteMany({
       userId: user._id,
       purpose: "enable-2fa",

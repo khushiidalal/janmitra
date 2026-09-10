@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Query user with password selected
+    
     const user = await User.findById(authUser._id).select('+password');
     if (!user) {
       return NextResponse.json(

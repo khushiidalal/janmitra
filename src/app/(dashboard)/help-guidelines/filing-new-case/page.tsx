@@ -154,7 +154,7 @@ export default function FilingNewCaseGuidelinePage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 pb-12">
-      {/* TOP NAVIGATION / BREADCRUMB */}
+      {}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <Link
           href="/help"
@@ -175,7 +175,7 @@ export default function FilingNewCaseGuidelinePage() {
         </div>
       </div>
 
-      {/* HEADER HERO */}
+      {}
       <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="space-y-2">
@@ -195,7 +195,7 @@ export default function FilingNewCaseGuidelinePage() {
             </p>
           </div>
 
-          {/* QUICK STATS / METADATA */}
+          {}
           <div className="flex shrink-0 flex-row gap-3 rounded-xl border border-blue-100 bg-white/90 p-3.5 shadow-xs md:flex-col md:min-w-[190px]">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
@@ -203,20 +203,12 @@ export default function FilingNewCaseGuidelinePage() {
               </p>
               <p className="text-lg font-bold text-gray-900">8 Key Stages</p>
             </div>
-            <div className="hidden border-t border-gray-100 md:block" />
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                Target Timeline
-              </p>
-              <p className="text-sm font-semibold text-emerald-600">
-                Immediate / &lt; 2 Hours
-              </p>
-            </div>
+          
           </div>
         </div>
       </div>
 
-      {/* IMPORTANT LEGAL ADVISORY */}
+      {}
       <div className="flex items-start gap-3.5 rounded-xl border border-amber-200 bg-amber-50/70 p-4 text-amber-900">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
         <div className="text-xs leading-relaxed">
@@ -232,7 +224,7 @@ export default function FilingNewCaseGuidelinePage() {
         </div>
       </div>
 
-      {/* STEP BY STEP TIMELINE CARDS */}
+      {}
       <div className="space-y-4">
         {steps.map((item) => {
           const Icon = item.icon;
@@ -240,7 +232,7 @@ export default function FilingNewCaseGuidelinePage() {
           return (
             <Card key={item.step} className="p-5 md:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                {/* STEP NUMBER BADGE & ICON */}
+                {}
                 <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-center sm:gap-2">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
                     <Icon className="h-5 w-5" />
@@ -250,7 +242,7 @@ export default function FilingNewCaseGuidelinePage() {
                   </span>
                 </div>
 
-                {/* STEP CONTENT */}
+                {}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h2 className="text-lg font-semibold text-gray-900">
@@ -265,7 +257,7 @@ export default function FilingNewCaseGuidelinePage() {
                     {item.description}
                   </p>
 
-                  {/* CHECKLIST */}
+                  {}
                   {item.checklist && item.checklist.length > 0 && (
                     <div className="mt-3.5 rounded-lg border border-gray-100 bg-gray-50/60 p-3.5">
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -282,7 +274,7 @@ export default function FilingNewCaseGuidelinePage() {
                     </div>
                   )}
 
-                  {/* TIP CALLOUT */}
+                  {}
                   {item.tip && (
                     <div className="mt-3 flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-xs text-blue-900">
                       <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-600" />
@@ -293,7 +285,7 @@ export default function FilingNewCaseGuidelinePage() {
                     </div>
                   )}
 
-                  {/* WARNING CALLOUT */}
+                  {}
                   {item.warning && (
                     <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
@@ -310,7 +302,7 @@ export default function FilingNewCaseGuidelinePage() {
         })}
       </div>
 
-      {/* BOTTOM ACTION BANNER */}
+      {}
       <Card className="border-blue-200 bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white shadow-md">
         <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
           <div>
@@ -340,7 +332,7 @@ export default function FilingNewCaseGuidelinePage() {
         </div>
       </Card>
 
-      {/* FOOTER SUPPORT NOTE */}
+      {}
       <div className="flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-1.5">
           <HelpCircle className="h-3.5 w-3.5" />

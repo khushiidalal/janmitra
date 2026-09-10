@@ -16,17 +16,17 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch user-specific cases
+    
     const cases = await Case.find({ createdBy: user._id })
       .select('-__v')
       .lean();
 
-    // Fetch user-uploaded documents
+    
     const documents = await Document.find({ uploadedBy: user._id })
       .select('-filePath -storageKey -__v')
       .lean();
 
-    // Fetch user-related audit trails
+    
     const auditLogs = await Audit.find({
       $or: [{ userId: user._id }, { userEmail: user.email }],
     })
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       .limit(200)
       .lean();
 
-    // Sanitized profile (no password hash, salt, or secrets)
+    
     const sanitizedProfile = {
       id: user._id.toString(),
       fullName: user.fullName,
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
       gender: user.gender || 'Not provided',
       address: user.address || 'Not provided',
       govIdType: user.govIdType || 'Not provided',
-      govIdNumber: user.govIdNumber ? '••••••••' : 'Not provided', // Masked for privacy
+      govIdNumber: user.govIdNumber ? '••••••••' : 'Not provided', 
       joiningDate: user.joiningDate || 'Not provided',
       supervisingOfficer: user.supervisingOfficer || 'Not provided',
       twoFactorEnabled: !!user.twoFactorEnabled,

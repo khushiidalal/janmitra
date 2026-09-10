@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use the authenticated user's registered account email specifically
+    
     const verificationEmail = user.email?.trim().toLowerCase();
 
     if (!verificationEmail) {
@@ -59,22 +59,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Random token sent to the user's email.
+    
     const token = crypto.randomBytes(32).toString("hex");
 
-    // Only its hash is stored in MongoDB.
+    
     const tokenHash = crypto
       .createHash("sha256")
       .update(token)
       .digest("hex");
 
-    // Invalidate previous enable-2FA links.
+    
     await TwoFactorToken.deleteMany({
       userId: user._id,
       purpose: "enable-2fa",
     });
 
-    // Link valid for 10 minutes.
+    
     await TwoFactorToken.create({
       userId: user._id,
       tokenHash,

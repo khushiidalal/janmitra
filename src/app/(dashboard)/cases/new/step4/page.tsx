@@ -30,10 +30,10 @@ function Step4DocumentsContent() {
 
   const { draft, setDraft } = useDraft();
 
-  // -----------------------------------------
-  // STEP 3 = Evidence Details
-  // STEP 4 = Supporting Documents
-  // -----------------------------------------
+  
+  
+  
+  
 
   const stageParam = searchParams?.get('stage');
 
@@ -47,9 +47,9 @@ function Step4DocumentsContent() {
     else if (stageParam === '4') setCurrentStage(4);
   }, [stageParam]);
 
-  // -----------------------------------------
-  // Evidence form
-  // -----------------------------------------
+  
+  
+  
 
   const [evidenceType, setEvidenceType] =
     useState('');
@@ -66,9 +66,9 @@ function Step4DocumentsContent() {
   const [supportingDetails, setSupportingDetails] =
     useState('');
 
-  // -----------------------------------------
-  // Load existing evidence from draft
-  // -----------------------------------------
+  
+  
+  
 
   useEffect(() => {
     const evidence = draft.evidence;
@@ -96,9 +96,9 @@ function Step4DocumentsContent() {
     );
   }, [draft.evidence]);
 
-  // -----------------------------------------
-  // Save evidence details
-  // -----------------------------------------
+  
+  
+  
 
   const saveEvidenceDetails = () => {
     setDraft({
@@ -134,9 +134,9 @@ function Step4DocumentsContent() {
     });
   };
 
-  // -----------------------------------------
-  // Document upload
-  // -----------------------------------------
+  
+  
+  
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -154,7 +154,7 @@ function Step4DocumentsContent() {
 
     const selectedFile = e.target.files[0];
 
-    // 20 MB validation
+    
     const maxSize =
       20 * 1024 * 1024;
 
@@ -215,9 +215,9 @@ function Step4DocumentsContent() {
     }
   };
 
-  // -----------------------------------------
-  // Remove document
-  // -----------------------------------------
+  
+  
+  
 
   const handleRemoveFile = (
     id: string
@@ -234,9 +234,9 @@ function Step4DocumentsContent() {
     });
   };
 
-  // -----------------------------------------
-  // Preview document
-  // -----------------------------------------
+  
+  
+  
 
   const openPreview = (
     dataUrl: string
@@ -283,9 +283,9 @@ function Step4DocumentsContent() {
     previewWindow.document.close();
   };
 
-  // -----------------------------------------
-  // Go back to Step 2
-  // -----------------------------------------
+  
+  
+  
 
   const handleBackToPeople = () => {
     router.push(
@@ -293,9 +293,9 @@ function Step4DocumentsContent() {
     );
   };
 
-  // -----------------------------------------
-  // Back from documents to evidence
-  // -----------------------------------------
+  
+  
+  
 
   const handleBackToEvidence = () => {
     setCurrentStage(3);
@@ -306,9 +306,9 @@ function Step4DocumentsContent() {
     });
   };
 
-  // -----------------------------------------
-  // Continue to Step 5
-  // -----------------------------------------
+  
+  
+  
 
   const handleDocumentsContinue = () => {
     router.push(
@@ -319,7 +319,7 @@ function Step4DocumentsContent() {
   return (
     <div className="mx-auto max-w-[1080px] space-y-4">
 
-      {/* PAGE HEADER */}
+      {}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">
           Case Management
@@ -331,19 +331,19 @@ function Step4DocumentsContent() {
         </p>
       </div>
 
-      {/* STEPPER */}
+      {}
       <Stepper
         currentStep={currentStage}
       />
 
-      {/* ================================= */}
-      {/* STEP 3 - EVIDENCE DETAILS */}
-      {/* ================================= */}
+      {}
+      {}
+      {}
 
       {currentStage === 3 && (
         <Card className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
 
-          {/* HEADER */}
+          {}
           <div className="border-b border-slate-200 pb-4">
             <h2 className="text-base font-semibold text-slate-900">
               Evidence Details
@@ -358,10 +358,10 @@ function Step4DocumentsContent() {
 
           <div className="mt-4 space-y-4">
 
-            {/* TYPE + TITLE */}
+            {}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-              {/* EVIDENCE TYPE */}
+              {}
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Evidence Type
@@ -420,7 +420,7 @@ function Step4DocumentsContent() {
                 </select>
               </div>
 
-              {/* EVIDENCE TITLE */}
+              {}
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Evidence Title
@@ -453,7 +453,7 @@ function Step4DocumentsContent() {
               </div>
             </div>
 
-            {/* DESCRIPTION */}
+            {}
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                 Description
@@ -485,10 +485,10 @@ function Step4DocumentsContent() {
               />
             </div>
 
-            {/* SOURCE + SUPPORTING DETAILS */}
+            {}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-              {/* SOURCE */}
+              {}
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Source / Location Found
@@ -520,7 +520,7 @@ function Step4DocumentsContent() {
                 />
               </div>
 
-              {/* SUPPORTING DETAILS */}
+              {}
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800">
                   Optional Supporting Details
@@ -554,10 +554,10 @@ function Step4DocumentsContent() {
             </div>
           </div>
 
-          {/* FOOTER */}
+          {}
           <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
 
-            {/* AUTOSAVE */}
+            {}
             <div className="flex items-center gap-2 text-sm font-medium text-green-700">
               <Cloud className="h-4 w-4" />
 
@@ -566,7 +566,7 @@ function Step4DocumentsContent() {
               </span>
             </div>
 
-            {/* BUTTONS */}
+            {}
             <div className="flex items-center gap-2">
 
               <button
@@ -638,14 +638,14 @@ function Step4DocumentsContent() {
         </Card>
       )}
 
-      {/* ================================= */}
-      {/* STEP 4 - SUPPORTING DOCUMENTS */}
-      {/* ================================= */}
+      {}
+      {}
+      {}
 
       {currentStage === 4 && (
         <Card className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
 
-          {/* HEADER */}
+          {}
           <div className="border-b border-slate-200 pb-4">
             <h2 className="text-base font-semibold text-slate-900">
               Supporting Documents
@@ -658,7 +658,7 @@ function Step4DocumentsContent() {
             </p>
           </div>
 
-          {/* UPLOAD BOX */}
+          {}
           <div
             className="
               mt-4
@@ -721,7 +721,7 @@ function Step4DocumentsContent() {
             </p>
           </div>
 
-          {/* FILE LIST */}
+          {}
           <div className="mt-4 space-y-3">
 
             <h3 className="text-sm font-semibold text-slate-900">
@@ -746,7 +746,7 @@ function Step4DocumentsContent() {
                   "
                 >
 
-                  {/* FILE INFO */}
+                  {}
                   <div className="flex min-w-0 items-center gap-3">
 
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
@@ -767,10 +767,10 @@ function Step4DocumentsContent() {
                     </div>
                   </div>
 
-                  {/* ACTIONS */}
+                  {}
                   <div className="flex shrink-0 items-center gap-2">
 
-                    {/* PREVIEW */}
+                    {}
                     <button
                       type="button"
                       onClick={() =>
@@ -800,7 +800,7 @@ function Step4DocumentsContent() {
                       </span>
                     </button>
 
-                    {/* DOCUMENT TYPE */}
+                    {}
                     <div className="relative hidden md:block">
 
                       <select
@@ -850,7 +850,7 @@ function Step4DocumentsContent() {
                       />
                     </div>
 
-                    {/* DELETE */}
+                    {}
                     <button
                       type="button"
                       onClick={() =>
@@ -874,7 +874,7 @@ function Step4DocumentsContent() {
               )
             )}
 
-            {/* EMPTY STATE */}
+            {}
             {(!draft.documents ||
               draft.documents.length === 0) && (
               <p className="py-3 text-center text-sm text-slate-500">
@@ -884,10 +884,10 @@ function Step4DocumentsContent() {
 
           </div>
 
-          {/* FOOTER */}
+          {}
           <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
 
-            {/* AUTOSAVE */}
+            {}
             <div className="flex items-center gap-2 text-sm font-medium text-green-700">
               <Cloud className="h-4 w-4" />
 
@@ -896,7 +896,7 @@ function Step4DocumentsContent() {
               </span>
             </div>
 
-            {/* NAVIGATION */}
+            {}
             <div className="flex items-center gap-2">
 
               <button

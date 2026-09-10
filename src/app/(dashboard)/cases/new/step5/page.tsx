@@ -37,9 +37,9 @@ export default function Step5Review() {
   const [error, setError] =
     useState('');
 
-  // -----------------------------------------
-  // Load latest server-side draft
-  // -----------------------------------------
+  
+  
+  
 
   useEffect(() => {
     let active = true;
@@ -79,9 +79,9 @@ export default function Step5Review() {
       ? draft.documents
       : [];
 
-  // -----------------------------------------
-  // Submit final case
-  // -----------------------------------------
+  
+  
+  
 
   const handleSubmit = async () => {
     if (!confirmed || submitting) {
@@ -120,8 +120,8 @@ export default function Step5Review() {
         documents,
       });
 
-      // Clear server-side draft only
-      // after successful case creation.
+      
+      
       await clearDraft();
 
       router.push('/dashboard');
@@ -139,7 +139,7 @@ export default function Step5Review() {
   return (
     <div className="mx-auto max-w-[1080px] space-y-4 pb-10">
 
-      {/* PAGE HEADER */}
+      {}
 
       <div>
         <h1 className="text-2xl font-bold text-slate-900">
@@ -152,11 +152,11 @@ export default function Step5Review() {
         </p>
       </div>
 
-      {/* STEPPER */}
+      {}
 
       <Stepper currentStep={5} />
 
-      {/* REVIEW HEADER */}
+      {}
 
       <div className="pt-1">
         <h2 className="text-lg font-bold text-slate-900">
@@ -169,9 +169,9 @@ export default function Step5Review() {
         </p>
       </div>
 
-      {/* ========================================= */}
-      {/* INCIDENT DETAILS */}
-      {/* ========================================= */}
+      {}
+      {}
+      {}
 
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
@@ -200,7 +200,7 @@ export default function Step5Review() {
 
         <div className="grid grid-cols-1 gap-x-10 gap-y-4 px-5 py-4 md:grid-cols-2">
 
-          {/* TITLE */}
+          {}
 
           <div>
             <p className="text-[11px] font-semibold text-slate-500">
@@ -212,7 +212,7 @@ export default function Step5Review() {
             </p>
           </div>
 
-          {/* DATE + TIME */}
+          {}
 
           <div>
             <p className="text-[11px] font-semibold text-slate-500">
@@ -228,7 +228,7 @@ export default function Step5Review() {
             </p>
           </div>
 
-          {/* LOCATION */}
+          {}
 
           <div className="md:col-span-2">
             <p className="text-[11px] font-semibold text-slate-500">
@@ -240,7 +240,7 @@ export default function Step5Review() {
             </p>
           </div>
 
-          {/* CATEGORY */}
+          {}
 
           <div>
             <p className="text-[11px] font-semibold text-slate-500">
@@ -252,7 +252,7 @@ export default function Step5Review() {
             </p>
           </div>
 
-          {/* DESCRIPTION */}
+          {}
 
           <div className="md:col-span-2">
             <p className="text-[11px] font-semibold text-slate-500">
@@ -267,9 +267,9 @@ export default function Step5Review() {
         </div>
       </section>
 
-      {/* ========================================= */}
-      {/* PEOPLE INVOLVED */}
-      {/* ========================================= */}
+      {}
+      {}
+      {}
 
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
@@ -351,9 +351,9 @@ export default function Step5Review() {
         </div>
       </section>
 
-      {/* ========================================= */}
-      {/* EVIDENCE DETAILS */}
-      {/* ========================================= */}
+      {}
+      {}
+      {}
 
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
@@ -418,9 +418,9 @@ export default function Step5Review() {
         </div>
       </section>
 
-      {/* ========================================= */}
-      {/* SUPPORTING DOCUMENTS */}
-      {/* ========================================= */}
+      {}
+      {}
+      {}
 
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
@@ -492,9 +492,9 @@ export default function Step5Review() {
         </div>
       </section>
 
-      {/* ========================================= */}
-      {/* ERROR */}
-      {/* ========================================= */}
+      {}
+      {}
+      {}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -502,9 +502,9 @@ export default function Step5Review() {
         </div>
       )}
 
-      {/* ========================================= */}
-      {/* CONFIRM + SUBMIT */}
-      {/* ========================================= */}
+      {}
+      {}
+      {}
 
       <section className="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
 
@@ -529,7 +529,7 @@ export default function Step5Review() {
 
         </label>
 
-        {/* BOTTOM ACTIONS */}
+        {}
 
         <div className="mt-4 flex items-center justify-between">
 

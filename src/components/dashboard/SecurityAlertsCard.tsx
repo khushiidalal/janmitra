@@ -39,12 +39,12 @@ function formatRelativeTime(dateInput: string | Date | undefined): string {
   if (diffSec < 90) return '1 minute ago';
   if (diffSec < 3600) return `${Math.floor(diffSec / 60)} minutes ago`;
 
-  // Same day
+  
   if (now.toDateString() === date.toDateString()) {
     return `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
   }
 
-  // Yesterday
+  
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   if (yesterday.toDateString() === date.toDateString()) {
@@ -65,7 +65,7 @@ export default function SecurityAlertsCard() {
     try {
       const data = await getSecurityAlerts(5);
       if (Array.isArray(data)) {
-        // Compute composite IDs to detect changes without unnecessary re-renders
+        
         const currentIds = data.map((e: any) => e.id || e._id || `${e.time}-${e.accessedBy}`).join(',');
         if (currentIds !== lastEventIdsRef.current) {
           lastEventIdsRef.current = currentIds;
@@ -74,13 +74,13 @@ export default function SecurityAlertsCard() {
         setError(null);
       }
     } catch (err: any) {
-      // Gracefully handle unauthenticated/unauthorized or network errors
+      
       if (err?.status === 403) {
         setError('Restricted: Security monitoring requires Officer clearance.');
       } else if (err?.status === 401) {
         setError('Authentication required.');
       } else {
-        // Retain existing events on transient errors
+        
         console.error('Failed to poll security alerts:', err);
       }
     } finally {
@@ -89,10 +89,10 @@ export default function SecurityAlertsCard() {
   }, []);
 
   useEffect(() => {
-    // Initial fetch
+    
     fetchAlerts();
 
-    // Polling interval: 5 seconds for near-real-time updates without hammering the server
+    
     const intervalId = setInterval(fetchAlerts, 5000);
 
     return () => {
@@ -100,7 +100,7 @@ export default function SecurityAlertsCard() {
     };
   }, [fetchAlerts]);
 
-  // Determine top status
+  
   const hasUnusual = events.some((e) => e.isUnusual || e.status === 'failed' || e.severity === 'critical' || e.severity === 'warning');
 
   return (
@@ -109,7 +109,7 @@ export default function SecurityAlertsCard() {
         hasUnusual ? 'border-red-200 bg-red-50/30' : 'border-slate-200 bg-slate-50/40'
       }`}
     >
-      {/* HEADER */}
+      {}
       <div className="mb-3 flex items-center justify-between">
         <div className={`flex items-center gap-2 ${hasUnusual ? 'text-red-600' : 'text-slate-800'}`}>
           {hasUnusual ? (
@@ -120,7 +120,7 @@ export default function SecurityAlertsCard() {
           <h3 className="text-sm font-semibold">Security Alerts</h3>
         </div>
 
-        {/* LIVE PULSING BADGE */}
+        {}
         <div className="flex items-center gap-1.5" title="Real-time security monitoring active">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -130,21 +130,21 @@ export default function SecurityAlertsCard() {
         </div>
       </div>
 
-      {/* ERROR STATE */}
+      {}
       {error && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-800">
           {error}
         </div>
       )}
 
-      {/* LOADING SKELETON */}
+      {}
       {loading && events.length === 0 && !error && (
         <div className="animate-pulse space-y-2">
           <div className="h-16 rounded-lg bg-slate-200/60" />
         </div>
       )}
 
-      {/* EMPTY STATE */}
+      {}
       {!loading && events.length === 0 && !error && (
         <div className="rounded-lg border border-slate-200 bg-white p-3 text-center">
           <CheckCircle2 className="mx-auto h-5 w-5 text-emerald-500" />
@@ -153,7 +153,7 @@ export default function SecurityAlertsCard() {
         </div>
       )}
 
-      {/* RECENT EVENTS LIST */}
+      {}
       {events.length > 0 && (
         <div className="space-y-2.5">
           {events.slice(0, 2).map((event, idx) => {
@@ -230,7 +230,7 @@ export default function SecurityAlertsCard() {
         </div>
       )}
 
-      {/* REVIEW ACTIVITY BUTTON */}
+      {}
       <button
         type="button"
         onClick={() => router.push('/audit-trail')}

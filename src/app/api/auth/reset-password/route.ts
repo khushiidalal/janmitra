@@ -7,13 +7,13 @@ import PasswordResetToken from "@/models/PasswordResetToken";
 
 export async function POST(request: Request) {
   try {
-    // MongoDB connect
+    
     await connectDB();
 
-    // Frontend se token aur new password milega
+    
     const { token, newPassword } = await request.json();
 
-    // Validation
+    
     if (!token || !newPassword) {
       return NextResponse.json(
         {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Minimum password length
+    
     if (newPassword.length < 8) {
       return NextResponse.json(
         {
@@ -33,13 +33,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Email wale token ka hash banao
+    
     const tokenHash = crypto
       .createHash("sha256")
       .update(token)
       .digest("hex");
 
-    // Check karo token valid hai aur expire nahi hua
+    
     const resetRecord = await PasswordResetToken.findOne({
       tokenHash,
       expiresAt: {
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Token se associated user find karo
+    
     const user = await User.findOne({
       email: resetRecord.email,
     });
@@ -74,13 +74,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // New password set karo
-    // User.ts ka pre-save hook automatically bcrypt hash karega
+    
+    
     user.password = newPassword;
 
     await user.save();
 
-    // Token ko delete kar do, taaki dobara use na ho
+    
     await PasswordResetToken.deleteOne({
       _id: resetRecord._id,
     });

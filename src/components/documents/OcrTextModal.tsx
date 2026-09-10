@@ -88,7 +88,7 @@ export default function OcrTextModal({
   const wordCount = currentDisplayText.trim() ? currentDisplayText.trim().split(/\s+/).length : 0;
   const charCount = currentDisplayText.length;
 
-  // Extract pages for quick navigation
+  
   const pageMatches = Array.from(currentDisplayText.matchAll(/\[Page (\d+)\]/g));
   const detectedPages = pageMatches.map((m) => parseInt(m[1], 10));
 
@@ -99,7 +99,7 @@ export default function OcrTextModal({
     }
   };
 
-  // Determine quality color and text
+  
   const quality = ocrQuality || (ocrConfidence ? (ocrConfidence >= 80 ? 'High' : ocrConfidence >= 55 ? 'Medium' : 'Low') : null);
 
   return (
@@ -110,7 +110,7 @@ export default function OcrTextModal({
       aria-labelledby="ocr-modal-title"
     >
       <div className="flex max-h-[92vh] w-full max-w-4xl flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
-        {/* Header */}
+        {}
         <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4 bg-white">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -122,7 +122,7 @@ export default function OcrTextModal({
                   Extracted Document Text
                 </h2>
 
-                {/* Quality & Confidence Badge */}
+                {}
                 {quality && (
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
@@ -167,7 +167,7 @@ export default function OcrTextModal({
           </button>
         </div>
 
-        {/* Low Confidence Alert Banner */}
+        {}
         {quality === 'Low' && (
           <div className="flex items-center gap-2.5 border-b border-rose-100 bg-rose-50/90 px-6 py-2.5 text-xs text-rose-800">
             <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
@@ -177,9 +177,9 @@ export default function OcrTextModal({
           </div>
         )}
 
-        {/* View Switcher & Metadata Bar */}
+        {}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50 px-6 py-2.5 text-xs text-slate-600">
-          {/* Mode Switcher */}
+          {}
           <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-0.5">
             <button
               type="button"
@@ -232,7 +232,7 @@ export default function OcrTextModal({
           </div>
         </div>
 
-        {/* Page Jump Navigator for Multi-page Documents */}
+        {}
         {detectedPages.length > 1 && (
           <div className="flex items-center gap-2 border-b border-slate-100 bg-white px-6 py-2 text-xs">
             <span className="font-semibold text-slate-500">Jump to Page:</span>
@@ -251,7 +251,7 @@ export default function OcrTextModal({
           </div>
         )}
 
-        {/* Text Content */}
+        {}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30">
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-2xs">
             {currentDisplayText ? (
@@ -286,7 +286,7 @@ export default function OcrTextModal({
           </div>
         </div>
 
-        {/* Footer */}
+        {}
         <div className="flex flex-col-reverse items-center justify-between gap-3 border-t border-slate-100 bg-white px-6 py-4 sm:flex-row">
           <div className="flex items-center gap-2">
             {canEdit && onRerunOcr && (

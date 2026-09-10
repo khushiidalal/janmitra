@@ -32,14 +32,14 @@ export default function RegistrationStep3() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
 
-  // Password state (typed, not PIN pad — so we can satisfy 8-digit backend rule
-  // while giving the user a real password input they can see/hide)
+  
+  
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Submission state
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [registeredUser, setRegisteredUser] = useState<any>(null);
@@ -64,12 +64,12 @@ export default function RegistrationStep3() {
     void video.play();
   }, [cameraActive]);
 
-  // ---------- helpers ----------
+  
 
   const passwordValid = /^\d{8}$/.test(password);
   const passwordsMatch = password === confirmPassword && confirmPassword !== "";
 
-  // ---------- camera verification ----------
+  
 
   const stopCamera = () => {
     cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -131,7 +131,7 @@ export default function RegistrationStep3() {
 
     setError("");
 
-    // Pull data collected in Steps 1 & 2 from sessionStorage
+    
     const step1Raw = sessionStorage.getItem("registrationStep1");
     const finalStep2Raw = sessionStorage.getItem("registrationStep2");
 
@@ -145,7 +145,7 @@ export default function RegistrationStep3() {
     const step1 = JSON.parse(step1Raw);
     const step2 = JSON.parse(finalStep2Raw);
 
-    // The backend requires: fullName, email, password (8 digits)
+    
     const fullName = step1.fullName?.trim();
     const email = step2.officialEmail?.trim().toLowerCase();
 
@@ -211,7 +211,7 @@ export default function RegistrationStep3() {
 
   return (
     <div className="min-h-screen w-full bg-[#f5f9fd] text-slate-900">
-      {/* ================= HEADER ================= */}
+      {}
       <header className="flex h-[62px] w-full items-center justify-between border-b border-[#dce6f0] bg-white px-5 lg:px-8">
         <div className="flex items-center gap-2.5">
           <img
@@ -237,9 +237,9 @@ export default function RegistrationStep3() {
         </div>
       </header>
 
-      {/* ================= BODY ================= */}
+      {}
       <div className="flex min-h-[calc(100vh-62px)] w-full">
-        {/* ================= LEFT PANEL ================= */}
+        {}
         <aside className="relative hidden w-[255px] shrink-0 overflow-hidden border-r border-[#dce6f0] bg-gradient-to-b from-[#f5faff] via-[#f1f8ff] to-[#eef8ff] lg:block">
           <div className="relative z-10 px-[32px] pt-[70px]">
             <div className="mb-4 flex h-[31px] w-[31px] items-center justify-center rounded-full bg-[#0B3B78] text-white">
@@ -266,7 +266,7 @@ export default function RegistrationStep3() {
             className="absolute bottom-[82px] left-0 w-full object-contain"
           />
 
-          {/* LEFT FOOTER */}
+          {}
           <div className="absolute bottom-[20px] left-[28px] right-[28px]">
             <div className="mb-4 flex items-center justify-between">
               <div className="h-[2px] w-[42%] rounded-full bg-[#43A96B]" />
@@ -291,10 +291,10 @@ export default function RegistrationStep3() {
           </div>
         </aside>
 
-        {/* ================= RIGHT ================= */}
+        {}
         <main className="flex min-w-0 flex-1 items-start justify-center p-4 lg:px-6 lg:py-4">
           <div className="w-full max-w-[980px] overflow-hidden rounded-[9px] border border-[#c9d5e2] bg-white shadow-sm">
-            {/* ================= REGISTRATION STEPPER ================= */}
+            {}
             <div className="border-b border-[#dce4ed] px-7 py-3">
               <div className="flex items-start">
                 <div className="flex min-w-[105px] flex-col items-center">
@@ -333,9 +333,9 @@ export default function RegistrationStep3() {
               </div>
             </div>
 
-            {/* ================= MAIN CONTENT ================= */}
+            {}
             <div className="grid grid-cols-1 gap-5 px-7 py-5 lg:grid-cols-[0.95fr_1.05fr]">
-              {/* ================= LEFT VERIFICATION LIST ================= */}
+              {}
               <div>
                 <h2 className="text-sm font-semibold text-slate-900">
                   Verification Steps
@@ -346,7 +346,7 @@ export default function RegistrationStep3() {
                 </p>
 
                 <div className="mt-4 space-y-2.5">
-                  {/* FACIAL */}
+                  {}
                   <button
                     type="button"
                     onClick={() => setVerificationStep(1)}
@@ -387,7 +387,7 @@ export default function RegistrationStep3() {
                     <ChevronRight size={15} />
                   </button>
 
-                  {/* PASSWORD */}
+                  {}
                   <button
                     type="button"
                     onClick={() => setVerificationStep(2)}
@@ -429,7 +429,7 @@ export default function RegistrationStep3() {
                   </button>
                 </div>
 
-                {/* WHY THESE STEPS */}
+                {}
                 <div className="mt-4 flex items-start gap-2 rounded-md bg-blue-50 px-3 py-2.5">
                   <ShieldCheck
                     size={14}
@@ -449,7 +449,7 @@ export default function RegistrationStep3() {
                 </div>
               </div>
 
-              {/* ================= RIGHT SCREEN 1: FACIAL ================= */}
+              {}
               {verificationStep === 1 && (
                 <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
                   <div className="text-center">
@@ -537,7 +537,7 @@ export default function RegistrationStep3() {
                 </div>
               )}
 
-              {/* ================= RIGHT SCREEN 2: PASSWORD ================= */}
+              {}
               {verificationStep === 2 && (
                 <div className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm">
                   <div className="text-center">
@@ -553,7 +553,7 @@ export default function RegistrationStep3() {
                     account.
                   </p>
 
-                  {/* Password field */}
+                  {}
                   <div className="mt-4 space-y-3">
                     <div>
                       <label className="mb-1 block text-[12px] font-semibold text-slate-700">
@@ -715,9 +715,9 @@ export default function RegistrationStep3() {
               )}
             </div>
 
-            {/* ================= PAGE FOOTER ================= */}
+            {}
             <div className="flex flex-col items-end gap-2 border-t border-slate-200 px-7 py-3">
-              {/* Error banner (shown above the action buttons) */}
+              {}
               {error && (
                 <div className="w-full rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
                   {error}
@@ -759,7 +759,7 @@ export default function RegistrationStep3() {
                         <ArrowRight size={13} />
                       </button>
                     ) : (
-                      /* Step 2 → Submit Registration button */
+                      
                       <button
                         type="button"
                         onClick={handleSubmitRegistration}
