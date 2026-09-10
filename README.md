@@ -157,24 +157,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
                │  Read-only case observation   │
                │  Redacted PII / Admin controls│
                └───────────────────────────────┘
-```
 
-### Permission Matrix
-
-| Capability | Admin | Senior Officer | Investigator | Officer | Clerk | Viewer |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **View Published Cases & Records** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Create New FIR Cases (Wizard / Draft)** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Edit & Update Case Details** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **Delete Cases** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Upload Evidence & Case Documents** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Trigger OCR & Extract Text** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| **Delete Uploaded Evidence** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **View Audit Trail & Security Alerts** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Manage Users & Role Assignment** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Delete Accounts & Session Revocation** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-
----
 
 ## 8. Repository Structure
 
