@@ -339,7 +339,7 @@ Recommended screenshots to include:
 ```bash
 # Clone the repository
 git clone <YOUR_REPOSITORY_URL>
-cd janmitra
+
 
 # Install dependencies
 npm install
