@@ -12,7 +12,7 @@
 | **PS ID**         | 26190                                     |
 | **PS Title**      | Secure Digital Document Management                                  |
 | **Category**      | Software                                             |
-| **Theme**         | Miscellaneous                                       |
+| **Theme**         | Blockchain & Cybersecurity                                      |
 
 ---
 
