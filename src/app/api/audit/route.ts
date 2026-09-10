@@ -1,41 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Audit from '@/models/Audit';
-import { getAuthenticatedUser } from '@/lib/server/auth';
-
-const ALLOWED_SECURITY_ROLES = [
-  'Admin',
-  'Senior Officer',
-  'Investigator',
-  'Officer',
-  'Clerk',
-];
+import { requireAdmin } from '@/lib/server/auth';
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(req);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized: Authentication required' },
-        { status: 401 }
-      );
+    // Audit Trail is strictly Admin-only
+    const authResult = await requireAdmin(req);
+    if (authResult.errorResponse) {
+      return authResult.errorResponse;
     }
 
     const { searchParams } = req.nextUrl;
     const type = searchParams.get('type');
+    const action = searchParams.get('action');
     const category = searchParams.get('category');
     const caseId = searchParams.get('caseId');
     const limitParam = searchParams.get('limit');
     const sinceParam = searchParams.get('since');
     const statusParam = searchParams.get('status');
-
-    // RBAC: Security telemetry and login activities are restricted to authorized investigative staff
-    if (type === 'login' && !ALLOWED_SECURITY_ROLES.includes(user.role)) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Insufficient permissions to view security telemetry' },
-        { status: 403 }
-      );
-    }
+    const severityParam = searchParams.get('severity');
+    const search = searchParams.get('search');
 
     await connectDB();
 
@@ -49,12 +34,20 @@ export async function GET(req: NextRequest) {
       filter.type = type;
     }
 
+    if (action) {
+      filter.action = action;
+    }
+
     if (caseId) {
       filter.caseId = caseId;
     }
 
     if (statusParam) {
       filter.status = statusParam;
+    }
+
+    if (severityParam) {
+      filter.severity = severityParam;
     }
 
     if (sinceParam) {
@@ -64,29 +57,26 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    if (search && search.trim()) {
+      const queryRegex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [
+        { text: queryRegex },
+        { action: queryRegex },
+        { target: queryRegex },
+        { accessedBy: queryRegex },
+        { userEmail: queryRegex },
+      ];
+    }
+
     let limit = 50;
     if (limitParam) {
       const parsed = parseInt(limitParam, 10);
       if (!Number.isNaN(parsed) && parsed > 0) {
-        limit = Math.min(parsed, 200);
+        limit = Math.min(parsed, 500);
       }
     }
 
     const logs = await Audit.find(filter).sort({ time: -1 }).limit(limit);
-
-    // If a Viewer accesses general audit logs, sanitize IP addresses
-    if (user.role === 'Viewer') {
-      return NextResponse.json(
-        logs.map((l) => {
-          const json = l.toJSON();
-          if (json.ipAddress) {
-            delete json.ipAddress;
-            delete json.userAgent;
-          }
-          return json;
-        })
-      );
-    }
 
     return NextResponse.json(logs.map((l) => l.toJSON()));
   } catch (error: any) {

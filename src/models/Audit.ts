@@ -3,9 +3,17 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface IAudit extends Document {
   _id: mongoose.Types.ObjectId;
   time: Date;
-  type: 'document' | 'review' | 'login' | 'approval' | 'registration' | 'security';
+  type: 'document' | 'review' | 'login' | 'approval' | 'registration' | 'security' | 'admin' | 'setting';
   text: string;
   accessedBy: string;
+  action?: string;
+  target?: string;
+  targetId?: string;
+  targetType?: string;
+  changes?: {
+    before?: Record<string, any>;
+    after?: Record<string, any>;
+  };
   userId?: mongoose.Types.ObjectId;
   caseId?: string;
   userEmail?: string;
@@ -31,8 +39,33 @@ const auditSchema = new Schema<IAudit>(
     },
     type: {
       type: String,
-      enum: ['document', 'review', 'login', 'approval', 'registration', 'security'],
+      enum: ['document', 'review', 'login', 'approval', 'registration', 'security', 'admin', 'setting'],
       required: true,
+    },
+    action: {
+      type: String,
+      trim: true,
+      index: true,
+      required: false,
+    },
+    target: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    targetId: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    targetType: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    changes: {
+      before: { type: Schema.Types.Mixed, default: undefined },
+      after: { type: Schema.Types.Mixed, default: undefined },
     },
     text: {
       type: String,
@@ -115,6 +148,7 @@ const auditSchema = new Schema<IAudit>(
 );
 
 auditSchema.index({ type: 1, time: -1 });
+auditSchema.index({ action: 1, time: -1 });
 auditSchema.index({ caseId: 1, time: -1 });
 auditSchema.index({ userId: 1, type: 1, time: -1 });
 auditSchema.index({ ipAddress: 1, time: -1 });
@@ -127,6 +161,10 @@ auditSchema.set('toJSON', {
     return ret;
   },
 });
+
+if (mongoose.models && mongoose.models.Audit) {
+  delete (mongoose.models as any).Audit;
+}
 
 export const Audit: Model<IAudit> = mongoose.models.Audit || mongoose.model<IAudit>('Audit', auditSchema);
 export default Audit;

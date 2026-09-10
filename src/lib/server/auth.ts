@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import type { NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import User, { type IUser } from '@/models/User';
 
@@ -69,4 +69,31 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | nu
     console.error('Authentication error:', error);
     return null;
   }
+}
+
+export type RequireAdminResult =
+  | { user: IUser; errorResponse?: never }
+  | { user?: never; errorResponse: NextResponse };
+
+export async function requireAdmin(req: NextRequest): Promise<RequireAdminResult> {
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
+    return {
+      errorResponse: NextResponse.json(
+        { success: false, error: 'Unauthorized: Authentication required' },
+        { status: 401 }
+      ),
+    };
+  }
+
+  if (user.role !== 'Admin') {
+    return {
+      errorResponse: NextResponse.json(
+        { success: false, error: 'Forbidden: Administrator clearance required' },
+        { status: 403 }
+      ),
+    };
+  }
+
+  return { user };
 }

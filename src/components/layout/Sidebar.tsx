@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -12,11 +13,11 @@ import {
   Search,
   HelpCircle,
   Settings,
-  ClipboardList,
+  ShieldAlert,
   ShieldCheck,
 } from 'lucide-react';
 
-const navItems = [
+const baseNavItems = [
   {
     label: 'Dashboard',
     icon: LayoutDashboard,
@@ -38,11 +39,6 @@ const navItems = [
     path: '/help',
   },
   {
-    label: 'Audit Trail',
-    icon: ClipboardList,
-    path: '/audit-trail',
-  },
-  {
     label: 'Settings',
     icon: Settings,
     path: '/settings',
@@ -51,6 +47,56 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkRole = () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          setIsAdmin(parsed?.role === 'Admin');
+        } else {
+          setIsAdmin(false);
+        }
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+
+    checkRole();
+
+    const handleProfileUpdate = (event: Event) => {
+      const customEvt = event as CustomEvent<any>;
+      if (customEvt.detail) {
+        setIsAdmin(customEvt.detail.role === 'Admin');
+      } else {
+        checkRole();
+      }
+    };
+
+    window.addEventListener('janmitra:profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', checkRole);
+
+    return () => {
+      window.removeEventListener('janmitra:profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', checkRole);
+    };
+  }, []);
+
+  const navItems = [
+    ...baseNavItems,
+    ...(isAdmin
+      ? [
+          {
+            label: 'Admin Console',
+            icon: ShieldAlert,
+            path: '/admin',
+            isAdminOnly: true,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <aside
@@ -130,10 +176,14 @@ export default function Sidebar() {
           const currentPath = pathname || '';
           const isActive =
             item.path === '/cases/new'
-               ? currentPath.startsWith('/cases/new')
-               : item.path === '/cases'
-               ? currentPath === '/cases' || (currentPath.startsWith('/cases/') && !currentPath.startsWith('/cases/new'))
-               : currentPath === item.path || (item.path !== '/dashboard' && currentPath.startsWith(item.path));
+              ? currentPath.startsWith('/cases/new')
+              : item.path === '/cases'
+              ? currentPath === '/cases' || (currentPath.startsWith('/cases/') && !currentPath.startsWith('/cases/new'))
+              : item.path === '/admin'
+              ? currentPath === '/admin' || currentPath.startsWith('/admin/')
+              : currentPath === item.path || (item.path !== '/dashboard' && currentPath.startsWith(item.path));
+
+          const isAdminItem = (item as any).isAdminOnly;
 
           return (
             <Link
@@ -150,23 +200,44 @@ export default function Sidebar() {
                     transition-all
                   `,
                   isActive
-                    ? 'bg-blue-600 text-white shadow-sm font-semibold'
+                    ? isAdminItem
+                      ? 'bg-gradient-to-r from-indigo-700 to-indigo-800 text-white shadow-sm font-semibold'
+                      : 'bg-blue-600 text-white shadow-sm font-semibold'
+                    : isAdminItem
+                    ? 'text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100/90 font-semibold'
                     : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
                 )
               )}
             >
               <motion.div
                 whileHover={{ x: isActive ? 0 : 3 }}
-                className="flex h-10 w-full items-center gap-2.5 px-3"
+                className="flex h-10 w-full items-center justify-between px-3"
               >
-                <item.icon
-                  className={clsx(
-                    'h-5 w-5 shrink-0 transition-colors',
-                    isActive ? 'text-white' : 'text-slate-500 group-hover:text-blue-600'
-                  )}
-                />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <item.icon
+                    className={clsx(
+                      'h-5 w-5 shrink-0 transition-colors',
+                      isActive
+                        ? 'text-white'
+                        : isAdminItem
+                        ? 'text-indigo-600'
+                        : 'text-slate-500 group-hover:text-blue-600'
+                    )}
+                  />
 
-                <span className="truncate tracking-[-0.01em]">{item.label}</span>
+                  <span className="truncate tracking-[-0.01em]">{item.label}</span>
+                </div>
+
+                {isAdminItem && (
+                  <span
+                    className={clsx(
+                      'text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider',
+                      isActive ? 'bg-white/20 text-white' : 'bg-indigo-200/70 text-indigo-800'
+                    )}
+                  >
+                    Pro
+                  </span>
+                )}
               </motion.div>
             </Link>
           );
