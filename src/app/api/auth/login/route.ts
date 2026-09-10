@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const { email, password } = await req.json();
+    const { email, password, username } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -263,6 +263,12 @@ export async function POST(req: NextRequest) {
 
     userJson.currentSessionId =
       sessionId;
+
+    userJson.username =
+      userJson.username ||
+      (user as any).username ||
+      (typeof username === 'string' && username.trim() ? username.trim() : '') ||
+      (user.email ? user.email.split('@')[0] : '');
 
     return NextResponse.json({
       success: true,

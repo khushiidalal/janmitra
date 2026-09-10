@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -25,25 +25,25 @@ export default function RegistrationStep1() {
     address: "",
   });
 
-  const [photo, setPhoto] = useState<File | null>(null);
+  // const [photo, setPhoto] = useState<File | null>(null);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  // }, []);
 
-  const photoPreview = useMemo(() => {
-    if (!photo) return "";
+  // const photoPreview = useMemo(() => {
+  //   if (!photo) return "";
 
-    return URL.createObjectURL(photo);
-  }, [photo]);
+  //   return URL.createObjectURL(photo);
+  // }, [photo]);
 
-  useEffect(() => {
-    return () => {
-      if (photoPreview) {
-        URL.revokeObjectURL(photoPreview);
-      }
-    };
-  }, [photoPreview]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (photoPreview) {
+  //       URL.revokeObjectURL(photoPreview);
+  //     }
+  //   };
+  // }, [photoPreview]);
 
   const isStep1Complete =
     formData.fullName.trim() !== "" &&
@@ -55,7 +55,7 @@ export default function RegistrationStep1() {
     photo !== null;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setFormData((previous) => ({
       ...previous,
@@ -63,9 +63,7 @@ export default function RegistrationStep1() {
     }));
   };
 
-  const handlePhotoUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
 
     if (!selectedFile) return;
@@ -90,7 +88,7 @@ export default function RegistrationStep1() {
       JSON.stringify({
         ...formData,
         photoName: photo?.name || "",
-      })
+      }),
     );
 
     router.push("/register/step2");
@@ -98,11 +96,9 @@ export default function RegistrationStep1() {
 
   return (
     <div className="min-h-screen w-full bg-[#f5f9fd] text-slate-900">
-
       {/* ================= HEADER ================= */}
 
       <header className="flex h-[62px] w-full items-center justify-between border-b border-[#dce6f0] bg-white px-5 lg:px-8">
-
         <div className="flex items-center gap-2.5">
           <img
             src="/logo.jpg"
@@ -120,7 +116,7 @@ export default function RegistrationStep1() {
             </p>
           </div>
         </div>
-<div className="flex h-[30px] items-center gap-1.5 rounded-full bg-green-100 px-3 text-sm font-medium text-green-700">
+        <div className="flex h-[30px] items-center gap-1.5 rounded-full bg-green-100 px-3 text-sm font-medium text-green-700">
           <ShieldCheck size={12} />
           Session Encrypted
         </div>
@@ -129,14 +125,11 @@ export default function RegistrationStep1() {
       {/* ================= MAIN PAGE ================= */}
 
       <div className="flex min-h-[calc(100vh-62px)] w-full">
-
         {/* ================= LEFT PANEL ================= */}
 
         <aside className="relative hidden w-[255px] shrink-0 overflow-hidden border-r border-[#dce6f0] bg-gradient-to-b from-[#f5faff] via-[#f1f8ff] to-[#eef8ff] lg:block">
-
           {/* LEFT TEXT */}
           <div className="relative z-10 px-[32px] pt-[70px]">
-
             <div className="mb-4 flex h-[31px] w-[31px] items-center justify-center rounded-full bg-[#e1efff] text-[#0758ba]">
               <Scale size={17} strokeWidth={2} />
             </div>
@@ -164,7 +157,6 @@ export default function RegistrationStep1() {
 
           {/* LEFT FOOTER */}
           <div className="absolute bottom-[18px] left-[26px] right-[26px]">
-
             <div className="mb-3 flex items-center gap-8">
               <div className="h-px flex-1 bg-green-600" />
               <div className="h-px flex-1 bg-orange-500" />
@@ -177,14 +169,14 @@ export default function RegistrationStep1() {
               />
 
               <div>
-  <p className="text-sm font-semibold leading-5 text-[#073B7A]">
-    Justice. Integrity. Service.
-  </p>
+                <p className="text-sm font-semibold leading-5 text-[#073B7A]">
+                  Justice. Integrity. Service.
+                </p>
 
-  <p className="text-xs font-normal leading-5 text-[#4D6FA3]">
-    Protected · Confidential · Trusted
-  </p>
-</div>
+                <p className="text-xs font-normal leading-5 text-[#4D6FA3]">
+                  Protected · Confidential · Trusted
+                </p>
+              </div>
             </div>
           </div>
         </aside>
@@ -192,18 +184,13 @@ export default function RegistrationStep1() {
         {/* ================= RIGHT SIDE ================= */}
 
         <main className="flex min-w-0 flex-1 items-start justify-center p-4 lg:px-6 lg:py-4">
-
           <div className="w-full max-w-[980px] overflow-hidden rounded-[9px] border border-[#c9d5e2] bg-white shadow-sm">
-
             {/* ================= STEPPER ================= */}
 
             <div className="border-b border-[#dce4ed] px-7 py-3">
-
               <div className="flex items-start">
-
                 {/* STEP 1 */}
                 <div className="flex min-w-[105px] flex-col items-center">
-
                   <div className="flex h-[23px] w-[23px] items-center justify-center rounded-full bg-[#1477e5] text-[15px] font-semibold text-white">
                     1
                   </div>
@@ -217,7 +204,6 @@ export default function RegistrationStep1() {
 
                 {/* STEP 2 */}
                 <div className="flex min-w-[115px] flex-col items-center">
-
                   <div className="flex h-[23px] w-[23px] items-center justify-center rounded-full bg-[#f0f1f2] text-[15px] font-medium text-[#656d77]">
                     2
                   </div>
@@ -231,7 +217,6 @@ export default function RegistrationStep1() {
 
                 {/* STEP 3 */}
                 <div className="flex min-w-[100px] flex-col items-center">
-
                   <div className="flex h-[23px] w-[23px] items-center justify-center rounded-full bg-[#f0f1f2] text-[15px] font-medium text-[#656d77]">
                     3
                   </div>
@@ -244,73 +229,11 @@ export default function RegistrationStep1() {
             </div>
 
             <form onSubmit={handleContinue}>
-
-              {/* ================= PHOTO ================= */}
-
-              <section className="border-b border-[#dce4ed] px-7 py-5">
-
-                <div className="flex items-center gap-4">
-
-                  <label className="relative flex h-[105px] w-[105px] shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[7px] border border-dashed border-[#a9c9ef] bg-[#f7fbff]">
-
-                    {photoPreview ? (
-                      <img
-                        src={photoPreview}
-                        alt="Official identification"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-[45px] w-[45px] items-center justify-center rounded-full bg-[#e1efff] text-[#0873e9]">
-                        <Camera size={22} strokeWidth={1.8} />
-                      </div>
-                    )}
-
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handlePhotoUpload}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <div>
-
-                    <h2 className="text-[15px] font-semibold leading-tight text-[#101827]">
-                      Official Identification Photo
-                    </h2>
-
-                    <p className="mt-1 text-[12px] text-[#596b7e]">
-                      Clear, front-facing photo against a plain background.
-                    </p>
-
-                    <p className="mt-1.5 text-[10px] text-[#8a98a8]">
-                      JPG, PNG or WEBP · Max size 5MB
-                    </p>
-
-                    <label className="mt-2.5 inline-flex h-[27px] cursor-pointer items-center gap-1.5 rounded-[4px] border border-[#a9cef7] bg-[#f3f9ff] px-2.5 text-[14px] font-medium text-[#086de1] transition hover:bg-[#eaf5ff]">
-
-                      <Upload size={11} />
-
-                      {photo ? "Change Photo" : "Upload Photo"}
-
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </section>
-
               {/* ================= FORM FIELDS ================= */}
 
               <section className="px-7 py-4">
-
                 {/* FULL NAME */}
                 <div className="mb-2.5">
-
                   <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
                     Full Legal Name
                   </label>
@@ -328,7 +251,6 @@ export default function RegistrationStep1() {
 
                 {/* DOB / GENDER */}
                 <div className="mb-2.5 grid grid-cols-1 gap-2 md:grid-cols-2">
-
                   <div>
                     <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
                       Date of Birth
@@ -350,7 +272,6 @@ export default function RegistrationStep1() {
                     </label>
 
                     <div className="relative">
-
                       <select
                         name="gender"
                         value={formData.gender}
@@ -371,14 +292,12 @@ export default function RegistrationStep1() {
 
                 {/* GOVT ID */}
                 <div className="mb-2.5 grid grid-cols-1 gap-2 md:grid-cols-2">
-
                   <div>
                     <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
                       Govt ID Type
                     </label>
 
                     <div className="relative">
-
                       <select
                         name="govIdType"
                         value={formData.govIdType}
@@ -390,9 +309,7 @@ export default function RegistrationStep1() {
                         <option value="aadhaar">Aadhaar</option>
                         <option value="pan">PAN</option>
                         <option value="passport">Passport</option>
-                        <option value="driving-license">
-                          Driving License
-                        </option>
+                        <option value="driving-license">Driving License</option>
                         <option value="voter-id">Voter ID</option>
                       </select>
 
@@ -419,13 +336,11 @@ export default function RegistrationStep1() {
 
                 {/* ADDRESS */}
                 <div className="mb-3">
-
                   <label className="mb-1 block text-[14px] font-semibold text-[#1c2835]">
                     Primary Residential Address
                   </label>
 
                   <div className="relative">
-
                     <input
                       type="text"
                       name="address"
@@ -443,25 +358,19 @@ export default function RegistrationStep1() {
                 {/* ================= FOOTER ================= */}
 
                 <div className="flex flex-col gap-3 border-t border-[#e5eaf0] pt-3 sm:flex-row sm:items-center sm:justify-between">
-
                   {/* SECURITY */}
                   <div className="flex max-w-[380px] items-center gap-2 rounded-[4px] bg-[#eef6ff] px-2.5 py-2 text-[10px] leading-[1.4] text-[#0868d7]">
-
-                    <LockKeyhole
-                      size={20}
-                      className="shrink-0"
-                    />
+                    <LockKeyhole size={20} className="shrink-0" />
 
                     <span>
-                      Your information is encrypted and secured. It will only
-                      be used for official purposes and will not be shared
-                      without authorization.
+                      Your information is encrypted and secured. It will only be
+                      used for official purposes and will not be shared without
+                      authorization.
                     </span>
                   </div>
 
                   {/* BUTTONS */}
                   <div className="flex shrink-0 items-center justify-end gap-2">
-
                     <button
                       type="button"
                       onClick={() => router.push("/")}

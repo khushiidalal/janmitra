@@ -23,29 +23,53 @@ export default function TopNav() {
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const [storedName, setStoredName] = useState("Officer");
+  const [username, setUsername] = useState("Officer");
+  const [userRole, setUserRole] = useState("Officer");
   const [profilePhoto, setProfilePhoto] = useState("");
+  const [initials, setInitials] = useState("OF");
 
   useEffect(() => {
-    const updateFromStorage = () => {
-      const name = localStorage.getItem("userName");
-      if (name) {
-        setStoredName(name);
+    const computeInitials = (fullName?: string, uname?: string) => {
+      const name = (fullName || uname || "").trim();
+      if (!name) return "OF";
+      const parts = name.split(/\s+/);
+      if (parts.length > 1) {
+        return (
+          (parts[0][0] || "") + (parts[parts.length - 1][0] || "")
+        ).toUpperCase();
       }
+      return name.slice(0, 2).toUpperCase();
+    };
 
+    const updateFromStorage = () => {
+      const storedUserName = localStorage.getItem("userName");
       const storedUser = localStorage.getItem("user");
+
+      let parsedUser: any = null;
       if (storedUser) {
         try {
-          const user = JSON.parse(storedUser);
-
-          if (user.fullName) {
-            setStoredName(user.fullName);
-          }
-
-          if (typeof user.profilePhoto === "string") {
-            setProfilePhoto(user.profilePhoto);
-          }
+          parsedUser = JSON.parse(storedUser);
         } catch {}
+      }
+
+      const resolvedUsername =
+        (parsedUser && (parsedUser.username || parsedUser.userName)) ||
+        storedUserName ||
+        (parsedUser && parsedUser.email ? parsedUser.email.split("@")[0] : "") ||
+        "Officer";
+
+      setUsername(resolvedUsername);
+
+      if (parsedUser) {
+        if (parsedUser.role || parsedUser.designation) {
+          setUserRole(parsedUser.role || parsedUser.designation || "Officer");
+        }
+        if (typeof parsedUser.profilePhoto === "string") {
+          setProfilePhoto(parsedUser.profilePhoto);
+        }
+        setInitials(computeInitials(parsedUser.fullName, resolvedUsername));
+      } else if (storedUserName) {
+        setInitials(computeInitials(undefined, storedUserName));
       }
     };
 
@@ -56,10 +80,21 @@ export default function TopNav() {
       const user = customEvt.detail;
 
       if (user) {
-        if (user.fullName) setStoredName(user.fullName);
+        const resolvedUsername =
+          user.username ||
+          user.userName ||
+          localStorage.getItem("userName") ||
+          (user.email ? user.email.split("@")[0] : "") ||
+          "Officer";
+
+        setUsername(resolvedUsername);
+        if (user.role || user.designation) {
+          setUserRole(user.role || user.designation || "Officer");
+        }
         if (typeof user.profilePhoto === "string") {
           setProfilePhoto(user.profilePhoto);
         }
+        setInitials(computeInitials(user.fullName, resolvedUsername));
       }
     };
 
@@ -80,14 +115,6 @@ export default function TopNav() {
       window.removeEventListener("storage", handleStorage);
     };
   }, []);
-
-  const nameParts = storedName.trim().split(" ");
-  const firstName = nameParts[0] || "User";
-  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-
-  const initials = (
-    (firstName[0] || "") + (lastName[0] || firstName[1] || "")
-  ).toUpperCase();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -270,7 +297,7 @@ export default function TopNav() {
               {profilePhoto ? (
                 <img
                   src={profilePhoto}
-                  alt={`${storedName} profile`}
+                  alt={`${username} profile`}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -280,11 +307,11 @@ export default function TopNav() {
 
             <div className="hidden min-w-0 flex-col sm:flex">
               <span className="max-w-[115px] truncate text-xs font-semibold leading-tight text-slate-800">
-                {firstName}
+                {username}
               </span>
 
               <span className="max-w-[115px] truncate text-[10px] leading-tight text-slate-500">
-                {lastName || "Officer"}
+                {userRole || "Officer"}
               </span>
             </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   BriefcaseBusiness,
   FileText,
@@ -73,36 +74,46 @@ export default function HelpGuidelinesPage() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Filing a New Case */}
-              <Card className="p-4">
-                <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100">
-                  <BriefcaseBusiness className="h-4 w-4 text-gray-700" />
-                </div>
+              <Link
+                href="/help-guidelines/filing-new-case"
+                className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <Card className="p-4 transition-all duration-150 group-hover:border-blue-300 group-hover:shadow-md">
+                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 transition-colors group-hover:bg-blue-50">
+                    <BriefcaseBusiness className="h-4 w-4 text-gray-700 transition-colors group-hover:text-blue-600" />
+                  </div>
 
-                <h3 className="text-base font-semibold text-gray-900">
-                  Filing a New Case
-                </h3>
+                  <h3 className="text-base font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                    Filing a New Case
+                  </h3>
 
-                <p className="mt-2 text-sm leading-5 text-gray-500">
-                  Step-by-step instructions on submitting a formal complaint and
-                  required documentation.
-                </p>
-              </Card>
+                  <p className="mt-2 text-sm leading-5 text-gray-500">
+                    Step-by-step instructions on submitting a formal complaint and
+                    required documentation.
+                  </p>
+                </Card>
+              </Link>
 
               {/* Tracking Evidence */}
-              <Card className="p-4">
-                <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100">
-                  <FileText className="h-4 w-4 text-gray-700" />
-                </div>
+              <Link
+                href="/help-guidelines/tracking-evidence"
+                className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <Card className="p-4 transition-all duration-150 group-hover:border-blue-300 group-hover:shadow-md">
+                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 transition-colors group-hover:bg-blue-50">
+                    <FileText className="h-4 w-4 text-gray-700 transition-colors group-hover:text-blue-600" />
+                  </div>
 
-                <h3 className="text-base font-semibold text-gray-900">
-                  Tracking Evidence
-                </h3>
+                  <h3 className="text-base font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                    Tracking Evidence
+                  </h3>
 
-                <p className="mt-2 text-sm leading-5 text-gray-500">
-                  Understand how to monitor the chain of custody and verify evidence
-                  submission status.
-                </p>
-              </Card>
+                  <p className="mt-2 text-sm leading-5 text-gray-500">
+                    Understand how to monitor the chain of custody and verify evidence
+                    submission status.
+                  </p>
+                </Card>
+              </Link>
             </div>
           </section>
 

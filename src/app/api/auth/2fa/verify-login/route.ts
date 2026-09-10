@@ -126,6 +126,9 @@ export async function POST(req: NextRequest) {
 
     const userJson: any = user.toJSON();
     userJson.currentSessionId = sessionId;
+    if (!userJson.username) {
+      userJson.username = (user as any).username || (user.email ? user.email.split('@')[0] : '');
+    }
 
     return NextResponse.json({
       success: true,

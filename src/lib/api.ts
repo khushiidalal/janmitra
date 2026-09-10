@@ -365,15 +365,20 @@ function persistSession(data: any): void {
     );
   }
 
-  const name =
+  const username =
     data &&
     data.user &&
-    data.user.fullName;
+    (data.user.username || data.user.userName);
 
-  if (name) {
+  if (username) {
     localStorage.setItem(
       NAME_KEY,
-      name
+      username
+    );
+  } else if (data && data.user && data.user.fullName && !localStorage.getItem(NAME_KEY)) {
+    localStorage.setItem(
+      NAME_KEY,
+      data.user.fullName
     );
   }
 

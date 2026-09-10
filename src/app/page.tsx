@@ -98,6 +98,7 @@ export default function Login() {
       body: JSON.stringify({
         email,
         password,
+        username: username.trim(),
       }),
     });
 
@@ -132,6 +133,9 @@ export default function Login() {
     const user = data.user;
 
     if (user) {
+      if (!user.username && username.trim()) {
+        user.username = username.trim();
+      }
       localStorage.setItem(
         "user",
         JSON.stringify(user)
@@ -162,7 +166,7 @@ export default function Login() {
 
     localStorage.setItem(
       "userName",
-      username.trim()
+      (user && user.username) || username.trim()
     );
 
     router.push("/dashboard");

@@ -58,7 +58,13 @@ export default function TwoFactorLoginPage() {
             JSON.stringify(data.user)
           );
 
-          if (data.user.fullName) {
+          const username = data.user.username || data.user.userName;
+          if (username) {
+            localStorage.setItem(
+              'userName',
+              username
+            );
+          } else if (data.user.fullName && !localStorage.getItem('userName')) {
             localStorage.setItem(
               'userName',
               data.user.fullName

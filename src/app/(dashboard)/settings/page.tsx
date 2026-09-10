@@ -104,7 +104,7 @@ export default function SettingsPage() {
       if (currentUser) {
         setUser(currentUser);
         localStorage.setItem("user", JSON.stringify(currentUser));
-        localStorage.setItem("userName", currentUser.fullName || "");
+        localStorage.setItem("userName", currentUser.username || currentUser.userName || localStorage.getItem("userName") || currentUser.fullName || "");
 
         if (currentUser.preferences) {
           if (currentUser.preferences.language) setLanguage(currentUser.preferences.language);

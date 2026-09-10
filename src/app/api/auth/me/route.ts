@@ -11,9 +11,14 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const userJson: any = user.toJSON();
+    if (!userJson.username) {
+      userJson.username = (user as any).username || (user.email ? user.email.split('@')[0] : '');
+    }
+
     return NextResponse.json({
       success: true,
-      user: user.toJSON(),
+      user: userJson,
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -75,9 +80,14 @@ export async function PATCH(req: NextRequest) {
 
     await user.save();
 
+    const userJson: any = user.toJSON();
+    if (!userJson.username) {
+      userJson.username = (user as any).username || (user.email ? user.email.split('@')[0] : '');
+    }
+
     return NextResponse.json({
       success: true,
-      user: user.toJSON(),
+      user: userJson,
     });
   } catch (error: any) {
     return NextResponse.json(

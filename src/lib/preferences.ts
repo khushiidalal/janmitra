@@ -88,8 +88,8 @@ export function broadcastProfileUpdate(user: any) {
 
   try {
     localStorage.setItem('user', JSON.stringify(user));
-    if (user?.fullName) {
-      localStorage.setItem('userName', user.fullName);
+    if (user?.username) {
+      localStorage.setItem('userName', user.username);
     }
   } catch {
     // Ignore error
