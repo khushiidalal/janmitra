@@ -10,7 +10,7 @@
 |-------------------|------------------------------------------------------|
 | **Project Title** | JanMitra – Secure Case & Document Management         |
 | **PS ID**         | 26190                                     |
-| **PS Title**      | Secure Digital Document Management                                  |
+| **PS Title**      |Secure Digital Document Management System for Legal and Investigation Documents|
 | **Category**      | Software                                             |
 | **Theme**         | Blockchain & Cybersecurity                                      |
 
