@@ -12,6 +12,7 @@ import {
   deleteDocument,
   runDocumentOCR,
   runCaseDocumentOCR,
+  getCaseDocumentOCR,
   getMe,
 } from "@/lib/api";
 
@@ -323,21 +324,50 @@ export default function CaseDetail() {
     }
   };
 
+  const mergeCaseDocument = (docId: string, updatedDoc: any) => {
+    setCaseItem((current: any) => {
+      if (!current) return current;
+      return {
+        ...current,
+        documents: (current.documents || []).map((doc: any, index: number) => {
+          const currentId = String(doc._id || doc.id || index);
+          return currentId === String(docId) ? { ...doc, ...updatedDoc } : doc;
+        }),
+      };
+    });
+  };
+
   const handleRunCaseDocumentOcr = async (docId: string, _doc?: any) => {
     if (!docId || !id) return;
     setOcrRunningId(docId);
     try {
       const res = await runCaseDocumentOCR(id, docId);
-      const updated = await getCase(id);
-      setCaseItem(updated);
-      if (res && res.document && res.ocrStatus === "completed") {
-        setActiveOcrDoc(res.document);
+      if (res?.document) {
+        mergeCaseDocument(docId, res.document);
+        if (res.ocrStatus === "completed") setActiveOcrDoc(res.document);
       }
+      return res;
     } catch (error: any) {
       console.error("Case document OCR error:", error);
+
+      // The OCR POST can finish even if the browser loses its response.
+      // Check the saved status before telling the user it failed.
+      try {
+        const latest = await getCaseDocumentOCR(id, docId);
+        const previousTime = _doc?.ocrProcessedAt ? new Date(_doc.ocrProcessedAt).getTime() : 0;
+        const latestTime = latest?.ocrProcessedAt ? new Date(latest.ocrProcessedAt).getTime() : 0;
+        const isNewCompletion = _doc?.ocrStatus !== "completed" || latestTime > previousTime;
+        if (latest?.ocrStatus === "completed" && latest.document && isNewCompletion) {
+          mergeCaseDocument(docId, latest.document);
+          setActiveOcrDoc(latest.document);
+          return latest;
+        }
+      } catch (statusError) {
+        console.warn("Unable to refresh case document OCR status:", statusError);
+      }
+
       alert(error?.message || "Failed to extract text from document.");
-      const updated = await getCase(id);
-      setCaseItem(updated);
+      return null;
     } finally {
       setOcrRunningId(null);
     }
@@ -1012,14 +1042,6 @@ export default function CaseDetail() {
             if (docId && id) {
               if (activeOcrDoc.dataUrl) {
                 await handleRunCaseDocumentOcr(docId, activeOcrDoc);
-                const updatedCase = await getCase(id);
-                setCaseItem(updatedCase);
-                const refreshed = (updatedCase?.documents || []).find(
-                  (d: any) => (d._id || d.id || String(d._id)) === docId
-                );
-                if (refreshed) {
-                  setActiveOcrDoc(refreshed);
-                }
               } else {
                 await handleRunOcr(docId);
                 const updated = await getDocuments(id);
