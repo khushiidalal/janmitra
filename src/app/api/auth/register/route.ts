@@ -4,7 +4,7 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import Audit from '@/models/Audit';
 import EmailOTP from '@/models/EmailOTP';
-import { isAuthorizedAdmin, setAuthCookie, signToken } from '@/lib/server/auth';
+import { setAuthCookie, signToken } from '@/lib/server/auth';
 import { extractClientIp, parseUserAgent } from '@/lib/server/security';
 
 export async function POST(req: NextRequest) {
@@ -76,10 +76,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isAllowlistedAdmin = await isAuthorizedAdmin({ email: normalizedEmail, emailVerified: true });
     const registrationDesignation =
       typeof designation === 'string' ? designation.trim() :
       typeof role === 'string' ? role.trim() : '';
+    const registrationRole = registrationDesignation === 'Admin' ? 'Admin' : 'Viewer';
 
     const sessionId = crypto.randomUUID();
     const ipAddress = extractClientIp(req);
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       fullName: fullName.trim(),
       email: normalizedEmail,
       password,
-      role: isAllowlistedAdmin ? 'Admin' : 'Viewer',
+      role: registrationRole,
       emailVerified: true,
       dateOfBirth: dateOfBirth?.trim() || '',
       gender: gender?.trim() || '',

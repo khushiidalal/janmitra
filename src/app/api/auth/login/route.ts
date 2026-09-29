@@ -252,7 +252,7 @@ export async function POST(req: NextRequest) {
 
     await user.save();
 
-    user.role = await isAuthorizedAdmin(user) ? 'Admin' : user.role === 'Admin' ? 'Viewer' : user.role;
+    if (await isAuthorizedAdmin(user)) user.role = 'Admin';
 
     const token =
       signToken(user, sessionId);

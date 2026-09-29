@@ -78,7 +78,7 @@ export async function getAuthenticatedUserFromToken(token: string): Promise<IUse
       ).catch(() => {});
     }
 
-    user.role = await isAuthorizedAdmin(user) ? 'Admin' : user.role === 'Admin' ? 'Viewer' : user.role;
+    if (await isAuthorizedAdmin(user)) user.role = 'Admin';
     (user as any).currentSessionId = decoded.sessionId;
     return user;
   } catch {
