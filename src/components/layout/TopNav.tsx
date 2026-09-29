@@ -55,6 +55,7 @@ export default function TopNav() {
       const resolvedUsername =
         (parsedUser && (parsedUser.username || parsedUser.userName)) ||
         storedUserName ||
+        localStorage.getItem("lastLoginUsername") ||
         (parsedUser && parsedUser.email ? parsedUser.email.split("@")[0] : "") ||
         "Officer";
 

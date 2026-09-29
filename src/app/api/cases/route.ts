@@ -8,6 +8,8 @@ import { getAuthenticatedUser } from '@/lib/server/auth';
 
 export async function GET(req: NextRequest) {
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     await connectDB();
     const { searchParams } = new URL(req.url);
 
@@ -65,6 +67,10 @@ export async function POST(req: NextRequest) {
   try {
     await connectDB();
     const user = await getAuthenticatedUser(req);
+    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (!['Admin', 'Senior Officer', 'Investigator', 'Officer'].includes(user.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden: Your role cannot register cases' }, { status: 403 });
+    }
     const body = await req.json();
 
     const {

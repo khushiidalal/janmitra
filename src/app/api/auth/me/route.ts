@@ -12,9 +12,7 @@ export async function GET(req: NextRequest) {
     }
 
     const userJson: any = user.toJSON();
-    if (!userJson.username) {
-      userJson.username = (user as any).username || (user.email ? user.email.split('@')[0] : '');
-    }
+    userJson.username = user.username || (user.email ? user.email.split('@')[0] : '');
 
     return NextResponse.json({
       success: true,
@@ -41,6 +39,7 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const {
       fullName,
+      username,
       officialPhone,
       officialEmail,
       department,
@@ -57,6 +56,7 @@ export async function PATCH(req: NextRequest) {
     } = body;
 
     if (fullName !== undefined) user.fullName = fullName.trim();
+    if (username !== undefined) user.username = username.trim();
     if (officialPhone !== undefined) user.officialPhone = officialPhone.trim();
     if (officialEmail !== undefined) user.officialEmail = officialEmail.trim().toLowerCase();
     if (department !== undefined) user.department = department.trim();
@@ -81,9 +81,7 @@ export async function PATCH(req: NextRequest) {
     await user.save();
 
     const userJson: any = user.toJSON();
-    if (!userJson.username) {
-      userJson.username = (user as any).username || (user.email ? user.email.split('@')[0] : '');
-    }
+    userJson.username = user.username || (user.email ? user.email.split('@')[0] : '');
 
     return NextResponse.json({
       success: true,

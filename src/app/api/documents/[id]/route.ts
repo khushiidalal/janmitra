@@ -12,6 +12,8 @@ interface Context {
 
 export async function GET(req: NextRequest, context: Context) {
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     await connectDB();
     const { id } = await context.params;
 
@@ -48,6 +50,10 @@ export async function PUT(req: NextRequest, context: Context) {
         { success: false, error: 'Unauthorized: Authentication required' },
         { status: 401 }
       );
+    }
+
+    if (!['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk'].includes(user.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
 
     const { id } = await context.params;

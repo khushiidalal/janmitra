@@ -8,6 +8,8 @@ import { saveUploadedFile } from '@/lib/server/storage';
 
 export async function GET(req: NextRequest) {
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     await connectDB();
     const { searchParams } = new URL(req.url);
 
@@ -53,6 +55,10 @@ export async function POST(req: NextRequest) {
         { success: false, error: 'Unauthorized: Authentication required' },
         { status: 401 }
       );
+    }
+
+    if (!['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk'].includes(user.role)) {
+      return NextResponse.json({ success: false, error: 'Forbidden: Your role cannot upload documents' }, { status: 403 });
     }
 
     const formData = await req.formData();

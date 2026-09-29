@@ -40,60 +40,71 @@ export async function preprocessImage(input: Buffer | string): Promise<Buffer> {
   const image = sharp(input);
   const metadata = await image.metadata();
 
-  let pipeline = image.rotate(); 
+  // Auto-rotate based on EXIF orientation
+  let pipeline = image.rotate();
 
   const width = metadata.width || 0;
   const height = metadata.height || 0;
 
-  
   if (width > 0 && height > 0) {
     const minDim = Math.min(width, height);
     const maxDim = Math.max(width, height);
 
-    if (minDim < 1200) {
-      
-      const scale = Math.min(2.5, 1800 / minDim);
+    if (minDim < 1500) {
+      // Upscale small/low-res images for better OCR — target ~2200px on short side
+      const scale = Math.min(3.0, 2200 / minDim);
       pipeline = pipeline.resize({
         width: Math.round(width * scale),
         height: Math.round(height * scale),
         kernel: sharp.kernel.lanczos3,
       });
-    } else if (maxDim > 3200) {
-      
+    } else if (maxDim > 4000) {
+      // Downscale very large images to avoid memory issues
       pipeline = pipeline.resize({
-        width: width >= height ? 3000 : undefined,
-        height: height > width ? 3000 : undefined,
+        width: width >= height ? 3500 : undefined,
+        height: height > width ? 3500 : undefined,
         fit: 'inside',
       });
     }
   }
 
-  
+  // Convert to grayscale
   pipeline = pipeline.grayscale();
 
-  
+  // Median filter to reduce salt-and-pepper noise from hardcopy scans
+  try {
+    pipeline = (pipeline as any).median(1);
+  } catch {
+    // median may not be available in all sharp builds — skip silently
+  }
+
+  // Adaptive normalization based on dynamic range
   try {
     const stats = await pipeline.clone().stats();
     const lum = stats.channels[0];
     const dynamicRange = lum.max - lum.min;
 
-    
-    if (dynamicRange < 185) {
+    if (dynamicRange < 200) {
       pipeline = pipeline.normalize();
     }
   } catch {
-    
     pipeline = pipeline.normalize();
   }
 
-  
+  // CLAHE — improves local contrast for uneven lighting on hardcopies
+  try {
+    pipeline = (pipeline as any).clahe({ width: 64, height: 64, maxSlope: 3 });
+  } catch {
+    // CLAHE may not be available in all sharp versions — skip silently
+  }
+
+  // Sharpen to enhance ink edges
   pipeline = pipeline.sharpen({
-    sigma: 1.0,
-    m1: 1.5,
-    m2: 0.7,
+    sigma: 1.2,
+    m1: 2.0,
+    m2: 0.5,
   });
 
-  
   return pipeline.png().toBuffer();
 }
 
@@ -120,15 +131,20 @@ export function normalizeLegalText(rawText: string): string {
 
   
   text = text
+    .replace(/\|\.P\.C\b/gi, 'I.P.C.')
     .replace(/\bU\s*\/\s*S\b/gi, 'U/S')
     .replace(/\bI\s*\.\s*P\s*\.\s*C\b/gi, 'I.P.C.')
     .replace(/\bC\s*r\s*\.\s*P\s*\.\s*C\b/gi, 'Cr.P.C.')
     .replace(/\bV\s*\/\s*S\b/gi, 'V/S');
 
-  
+  // Fix double-period artefact (e.g. "Cr.P.C.." → "Cr.P.C.")
+  text = text.replace(/([A-Z]\.)\.\b/g, '$1');
+
+  // Strip isolated single noise characters on their own line (OCR artefacts)
+  text = text.replace(/^[^A-Za-z0-9\u0900-\u097F]{1,2}$/gm, '');
+
   const lines = text.split('\n');
   const normalizedLines = lines.map((line) => {
-    
     if (/^\[Page \d+\]$/.test(line.trim())) {
       return line.trim();
     }
@@ -152,7 +168,7 @@ export async function extractTextFromImage(
 ): Promise<{ text: string; confidence: number }> {
   const rawBuffer = typeof input === 'string' ? await fs.promises.readFile(input) : input;
 
-  
+  // Preprocess for OCR (upscale, denoise, CLAHE, sharpen)
   let preprocessedBuffer: Buffer;
   try {
     preprocessedBuffer = await preprocessImage(rawBuffer);
@@ -161,13 +177,43 @@ export async function extractTextFromImage(
     preprocessedBuffer = rawBuffer;
   }
 
-  const worker = existingWorker || (await createWorker('eng+hin'));
-  try {
-    const result = await worker.recognize(preprocessedBuffer);
+  // Use local trained data when available (eng.traineddata / hin.traineddata in project root)
+  const langPath = path.resolve(process.cwd());
+  const worker = existingWorker || (
+    await createWorker(['eng', 'hin'], 1, { langPath, gzip: false })
+  );
+
+  const recognizeBuffer = async (buf: Buffer) => {
+    const result = await worker.recognize(buf);
     const text = (result?.data?.text || '').trim();
     const confidence = Math.round(result?.data?.confidence || 0);
-
     return { text, confidence };
+  };
+
+  try {
+    const first = await recognizeBuffer(preprocessedBuffer);
+
+    // Multi-pass orientation recovery for low-confidence results
+    if (first.confidence < 35) {
+      const rotations = [90, 270] as const;
+      let best = first;
+
+      for (const deg of rotations) {
+        try {
+          const rotated = await sharp(preprocessedBuffer).rotate(deg).png().toBuffer();
+          const attempt = await recognizeBuffer(rotated);
+          if (attempt.confidence > best.confidence) {
+            best = attempt;
+          }
+        } catch {
+          // Skip rotation attempt if it fails
+        }
+      }
+
+      return best;
+    }
+
+    return first;
   } finally {
     if (!existingWorker) {
       try {
@@ -178,6 +224,7 @@ export async function extractTextFromImage(
     }
   }
 }
+
 
 
 export async function extractTextFromPdf(input: string | Buffer): Promise<{
@@ -230,46 +277,42 @@ export async function extractTextFromPdf(input: string | Buffer): Promise<{
       };
     }
 
-    
+    // Fall through to OCR: use getScreenshot() which renders each page as PNG
+    // (getImage() returns 0 images for text-based / most scanned PDFs)
     try {
-      const imageResult = await parser.getImage({ imageBuffer: true });
-      const imagePages = imageResult?.pages || [];
+      const screenshotResult = await (parser as any).getScreenshot({ imageBuffer: true, scale: 2.0 });
+      const screenshotPages = screenshotResult?.pages || [];
 
-      if (imagePages.length > 0) {
+      if (screenshotPages.length > 0) {
         let worker: Worker | null = null;
         const pageTexts: string[] = [];
         const confidences: number[] = [];
 
         try {
-          
-          worker = await createWorker('eng+hin');
+          const langPath = path.resolve(process.cwd());
+          worker = await createWorker(['eng', 'hin'], 1, { langPath, gzip: false });
 
-          for (let pIdx = 0; pIdx < imagePages.length; pIdx++) {
-            const page = imagePages[pIdx];
+          for (let pIdx = 0; pIdx < screenshotPages.length; pIdx++) {
+            const page = screenshotPages[pIdx];
             const pageNum = page.pageNumber || pIdx + 1;
-            const pageImages = page.images || [];
-            const pageTextParts: string[] = [];
 
-            for (const img of pageImages) {
-              if (img && img.data) {
-                const imgBuf = Buffer.from(img.data);
-                const { text: ocrText, confidence: ocrConf } = await extractTextFromImage(imgBuf, worker);
-                if (ocrText) {
-                  pageTextParts.push(ocrText);
-                  confidences.push(ocrConf);
-                }
-              }
+            // getScreenshot returns page.data as the PNG Buffer
+            const pageBuffer = page.data ? Buffer.from(page.data) : null;
+            if (!pageBuffer || pageBuffer.length === 0) {
+              pageTexts.push(`[Page ${pageNum}]\n[No image data for this page]`);
+              continue;
             }
 
-            const pageBody = pageTextParts.join('\n').trim();
-            pageTexts.push(`[Page ${pageNum}]\n${pageBody.length > 0 ? pageBody : '[No readable text on this page]'}`);
+            const { text: ocrText, confidence: ocrConf } = await extractTextFromImage(pageBuffer, worker);
+            pageTexts.push(`[Page ${pageNum}]\n${ocrText.length > 0 ? ocrText : '[No readable text on this page]'}`);
+            if (ocrConf > 0) confidences.push(ocrConf);
           }
         } finally {
           if (worker) {
             try {
               await worker.terminate();
             } catch (wErr) {
-              console.warn('Failed to terminate Tesseract worker during PDF scan:', wErr);
+              console.warn('Failed to terminate Tesseract worker during PDF OCR:', wErr);
             }
           }
         }
@@ -279,20 +322,18 @@ export async function extractTextFromPdf(input: string | Buffer): Promise<{
             ? Math.round(confidences.reduce((a, b) => a + b, 0) / confidences.length)
             : 0;
 
-        const formattedRaw = pageTexts.join('\n\n').trim();
-
         return {
-          rawText: formattedRaw,
+          rawText: pageTexts.join('\n\n').trim(),
           confidence: avgConfidence,
           quality: calculateQuality(avgConfidence),
-          pageCount: imagePages.length,
+          pageCount: screenshotPages.length,
         };
       }
-    } catch (imgErr) {
-      console.warn('Scanned PDF image extraction encountered an error:', imgErr);
+    } catch (screenshotErr) {
+      console.warn('PDF screenshot OCR encountered an error, using fallback:', screenshotErr);
     }
 
-    
+    // Last-resort fallback: return whatever digital text we got
     const fallbackText = combinedDigitalText ? `[Page 1]\n${combinedDigitalText}` : '';
     return {
       rawText: fallbackText,
@@ -303,13 +344,14 @@ export async function extractTextFromPdf(input: string | Buffer): Promise<{
   } finally {
     if (parser) {
       try {
-        await parser.destroy();
+        await (parser as any).destroy();
       } catch (dErr) {
         console.warn('Failed to destroy PDF parser:', dErr);
       }
     }
   }
 }
+
 
 
 export async function processDocumentOcr(

@@ -246,6 +246,10 @@ export async function POST(req: NextRequest) {
         user.sessions.slice(0, 15);
     }
 
+    if (typeof username === 'string' && username.trim()) {
+      user.username = username.trim();
+    }
+
     await user.save();
 
     const token =
@@ -265,8 +269,7 @@ export async function POST(req: NextRequest) {
       sessionId;
 
     userJson.username =
-      userJson.username ||
-      (user as any).username ||
+      user.username ||
       (typeof username === 'string' && username.trim() ? username.trim() : '') ||
       (user.email ? user.email.split('@')[0] : '');
 

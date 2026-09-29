@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useEffect, useState } from 'react';
 
 import {
   LayoutDashboard,
@@ -51,6 +52,16 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      setIsAdmin(user?.role === 'Admin');
+    } catch {
+      setIsAdmin(false);
+    }
+  }, []);
 
   return (
     <aside
@@ -126,7 +137,7 @@ export default function Sidebar() {
 
       {}
       <nav className="shrink-0 space-y-1 px-2.5 py-2">
-        {navItems.map((item) => {
+        {navItems.filter((item) => item.path !== '/audit-trail' || isAdmin).map((item) => {
           const currentPath = pathname || '';
           const isActive =
             item.path === '/cases/new'

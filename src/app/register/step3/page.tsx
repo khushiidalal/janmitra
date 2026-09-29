@@ -177,6 +177,7 @@ export default function RegistrationStep3() {
         address: step1.address,
         department: step2.department,
         designation: step2.designation,
+        role: step2.designation,
         employeeId: step2.employeeId,
         jurisdiction: step2.jurisdiction,
         joiningDate: step2.joiningDate,

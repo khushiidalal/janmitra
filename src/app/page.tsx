@@ -52,6 +52,17 @@ export default function Login() {
     useState<InformationTopic | null>(null);
 
   useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem("user");
+      const savedName = localStorage.getItem("userName") || localStorage.getItem("lastLoginUsername");
+      if (savedName) {
+        setUsername(savedName);
+      } else if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (parsed.username) setUsername(parsed.username);
+      }
+    } catch {}
+
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpenInformation(null);
@@ -130,43 +141,34 @@ export default function Login() {
     
     
 
+    const trimmedUsername = username.trim();
     const user = data.user;
 
     if (user) {
-      if (!user.username && username.trim()) {
-        user.username = username.trim();
-      }
-      localStorage.setItem(
-        "user",
-        JSON.stringify(user)
-      );
+      // Always use the entered username — it's what the user typed
+      user.username = trimmedUsername;
+      localStorage.setItem("user", JSON.stringify(user));
     }
 
+    // Persist the entered username for prefill on next visit
+    localStorage.setItem("lastLoginUsername", trimmedUsername);
+    localStorage.setItem("userName", trimmedUsername);
+
     if (rememberMe) {
-      localStorage.setItem(
-        "kora_token",
-        data.token
-      );
-
-      localStorage.setItem(
-        "token",
-        data.token
-      );
-
+      localStorage.setItem("kora_token", data.token);
+      localStorage.setItem("token", data.token);
       sessionStorage.removeItem("token");
     } else {
       localStorage.removeItem("kora_token");
       localStorage.removeItem("token");
-
-      sessionStorage.setItem(
-        "token",
-        data.token
-      );
+      sessionStorage.setItem("token", data.token);
     }
 
-    localStorage.setItem(
-      "userName",
-      (user && user.username) || username.trim()
+    // Notify TopNav and other listeners immediately
+    window.dispatchEvent(
+      new CustomEvent("janmitra:profile-updated", {
+        detail: { ...(user || {}), username: trimmedUsername },
+      })
     );
 
     router.push("/dashboard");
@@ -456,6 +458,17 @@ export default function Login() {
                         Enter the username associated with your JANMITRA
                         account.
                       </p>
+
+                      {username.trim() && (
+                        <div className="mt-2 flex items-center gap-1.5 rounded-md bg-blue-50 px-3 py-1.5 text-xs text-blue-700">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="8" r="4" />
+                            <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+                          </svg>
+                          Logging in as{" "}
+                          <strong>@{username.trim()}</strong>
+                        </div>
+                      )}
                     </div>
 
                     <button
@@ -464,10 +477,14 @@ export default function Login() {
                       className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {loading ? (
-                        "Signing In..."
+                        username.trim()
+                          ? `Signing in as @${username.trim()}…`
+                          : "Signing In…"
                       ) : (
                         <span className="flex items-center justify-center gap-2">
-                          Sign In
+                          {username.trim()
+                            ? `Sign In as @${username.trim()}`
+                            : "Sign In"}
                           <span className="text-lg leading-none">→</span>
                         </span>
                       )}

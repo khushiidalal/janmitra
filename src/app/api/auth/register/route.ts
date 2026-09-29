@@ -40,6 +40,14 @@ export async function POST(req: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    const validRoles = ['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk', 'Viewer'];
+    if (role !== undefined && !validRoles.includes(role)) {
+      return NextResponse.json(
+        { success: false, error: 'Please select a valid system role' },
+        { status: 400 }
+      );
+    }
+    const selectedRole = role || 'Viewer';
 
     const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
@@ -72,7 +80,7 @@ export async function POST(req: NextRequest) {
       fullName: fullName.trim(),
       email: normalizedEmail,
       password,
-      role: role && ['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk', 'Viewer'].includes(role) ? role : 'Officer',
+      role: selectedRole,
       dateOfBirth: dateOfBirth?.trim() || '',
       gender: gender?.trim() || '',
       govIdType: govIdType?.trim() || '',

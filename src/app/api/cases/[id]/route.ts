@@ -20,6 +20,8 @@ async function findCaseById(id: string) {
 
 export async function GET(req: NextRequest, context: Context) {
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     await connectDB();
     const { id } = await context.params;
     const foundCase = await findCaseById(id);

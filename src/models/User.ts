@@ -23,6 +23,7 @@ export interface IUserPreferences {
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   fullName: string;
+  username?: string;
   role: 'Admin' | 'Senior Officer' | 'Investigator' | 'Officer' | 'Clerk' | 'Viewer';
   dateOfBirth?: string;
   gender?: string;
@@ -56,6 +57,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, 'Full name is required'],
       trim: true,
+    },
+    username: {
+      type: String,
+      trim: true,
+      default: '',
     },
     role: {
       type: String,

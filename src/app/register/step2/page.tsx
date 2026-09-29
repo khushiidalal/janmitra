@@ -11,6 +11,15 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+const DESIGNATIONS = [
+  "Admin",
+  "Senior Officer",
+  "Investigator",
+  "Officer",
+  "Clerk",
+  "Viewer",
+];
+
 export default function RegistrationStep2() {
   const router = useRouter();
 
@@ -238,18 +247,26 @@ export default function RegistrationStep2() {
 
                   <div>
                     <label className="mb-1 block text-14px font-semibold text-slate-800">
-                      Designation / Rank
+                      System Role
                     </label>
 
-                    <input
-                      type="text"
-                      name="designation"
-                      value={formData.designation}
-                      onChange={handleChange}
-                      placeholder="e.g. Special Agent"
+                    <div className="relative">
+                      <select
+                        name="designation"
+                        value={formData.designation}
+                        onChange={handleChange}
                       required
-                      className="h-[36px] w-full rounded-[5px] border border-slate-300 bg-white px-3 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    />
+                        className="h-[36px] w-full appearance-none rounded-[5px] border border-slate-300 bg-white px-3 pr-8 text-sm text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="">Select role</option>
+                        {DESIGNATIONS.map((designation) => (
+                          <option key={designation} value={designation}>
+                            {designation}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                    </div>
                   </div>
                 </div>
 

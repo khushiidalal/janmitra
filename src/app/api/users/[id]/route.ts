@@ -18,6 +18,9 @@ export async function GET(req: NextRequest, context: Context) {
     }
 
     const { id } = await context.params;
+    if (currentUser.role !== 'Admin' && String(currentUser._id) !== String(id)) {
+      return NextResponse.json({ success: false, error: 'Forbidden: You can only view your own account' }, { status: 403 });
+    }
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ success: false, error: 'Invalid user ID' }, { status: 400 });
     }
@@ -53,11 +56,15 @@ export async function PATCH(req: NextRequest, context: Context) {
 
     const { fullName, role } = await req.json();
 
+    const validRoles = ['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk', 'Viewer'];
     if (role !== undefined && currentUser.role !== 'Admin') {
       return NextResponse.json(
         { success: false, error: 'Forbidden: Only administrators can modify user roles' },
         { status: 403 }
       );
+    }
+    if (role !== undefined && !validRoles.includes(role)) {
+      return NextResponse.json({ success: false, error: 'Invalid role' }, { status: 400 });
     }
 
     if (currentUser.role !== 'Admin' && String(currentUser._id) !== String(id)) {

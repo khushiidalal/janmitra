@@ -12,6 +12,9 @@ export async function GET(req: NextRequest) {
     if (!currentUser) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
+    if (currentUser.role !== 'Admin') {
+      return NextResponse.json({ success: false, error: 'Forbidden: Only administrators can view user accounts' }, { status: 403 });
+    }
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';

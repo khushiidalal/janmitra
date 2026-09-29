@@ -3,14 +3,6 @@ import { connectDB } from '@/lib/db';
 import Audit from '@/models/Audit';
 import { getAuthenticatedUser } from '@/lib/server/auth';
 
-const ALLOWED_SECURITY_ROLES = [
-  'Admin',
-  'Senior Officer',
-  'Investigator',
-  'Officer',
-  'Clerk',
-];
-
 export async function GET(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser(req);
@@ -18,6 +10,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized: Authentication required' },
         { status: 401 }
+      );
+    }
+
+    if (user.role !== 'Admin') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Only administrators can view the audit trail' },
+        { status: 403 }
       );
     }
 
@@ -30,13 +29,6 @@ export async function GET(req: NextRequest) {
     const statusParam = searchParams.get('status');
 
     
-    if (type === 'login' && !ALLOWED_SECURITY_ROLES.includes(user.role)) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Insufficient permissions to view security telemetry' },
-        { status: 403 }
-      );
-    }
-
     await connectDB();
 
     const filter: Record<string, any> = {};
@@ -75,19 +67,6 @@ export async function GET(req: NextRequest) {
     const logs = await Audit.find(filter).sort({ time: -1 }).limit(limit);
 
     
-    if (user.role === 'Viewer') {
-      return NextResponse.json(
-        logs.map((l) => {
-          const json = l.toJSON();
-          if (json.ipAddress) {
-            delete json.ipAddress;
-            delete json.userAgent;
-          }
-          return json;
-        })
-      );
-    }
-
     return NextResponse.json(logs.map((l) => l.toJSON()));
   } catch (error: any) {
     console.error('Fetch audit logs error:', error);

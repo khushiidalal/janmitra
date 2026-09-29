@@ -116,9 +116,17 @@ export default function Dashboard() {
   const [userName, setUserName] = useState('User');
 
   useEffect(() => {
-    const stored = localStorage.getItem('userName');
+    const stored = localStorage.getItem('userName') || localStorage.getItem('lastLoginUsername');
     if (stored) {
       setUserName(stored);
+    } else {
+      try {
+        const raw = localStorage.getItem('user');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.username) setUserName(parsed.username);
+        }
+      } catch {}
     }
   }, []);
 

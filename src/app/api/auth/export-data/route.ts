@@ -27,13 +27,10 @@ export async function GET(req: NextRequest) {
       .lean();
 
     
-    const auditLogs = await Audit.find({
-      $or: [{ userId: user._id }, { userEmail: user.email }],
-    })
-      .select('-__v')
-      .sort({ time: -1 })
-      .limit(200)
-      .lean();
+    const auditLogs = user.role === 'Admin'
+      ? await Audit.find({ $or: [{ userId: user._id }, { userEmail: user.email }] })
+          .select('-__v').sort({ time: -1 }).limit(200).lean()
+      : [];
 
     
     const sanitizedProfile = {
