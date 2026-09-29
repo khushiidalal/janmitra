@@ -1,9 +1,12 @@
 
 import 'dotenv/config';
+import crypto from 'node:crypto';
 import { spawn, execSync } from 'node:child_process';
 import path from 'node:path';
+import mongoose from 'mongoose';
 
-const BASE_URL = 'http://127.0.0.1:5000/api';
+const TEST_PORT = process.env.JANMITRA_E2E_PORT || '5000';
+const BASE_URL = `http://127.0.0.1:${TEST_PORT}/api`;
 let spawnedServer = null;
 
 async function ensureServerRunning() {
@@ -15,9 +18,9 @@ async function ensureServerRunning() {
     }
   } catch {}
 
-  console.log('Server not active on port 5000. Spawning local Next.js server for testing...');
+  console.log(`Server not active on port ${TEST_PORT}. Spawning local Next.js server for testing...`);
   const nextBin = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'bin', 'next');
-  spawnedServer = spawn(process.execPath, [nextBin, 'start', '-p', '5000'], {
+  spawnedServer = spawn(process.execPath, [nextBin, 'start', '-p', TEST_PORT], {
     stdio: 'ignore',
     detached: false,
   });
@@ -28,7 +31,7 @@ async function ensureServerRunning() {
     try {
       const res = await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(1000) });
       if (res.ok) {
-        console.log('Server spawned and healthy on port 5000!\n');
+        console.log(`Server spawned and healthy on port ${TEST_PORT}!\n`);
         return;
       }
     } catch {}
@@ -50,11 +53,71 @@ function cleanupServer() {
 }
 
 const results = [];
+let securityFixtureEmails = [];
 
 function record(name, pass, details = '') {
   results.push({ name, pass, details });
   const icon = pass ? '✅ PASS' : '❌ FAIL';
   console.log(`${icon}: ${name}${details ? ` -> ${details}` : ''}`);
+}
+
+async function seedRegistration(email, allowlistedAdmin = false) {
+  const now = new Date();
+  securityFixtureEmails.push(email);
+  await mongoose.connection.collection('emailotps').insertOne({
+    email,
+    otpHash: crypto.createHmac('sha256', process.env.JWT_SECRET).update('843927').digest('hex'),
+    expiresAt: new Date(now.getTime() + 10 * 60 * 1000),
+    verified: false,
+    attempts: 0,
+    sendCount: 1,
+    sendWindowStartedAt: now,
+    lastSentAt: now,
+    createdAt: now,
+    updatedAt: now,
+  });
+  if (allowlistedAdmin) {
+    await mongoose.connection.collection('authorizedadmins').insertOne({
+      email,
+      active: true,
+      verifiedAt: now,
+      verifiedBy: 'e2e security fixture',
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+}
+
+async function seedExpiredOtp(email) {
+  const now = new Date();
+  securityFixtureEmails.push(email);
+  await mongoose.connection.collection('emailotps').insertOne({
+    email,
+    otpHash: crypto.createHmac('sha256', process.env.JWT_SECRET).update('843927').digest('hex'),
+    expiresAt: new Date(now.getTime() - 1000),
+    verified: false,
+    attempts: 0,
+    sendCount: 1,
+    sendWindowStartedAt: now,
+    lastSentAt: new Date(now.getTime() - 61_000),
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+async function verifyTestOtp(email) {
+  const headers = { 'Content-Type': 'application/json' };
+  const response = await fetch(`${BASE_URL}/otp/verify`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ email, otp: '843927' }),
+  });
+  const replay = await fetch(`${BASE_URL}/otp/verify`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ email, otp: '843927' }),
+  });
+  return { verified: response.status === 200, replayRejected: replay.status === 400 };
 }
 
 async function run() {
@@ -66,6 +129,7 @@ async function run() {
   let adminUser = null;
   let viewerToken = '';
   let viewerUser = null;
+  let designationUser = null;
   let testCaseId = '';
   let testDocumentId = '';
   let testCaseDocId = '';
@@ -73,7 +137,20 @@ async function run() {
   const testSuffix = Date.now();
   const testAdminEmail = `test.admin.${testSuffix}@example.com`;
   const testViewerEmail = `test.viewer.${testSuffix}@example.com`;
+  const testSelfDeclaredAdminEmail = `test.designation.${testSuffix}@example.com`;
+  const testOtpLimitEmail = `test.otp-limit.${testSuffix}@example.com`;
+  const testOtpExpiryEmail = `test.otp-expiry.${testSuffix}@example.com`;
+  const testOtpSendLimitEmail = `test.otp-send-limit.${testSuffix}@example.com`;
+  const testUnverifiedEmail = `test.unverified.${testSuffix}@example.com`;
   const testPassword = 'SecurePassword123!';
+
+  await mongoose.connect(process.env.MONGODB_URI);
+  await seedRegistration(testAdminEmail, true);
+  await seedRegistration(testViewerEmail);
+  await seedRegistration(testSelfDeclaredAdminEmail);
+  await seedRegistration(testOtpLimitEmail);
+  await seedRegistration(testOtpSendLimitEmail);
+  await seedExpiredOtp(testOtpExpiryEmail);
 
   
   try {
@@ -87,6 +164,50 @@ async function run() {
   
   
   try {
+    const otpResult = await verifyTestOtp(testAdminEmail);
+    record('POST /api/otp/verify (Single use)', otpResult.verified && otpResult.replayRejected);
+  } catch (err) {
+    record('POST /api/otp/verify (Single use)', false, err.message);
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/otp/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testOtpExpiryEmail, otp: '843927' }),
+    });
+    const data = await res.json();
+    record('POST /api/otp/verify (Expired code rejected)', res.status === 400 && data.message?.includes('expired'), `status: ${res.status}`);
+  } catch (err) {
+    record('POST /api/otp/verify (Expired code rejected)', false, err.message);
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/otp/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testOtpSendLimitEmail }),
+    });
+    record('POST /api/otp/send (Resend rate limit)', res.status === 429, `status: ${res.status}`);
+  } catch (err) {
+    record('POST /api/otp/send (Resend rate limit)', false, err.message);
+  }
+
+  try {
+    let response;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      response = await fetch(`${BASE_URL}/otp/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: testOtpLimitEmail, otp: '000000' }),
+      });
+    }
+    record('POST /api/otp/verify (Attempt limit)', response.status === 429, `status: ${response.status}`);
+  } catch (err) {
+    record('POST /api/otp/verify (Attempt limit)', false, err.message);
+  }
+
+  try {
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -95,6 +216,22 @@ async function run() {
     record('POST /api/auth/register (Validation: missing password/name)', res.status === 400, `status: ${res.status}`);
   } catch (err) {
     record('POST /api/auth/register (Validation)', false, err.message);
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Unverified Registration Attempt',
+        email: testUnverifiedEmail,
+        password: testPassword,
+        role: 'Admin',
+      }),
+    });
+    record('POST /api/auth/register (Unverified email denied)', res.status === 403, `status: ${res.status}`);
+  } catch (err) {
+    record('POST /api/auth/register (Unverified email denied)', false, err.message);
   }
 
   
@@ -114,13 +251,14 @@ async function run() {
     const data = await res.json();
     adminToken = data.token;
     adminUser = data.user;
-    record('POST /api/auth/register (Success Admin)', res.status === 201 && !!adminToken, `User ID: ${adminUser?.id}`);
+    record('POST /api/auth/register (Allowlisted verified Admin)', res.status === 201 && !!adminToken && adminUser?.role === 'Admin', `User ID: ${adminUser?.id}`);
   } catch (err) {
     record('POST /api/auth/register (Success Admin)', false, err.message);
   }
 
   
   try {
+    await verifyTestOtp(testViewerEmail);
     const res = await fetch(`${BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -150,9 +288,29 @@ async function run() {
     const data = await res.json();
     viewerToken = data.token;
     viewerUser = data.user;
-    record('POST /api/auth/register (Success Viewer)', res.status === 201 && !!viewerToken, `User ID: ${viewerUser?.id}`);
+    record('POST /api/auth/register (Normal verified USER)', res.status === 201 && !!viewerToken && viewerUser?.role === 'Viewer' && viewerUser?.emailVerified === true, `Assigned role: ${viewerUser?.role}`);
   } catch (err) {
-    record('POST /api/auth/register (Success Viewer)', false, err.message);
+    record('POST /api/auth/register (Normal verified USER)', false, err.message);
+  }
+
+  try {
+    await verifyTestOtp(testSelfDeclaredAdminEmail);
+    const res = await fetch(`${BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Self Declared Admin User',
+        email: testSelfDeclaredAdminEmail,
+        password: testPassword,
+        designation: 'Admin',
+        role: 'Admin',
+      }),
+    });
+    const data = await res.json();
+    designationUser = data.user;
+    record('POST /api/auth/register (Unauthorized Admin designation)', res.status === 201 && data.user?.role === 'Viewer' && data.user?.designation === 'Admin', `Actual role: ${data.user?.role}`);
+  } catch (err) {
+    record('POST /api/auth/register (Unauthorized Admin designation)', false, err.message);
   }
 
   
@@ -176,7 +334,8 @@ async function run() {
       body: JSON.stringify({ email: testAdminEmail, password: testPassword }),
     });
     const data = await res.json();
-    record('POST /api/auth/login (Success)', res.status === 200 && !!data.token, `Token received`);
+    const cookie = res.headers.get('set-cookie') || '';
+    record('POST /api/auth/login (Success)', res.status === 200 && !!data.token && /HttpOnly/i.test(cookie), `HttpOnly cookie issued: ${/HttpOnly/i.test(cookie)}`);
   } catch (err) {
     record('POST /api/auth/login (Success)', false, err.message);
   }
@@ -600,9 +759,18 @@ async function run() {
   
   try {
     const res = await fetch(`${BASE_URL}/audit`);
-    record('GET /api/audit (Unauthorized check)', res.status === 401, `status: ${res.status}`);
+    record('GET /api/audit (Unauthenticated forbidden)', res.status === 403, `status: ${res.status}`);
   } catch (err) {
     record('GET /api/audit (Unauthorized)', false, err.message);
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/audit`, {
+      headers: { Authorization: `Bearer ${viewerToken}` },
+    });
+    record('GET /api/audit (Direct non-admin access forbidden)', res.status === 403, `status: ${res.status}`);
+  } catch (err) {
+    record('GET /api/audit (Direct non-admin access)', false, err.message);
   }
 
   
@@ -614,6 +782,34 @@ async function run() {
     record('GET /api/audit (Success)', res.status === 200 && Array.isArray(data), `Retrieved ${data.length} audit logs`);
   } catch (err) {
     record('GET /api/audit (Success)', false, err.message);
+  }
+
+  try {
+    const appUrl = BASE_URL.replace('/api', '');
+    const res = await fetch(`${appUrl}/audit-trail`, {
+      headers: { Cookie: `token=${viewerToken}` },
+    });
+    record('GET /audit-trail (Server page denies non-admin)', res.status === 403, `status: ${res.status}`);
+  } catch (err) {
+    record('GET /audit-trail (Server page RBAC)', false, err.message);
+  }
+
+  try {
+    const appUrl = BASE_URL.replace('/api', '');
+    const res = await fetch(`${appUrl}/audit-trail`);
+    record('GET /audit-trail (Server page denies unauthenticated)', res.status === 403, `status: ${res.status}`);
+  } catch (err) {
+    record('GET /audit-trail (Server page unauthenticated)', false, err.message);
+  }
+
+  try {
+    const appUrl = BASE_URL.replace('/api', '');
+    const res = await fetch(`${appUrl}/audit-trail`, {
+      headers: { Cookie: `token=${adminToken}` },
+    });
+    record('GET /audit-trail (Allowlisted Admin page access)', res.status === 200, `status: ${res.status}`);
+  } catch (err) {
+    record('GET /audit-trail (Admin page access)', false, err.message);
   }
 
   
@@ -637,6 +833,21 @@ async function run() {
   }
 
   
+  try {
+    const res = await fetch(`${BASE_URL}/auth/me`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${viewerToken}`,
+      },
+      body: JSON.stringify({ role: 'Admin' }),
+    });
+    const data = await res.json();
+    record('PATCH /api/auth/me (Role injection ignored)', res.status === 200 && data.user?.role === 'Viewer', `Returned role: ${data.user?.role}`);
+  } catch (err) {
+    record('PATCH /api/auth/me (Role injection)', false, err.message);
+  }
+
   try {
     const res = await fetch(`${BASE_URL}/users/${viewerUser.id}`, {
       method: 'PATCH',
@@ -743,13 +954,19 @@ async function run() {
 
   
   try {
-    
-    const mongoose = (await import('mongoose')).default;
-    await mongoose.connect(process.env.MONGODB_URI);
     const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
-    await User.findByIdAndDelete(adminUser.id);
+    await mongoose.connection.collection('authorizedadmins').deleteOne({ email: testAdminEmail });
+    const revokedAudit = await fetch(`${BASE_URL}/audit`, {
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    record('GET /api/audit (Allowlist revocation invalidates existing token)', revokedAudit.status === 403, `status: ${revokedAudit.status}`);
+
+    await mongoose.connection.collection('authorizedadmins').deleteMany({ email: { $in: securityFixtureEmails } });
+    await mongoose.connection.collection('emailotps').deleteMany({ email: { $in: securityFixtureEmails } });
+    if (adminUser?.id) await User.findByIdAndDelete(adminUser.id);
+    if (designationUser?.id) await User.findByIdAndDelete(designationUser.id);
     await mongoose.disconnect();
-    record('Database Test Cleanup (Admin user removed)', true);
+    record('Database Test Cleanup (Security fixtures removed)', true);
   } catch (err) {
     record('Database Test Cleanup', false, err.message);
   }
@@ -770,8 +987,13 @@ async function run() {
   }
 }
 
-run().catch(err => {
+run().catch(async err => {
   console.error('Test suite crashed:', err);
+  if (mongoose.connection.readyState) {
+    await mongoose.connection.collection('authorizedadmins').deleteMany({ email: { $in: securityFixtureEmails } });
+    await mongoose.connection.collection('emailotps').deleteMany({ email: { $in: securityFixtureEmails } });
+    await mongoose.disconnect();
+  }
   cleanupServer();
   process.exit(1);
 });

@@ -23,6 +23,10 @@ const DESIGNATIONS = [
 export default function RegistrationStep2() {
   const router = useRouter();
 
+  const [governmentId, setGovernmentId] = useState<{ name: string; data: string } | null>(null);
+  const [uploadError, setUploadError] = useState("");
+  const [readingFile, setReadingFile] = useState(false);
+
   const [formData, setFormData] = useState({
     department: "",
     designation: "",
@@ -41,7 +45,9 @@ export default function RegistrationStep2() {
 
     if (savedData) {
       try {
-        setFormData(JSON.parse(savedData));
+        const saved = JSON.parse(savedData);
+        setFormData(saved);
+        setGovernmentId(saved.governmentId || null);
       } catch {
         
       }
@@ -57,7 +63,34 @@ export default function RegistrationStep2() {
     }));
   };
 
+  const handleGovernmentId = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setGovernmentId(null);
+    setUploadError("");
+    if (!file) return;
+    if (!["application/pdf", "image/jpeg", "image/png"].includes(file.type) || file.size === 0 || file.size > 2 * 1024 * 1024) {
+      setUploadError("Upload a PDF, JPG or PNG file up to 2 MB (empty files are not accepted).");
+      e.target.value = "";
+      return;
+    }
+    setReadingFile(true);
+    try {
+      const data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("File could not be read"));
+        reader.readAsDataURL(file);
+      });
+      setGovernmentId({ name: file.name, data });
+    } catch {
+      setUploadError("Could not read the file. Please select it again.");
+    } finally {
+      setReadingFile(false);
+    }
+  };
+
   const isComplete =
+    governmentId !== null && !readingFile &&
     formData.department.trim() !== "" &&
     formData.designation.trim() !== "" &&
     formData.employeeId.trim() !== "" &&
@@ -72,10 +105,12 @@ export default function RegistrationStep2() {
 
     if (!isComplete) return;
 
-    sessionStorage.setItem(
-      "registrationStep2",
-      JSON.stringify(formData)
-    );
+    try {
+      sessionStorage.setItem("registrationStep2", JSON.stringify({ ...formData, governmentId }));
+    } catch {
+      setUploadError("Unable to save the document. Please choose a smaller file.");
+      return;
+    }
 
     router.push("/register/step3");
   };
@@ -247,7 +282,7 @@ export default function RegistrationStep2() {
 
                   <div>
                     <label className="mb-1 block text-14px font-semibold text-slate-800">
-                      System Role
+                      Requested designation (not access role)
                     </label>
 
                     <div className="relative">
@@ -258,7 +293,7 @@ export default function RegistrationStep2() {
                       required
                         className="h-[36px] w-full appearance-none rounded-[5px] border border-slate-300 bg-white px-3 pr-8 text-sm text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       >
-                        <option value="">Select role</option>
+                        <option value="">Select designation</option>
                         {DESIGNATIONS.map((designation) => (
                           <option key={designation} value={designation}>
                             {designation}
@@ -271,6 +306,22 @@ export default function RegistrationStep2() {
                 </div>
 
                 {}
+                {formData.designation.trim() && (
+                  <div className="mb-4 rounded-md border border-slate-200 bg-slate-50 p-3">
+                    <label htmlFor="governmentId" className="mb-1 block text-sm font-semibold text-slate-800">
+                      Government ID Upload <span className="text-red-600">*</span>
+                    </label>
+                    <input id="governmentId" name="governmentId" type="file"
+                      accept=".pdf,.jpg,.jpeg,.png" required={!governmentId} disabled={readingFile}
+                      onChange={handleGovernmentId} aria-describedby="governmentIdHelp governmentIdError"
+                      className="block w-full text-sm text-slate-600 file:mr-3 file:rounded file:border-0 file:bg-blue-100 file:px-3 file:py-2 file:text-blue-700" />
+                    <p id="governmentIdHelp" className="mt-1 text-xs text-slate-500">Required. PDF, JPG or PNG, maximum 2 MB.</p>
+                    {readingFile && <p role="status" className="mt-1 text-xs text-blue-700">Reading document...</p>}
+                    {governmentId && <p className="mt-1 break-all text-xs text-green-700">Selected: {governmentId.name}</p>}
+                    <p id="governmentIdError" role="alert" className="mt-1 text-xs text-red-600">{uploadError}</p>
+                  </div>
+                )}
+
                 <div className="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
 
                   <div>

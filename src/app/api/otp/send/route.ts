@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { Resend } from 'resend';
 import { connectDB } from '@/lib/db';
 import EmailOTP from '@/models/EmailOTP';
+import { getMailer } from '@/lib/server/mailer';
 
 function hashOTP(otp: string) {
-  return crypto.createHash('sha256').update(otp).digest('hex');
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error('JWT_SECRET must be configured with at least 32 characters');
+  }
+  return crypto.createHmac('sha256', secret).update(otp).digest('hex');
 }
 
 export async function POST(req: NextRequest) {
@@ -13,22 +17,33 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     const normalizedEmail = String(email || '').trim().toLowerCase();
 
-    if (!normalizedEmail) {
+    if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
       return NextResponse.json(
-        { success: false, message: 'Email is required' },
+        { success: false, message: 'A valid email is required' },
         { status: 400 }
       );
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
-    if (!apiKey) {
+    await connectDB();
+
+    const now = new Date();
+    const existing = await EmailOTP.findOne({ email: normalizedEmail });
+    if (existing?.lastSentAt && now.getTime() - existing.lastSentAt.getTime() < 60_000) {
       return NextResponse.json(
-        { success: false, message: 'Resend API key is not configured (RESEND_API_KEY)' },
-        { status: 500 }
+        { success: false, message: 'Please wait before requesting another code' },
+        { status: 429 }
       );
     }
-
-    await connectDB();
+    const windowStartedAt = existing?.sendWindowStartedAt;
+    const sendCount = windowStartedAt && now.getTime() - windowStartedAt.getTime() < 60 * 60_000
+      ? existing.sendCount
+      : 0;
+    if (sendCount >= 5) {
+      return NextResponse.json(
+        { success: false, message: 'Too many verification codes requested. Try again later.' },
+        { status: 429 }
+      );
+    }
 
     const otp = crypto.randomInt(100000, 1000000).toString();
     const otpHash = hashOTP(otp);
@@ -40,15 +55,18 @@ export async function POST(req: NextRequest) {
         otpHash,
         expiresAt: new Date(Date.now() + 10 * 60 * 1000),
         verified: false,
+        verifiedAt: null,
+        attempts: 0,
+        sendCount: sendCount + 1,
+        sendWindowStartedAt: sendCount === 0 ? now : windowStartedAt,
+        lastSentAt: now,
       },
       { upsert: true, new: true }
     );
 
-    const resend = new Resend(apiKey);
-    const fromEmail = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM || 'onboarding@resend.dev';
-
-    const { data: resendData, error } = await resend.emails.send({
-      from: fromEmail,
+    const transporter = getMailer();
+    await transporter.sendMail({
+      from: `"JANMITRA Security" <${process.env.SMTP_USER}>`,
       to: normalizedEmail,
       subject: 'Janmitra Email Verification OTP',
       html: `
@@ -73,23 +91,12 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    if (error) {
-      console.error('RESEND ERROR:', error);
-      return NextResponse.json(
-        { success: false, message: error.message || 'Unable to send OTP email via Resend' },
-        { status: 400 }
-      );
-    }
-
-    console.log(`✅ Resend OTP sent successfully to ${normalizedEmail} (ID: ${resendData?.id})`);
-
     return NextResponse.json({
       success: true,
       message: 'OTP sent to your email successfully',
-      id: resendData?.id,
     });
   } catch (error: any) {
-    console.error('SEND OTP ERROR:', error);
+    console.error('Email OTP request failed');
     return NextResponse.json(
       { success: false, message: error.message || 'Failed to send OTP' },
       { status: 500 }

@@ -8,8 +8,8 @@ export async function GET(req: NextRequest) {
     const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized: Authentication required' },
-        { status: 401 }
+        { success: false, error: 'Forbidden: Administrator access required' },
+        { status: 403 }
       );
     }
 

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import Audit from '@/models/Audit';
-import { getAuthenticatedUser } from '@/lib/server/auth';
+import { getAuthenticatedUser, isAuthorizedAdmin } from '@/lib/server/auth';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -65,6 +65,12 @@ export async function PATCH(req: NextRequest, context: Context) {
     }
     if (role !== undefined && !validRoles.includes(role)) {
       return NextResponse.json({ success: false, error: 'Invalid role' }, { status: 400 });
+    }
+    if (role === 'Admin' && !(await isAuthorizedAdmin(user))) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Only verified allowlisted accounts can receive administrator access' },
+        { status: 403 }
+      );
     }
 
     if (currentUser.role !== 'Admin' && String(currentUser._id) !== String(id)) {

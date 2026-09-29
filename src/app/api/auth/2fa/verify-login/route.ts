@@ -5,7 +5,7 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import TwoFactorToken from '@/models/TwoFactorToken';
 
-import { signToken } from '@/lib/server/auth';
+import { isAuthorizedAdmin, setAuthCookie, signToken } from '@/lib/server/auth';
 import {
   extractClientIp,
   parseUserAgent,
@@ -110,6 +110,8 @@ export async function POST(req: NextRequest) {
 
     await user.save();
 
+    user.role = await isAuthorizedAdmin(user) ? 'Admin' : user.role === 'Admin' ? 'Viewer' : user.role;
+
     const jwt = signToken(user, sessionId);
 
     await TwoFactorToken.deleteMany({
@@ -130,12 +132,14 @@ export async function POST(req: NextRequest) {
       userJson.username = (user as any).username || (user.email ? user.email.split('@')[0] : '');
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       token: jwt,
       user: userJson,
       message: 'Two-factor verification successful.',
     });
+    setAuthCookie(response, jwt);
+    return response;
   } catch (error: any) {
     console.error('2FA LOGIN VERIFY ERROR:', error);
 

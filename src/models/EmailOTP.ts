@@ -6,6 +6,11 @@ export interface IEmailOTP extends Document {
   otpHash: string;
   expiresAt: Date;
   verified: boolean;
+  verifiedAt?: Date;
+  attempts: number;
+  sendCount: number;
+  sendWindowStartedAt?: Date;
+  lastSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -31,6 +36,11 @@ const emailOTPSchema = new Schema<IEmailOTP>(
       type: Boolean,
       default: false,
     },
+    verifiedAt: Date,
+    attempts: { type: Number, default: 0 },
+    sendCount: { type: Number, default: 0 },
+    sendWindowStartedAt: Date,
+    lastSentAt: Date,
   },
   { timestamps: true }
 );

@@ -32,6 +32,7 @@ export interface IUser extends Document {
   address?: string;
   department?: string;
   designation?: string;
+  governmentId?: { name: string; contentType: string; data: Buffer };
   employeeId?: string;
   jurisdiction?: string;
   joiningDate?: string;
@@ -40,6 +41,7 @@ export interface IUser extends Document {
   officialPhone?: string;
   profilePhoto?: string;
   email: string;
+  emailVerified: boolean;
   password?: string;
   preferences?: IUserPreferences;
   twoFactorEnabled?: boolean;
@@ -99,6 +101,10 @@ const userSchema = new Schema<IUser>(
       trim: true,
       default: '',
     },
+    governmentId: {
+      type: new Schema({ name: String, contentType: String, data: Buffer }, { _id: false }),
+      select: false,
+    },
     designation: {
       type: String,
       trim: true,
@@ -146,6 +152,10 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
     },
     password: {
       type: String,
@@ -205,6 +215,7 @@ userSchema.set('toJSON', {
     delete ret._id;
     delete ret.__v;
     delete ret.password;
+    delete ret.governmentId;
     return ret;
   },
 });

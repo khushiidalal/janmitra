@@ -5,7 +5,7 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import TwoFactorToken from '@/models/TwoFactorToken';
 
-import { signToken } from '@/lib/server/auth';
+import { isAuthorizedAdmin, setAuthCookie, signToken } from '@/lib/server/auth';
 import {
   recordLoginSecurityEvent,
   extractClientIp,
@@ -252,6 +252,8 @@ export async function POST(req: NextRequest) {
 
     await user.save();
 
+    user.role = await isAuthorizedAdmin(user) ? 'Admin' : user.role === 'Admin' ? 'Viewer' : user.role;
+
     const token =
       signToken(user, sessionId);
 
@@ -273,12 +275,14 @@ export async function POST(req: NextRequest) {
       (typeof username === 'string' && username.trim() ? username.trim() : '') ||
       (user.email ? user.email.split('@')[0] : '');
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       token,
       user: userJson,
       requiresTwoFactor: false,
     });
+    setAuthCookie(response, token);
+    return response;
   } catch (error: any) {
     console.error(
       'Login error:',

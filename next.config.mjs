@@ -1,6 +1,7 @@
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: { authInterrupts: true },
   serverExternalPackages: ['mongoose', 'pdf-parse', 'pdfjs-dist', 'tesseract.js', 'sharp'],
   outputFileTracingIncludes: {
     '/api/documents/[id]/ocr': ['./ocr-data/*.traineddata'],

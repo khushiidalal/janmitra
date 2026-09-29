@@ -3,12 +3,12 @@ import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import Audit from '@/models/Audit';
-import { signToken } from '@/lib/server/auth';
+import EmailOTP from '@/models/EmailOTP';
+import { isAuthorizedAdmin, setAuthCookie, signToken } from '@/lib/server/auth';
 import { extractClientIp, parseUserAgent } from '@/lib/server/security';
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
     const body = await req.json();
 
     const {
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       address,
       department,
       designation,
+      governmentId,
       employeeId,
       jurisdiction,
       joiningDate,
@@ -39,16 +40,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
-    const validRoles = ['Admin', 'Senior Officer', 'Investigator', 'Officer', 'Clerk', 'Viewer'];
-    if (role !== undefined && !validRoles.includes(role)) {
-      return NextResponse.json(
-        { success: false, error: 'Please select a valid system role' },
-        { status: 400 }
-      );
+    const match = typeof governmentId?.data === "string" && governmentId.data.length <= 2800000
+      ? /^data:(application\/pdf|image\/jpeg|image\/png);base64,([A-Za-z0-9+/]+={0,2})$/.exec(governmentId.data)
+      : null;
+    if (!match || typeof governmentId?.name !== "string" || !governmentId.name.trim() || governmentId.name.length > 255) {
+      return NextResponse.json({ success: false, error: "Government ID is required. Upload a PDF, JPG or PNG up to 2 MB." }, { status: 400 });
     }
-    const selectedRole = role || 'Viewer';
+    const idData = Buffer.from(match[2], "base64");
+    const validSignature = match[1] === "application/pdf" ? idData.subarray(0, 5).toString() === "%PDF-"
+      : match[1] === "image/png" ? idData.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+      : idData[0] === 255 && idData[1] === 216 && idData[2] === 255;
+    if (!idData.length || idData.length > 2 * 1024 * 1024 || !validSignature) {
+      return NextResponse.json({ success: false, error: "Invalid Government ID file. Upload a valid PDF, JPG or PNG up to 2 MB." }, { status: 400 });
+    }
 
+    await connectDB();
+    const normalizedEmail = email.toLowerCase().trim();
     const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return NextResponse.json(
@@ -56,6 +63,23 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
+
+    const verification = await EmailOTP.findOne({
+      email: normalizedEmail,
+      verified: true,
+      expiresAt: { $gt: new Date() },
+    });
+    if (!verification) {
+      return NextResponse.json(
+        { success: false, error: 'Verify this email address before registering' },
+        { status: 403 }
+      );
+    }
+
+    const isAllowlistedAdmin = await isAuthorizedAdmin({ email: normalizedEmail, emailVerified: true });
+    const registrationDesignation =
+      typeof designation === 'string' ? designation.trim() :
+      typeof role === 'string' ? role.trim() : '';
 
     const sessionId = crypto.randomUUID();
     const ipAddress = extractClientIp(req);
@@ -80,14 +104,16 @@ export async function POST(req: NextRequest) {
       fullName: fullName.trim(),
       email: normalizedEmail,
       password,
-      role: selectedRole,
+      role: isAllowlistedAdmin ? 'Admin' : 'Viewer',
+      emailVerified: true,
       dateOfBirth: dateOfBirth?.trim() || '',
       gender: gender?.trim() || '',
       govIdType: govIdType?.trim() || '',
       govIdNumber: govIdNumber?.trim() || '',
       address: address?.trim() || '',
       department: department?.trim() || '',
-      designation: designation?.trim() || '',
+      designation: registrationDesignation,
+      governmentId: { name: governmentId.name.trim(), contentType: match[1], data: idData },
       employeeId: employeeId?.trim() || '',
       jurisdiction: jurisdiction?.trim() || '',
       joiningDate: joiningDate?.trim() || '',
@@ -97,6 +123,7 @@ export async function POST(req: NextRequest) {
       profilePhoto: typeof profilePhoto === 'string' ? profilePhoto : '',
       sessions: [newSession],
     });
+    await EmailOTP.deleteOne({ _id: verification._id, verified: true });
 
     try {
       await Audit.create({
@@ -116,7 +143,7 @@ export async function POST(req: NextRequest) {
     const userJson: any = user.toJSON();
     userJson.currentSessionId = sessionId;
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         message: 'Account created successfully',
@@ -125,6 +152,8 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
+    setAuthCookie(response, token);
+    return response;
   } catch (error: any) {
     console.error('Registration error:', error);
     return NextResponse.json(

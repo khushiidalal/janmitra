@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { register } from "@/lib/api";
+import { register, sendEmailOTP, verifyEmailOTP } from "@/lib/api";
 import {
   ArrowLeft,
   ArrowRight,
@@ -43,6 +43,10 @@ export default function RegistrationStep3() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [registeredUser, setRegisteredUser] = useState<any>(null);
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtpVerified, setEmailOtpVerified] = useState(false);
+  const [emailOtpEmail, setEmailOtpEmail] = useState("");
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -75,6 +79,22 @@ export default function RegistrationStep3() {
     cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
     cameraStreamRef.current = null;
     setCameraActive(false);
+  };
+
+  const handleResendEmailOtp = async () => {
+    if (!emailOtpEmail) return;
+    setLoading(true);
+    setError("");
+    try {
+      await sendEmailOTP(emailOtpEmail);
+      setEmailOtp("");
+      setEmailOtpVerified(false);
+      setError("A new verification code was sent to your email.");
+    } catch (err: any) {
+      setError(err.message || "Unable to resend the verification code.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFaceScan = async () => {
@@ -166,10 +186,31 @@ export default function RegistrationStep3() {
       return;
     }
 
+    if (!step2.governmentId) {
+      setError("Please upload your Government ID in Step 2.");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      if (!emailOtpSent || emailOtpEmail !== email) {
+        await sendEmailOTP(email);
+        setEmailOtpSent(true);
+        setEmailOtpEmail(email);
+        setEmailOtpVerified(false);
+        setEmailOtp("");
+        setError("A verification code was sent to your email. Enter it below and submit again.");
+        return;
+      }
+
+      if (!emailOtpVerified) {
+        await verifyEmailOTP(email, emailOtp);
+        setEmailOtpVerified(true);
+      }
+
       const extraProfile = {
+        governmentId: step2.governmentId,
         dateOfBirth: step1.dateOfBirth,
         gender: step1.gender,
         govIdType: step1.govIdType,
@@ -193,6 +234,7 @@ export default function RegistrationStep3() {
       localStorage.setItem("userName", user.fullName || fullName);
 
       setRegisteredUser(user);
+      sessionStorage.removeItem("registrationStep2");
 
       sessionStorage.setItem(
         "registrationStep3",
@@ -205,6 +247,11 @@ export default function RegistrationStep3() {
         err.message ||
           "Unable to connect to the server. Make sure the backend is running."
       );
+      if (emailOtpVerified) {
+        setEmailOtpSent(false);
+        setEmailOtpVerified(false);
+        setEmailOtp("");
+      }
     } finally {
       setLoading(false);
     }
@@ -643,6 +690,35 @@ export default function RegistrationStep3() {
                     <strong>Note:</strong> Your password must be exactly 8
                     numeric digits (e.g. 12345678). Keep it confidential.
                   </div>
+
+                  {emailOtpSent && (
+                    <div className="mt-4">
+                      <label className="mb-1 block text-[12px] font-semibold text-slate-700">
+                        Email verification code
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        value={emailOtp}
+                        onChange={(event) => setEmailOtp(event.target.value.replace(/\D/g, ""))}
+                        placeholder="Enter the 6-digit code"
+                        className="h-[36px] w-full rounded-[5px] border border-slate-300 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      />
+                      <p className="mt-1 text-[11px] text-slate-500">
+                        The code expires after 10 minutes and can be used once.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleResendEmailOtp}
+                        disabled={loading}
+                        className="mt-2 text-xs font-medium text-blue-700 underline disabled:opacity-50"
+                      >
+                        Resend code
+                      </button>
+                    </div>
+                  )}
 
                 </div>
               )}

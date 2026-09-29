@@ -1,10 +1,18 @@
 import jwt from 'jsonwebtoken';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { connectDB } from '@/lib/db';
 import User, { type IUser } from '@/models/User';
+import AuthorizedAdmin from '@/models/AuthorizedAdmin';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'janmitra_super_secret_jwt_key_2026';
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '7d') as any;
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error('JWT_SECRET must be configured with at least 32 characters');
+  }
+  return secret;
+}
 
 export interface TokenPayload {
   id: string;
@@ -17,13 +25,59 @@ export function signToken(user: { _id?: any; id?: any }, sessionId?: string): st
     id: id.toString(),
     ...(sessionId ? { sessionId } : {}),
   };
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: JWT_EXPIRES_IN,
   });
 }
 
 export function verifyToken(token: string): TokenPayload {
-  return jwt.verify(token, JWT_SECRET) as TokenPayload;
+  return jwt.verify(token, getJwtSecret()) as TokenPayload;
+}
+
+export function setAuthCookie(response: NextResponse, token: string): void {
+  response.cookies.set('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60,
+  });
+}
+
+export async function isAuthorizedAdmin(user: Pick<IUser, 'email' | 'emailVerified'>): Promise<boolean> {
+  if (!user.emailVerified) return false;
+  return Boolean(await AuthorizedAdmin.exists({
+    email: user.email,
+    active: true,
+    verifiedAt: { $type: 'date' },
+    verifiedBy: { $type: 'string', $ne: '' },
+  }));
+}
+
+export async function getAuthenticatedUserFromToken(token: string): Promise<IUser | null> {
+  try {
+    const decoded = verifyToken(token);
+    if (!decoded?.id) return null;
+
+    await connectDB();
+    const user = await User.findById(decoded.id);
+    if (!user) return null;
+
+    if (decoded.sessionId) {
+      const activeSession = user.sessions?.find((session) => session.sessionId === decoded.sessionId);
+      if (!activeSession) return null;
+      User.updateOne(
+        { _id: user._id, 'sessions.sessionId': decoded.sessionId },
+        { $set: { 'sessions.$.lastActive': new Date() } }
+      ).catch(() => {});
+    }
+
+    user.role = await isAuthorizedAdmin(user) ? 'Admin' : user.role === 'Admin' ? 'Viewer' : user.role;
+    (user as any).currentSessionId = decoded.sessionId;
+    return user;
+  } catch {
+    return null;
+  }
 }
 
 export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | null> {
@@ -34,7 +88,6 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | nu
     token = authHeader.split(' ')[1];
   }
 
-  
   if (!token) {
     token = req.cookies.get('token')?.value ||
             req.cookies.get('kora_token')?.value ||
@@ -43,30 +96,5 @@ export async function getAuthenticatedUser(req: NextRequest): Promise<IUser | nu
 
   if (!token) return null;
 
-  try {
-    const decoded = verifyToken(token);
-    if (!decoded || !decoded.id) return null;
-
-    await connectDB();
-    const user = await User.findById(decoded.id);
-    if (!user) return null;
-
-    
-    if (decoded.sessionId && Array.isArray(user.sessions) && user.sessions.length > 0) {
-      const activeSession = user.sessions.find((s) => s.sessionId === decoded.sessionId);
-      if (!activeSession) {
-        return null;
-      }
-      User.updateOne(
-        { _id: user._id, 'sessions.sessionId': decoded.sessionId },
-        { $set: { 'sessions.$.lastActive': new Date() } }
-      ).catch(() => {});
-    }
-
-    (user as any).currentSessionId = decoded.sessionId;
-    return user;
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return null;
-  }
+  return getAuthenticatedUserFromToken(token);
 }
