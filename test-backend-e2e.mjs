@@ -1,7 +1,53 @@
 
 import 'dotenv/config';
+import { spawn, execSync } from 'node:child_process';
+import path from 'node:path';
 
 const BASE_URL = 'http://127.0.0.1:5000/api';
+let spawnedServer = null;
+
+async function ensureServerRunning() {
+  try {
+    const res = await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(1500) });
+    if (res.ok) {
+      console.log('Detected existing server running on port 5000.\n');
+      return;
+    }
+  } catch {}
+
+  console.log('Server not active on port 5000. Spawning local Next.js server for testing...');
+  const nextBin = path.resolve(process.cwd(), 'node_modules', 'next', 'dist', 'bin', 'next');
+  spawnedServer = spawn(process.execPath, [nextBin, 'start', '-p', '5000'], {
+    stdio: 'ignore',
+    detached: false,
+  });
+
+  const maxAttempts = 30;
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const res = await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(1000) });
+      if (res.ok) {
+        console.log('Server spawned and healthy on port 5000!\n');
+        return;
+      }
+    } catch {}
+  }
+  throw new Error('Timed out waiting for Next.js server to start on port 5000. Make sure to run "npm run build" first.');
+}
+
+function cleanupServer() {
+  if (spawnedServer && spawnedServer.pid) {
+    console.log('\nTearing down spawned test server...');
+    try {
+      if (process.platform === 'win32') {
+        execSync(`taskkill /pid ${spawnedServer.pid} /T /F`, { stdio: 'ignore' });
+      } else {
+        spawnedServer.kill('SIGTERM');
+      }
+    } catch {}
+  }
+}
 
 const results = [];
 
@@ -13,6 +59,8 @@ function record(name, pass, details = '') {
 
 async function run() {
   console.log('=== Starting Janmitra Backend Health & Route Test Suite ===\n');
+  await ensureServerRunning();
+
 
   let adminToken = '';
   let adminUser = null;
@@ -713,6 +761,8 @@ async function run() {
   console.log(`TEST SUITE RESULTS: ${passed} PASSED, ${failed} FAILED (TOTAL: ${results.length})`);
   console.log(`========================================\n`);
 
+  cleanupServer();
+
   if (failed > 0) {
     process.exit(1);
   } else {
@@ -722,5 +772,7 @@ async function run() {
 
 run().catch(err => {
   console.error('Test suite crashed:', err);
+  cleanupServer();
   process.exit(1);
 });
+
