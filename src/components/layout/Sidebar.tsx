@@ -58,18 +58,47 @@ export default function Sidebar() {
   useEffect(() => {
     let cancelled = false;
 
+    const syncFromStoredUser = () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+        setIsAdmin(
+          storedUser?.role === 'Admin' ||
+          storedUser?.designation?.trim?.().toLowerCase() === 'admin'
+        );
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+
+    const handleProfileUpdate = (event: Event) => {
+      const user = (event as CustomEvent<any>).detail;
+      if (user) {
+        setIsAdmin(
+          user.role === 'Admin' || user.designation?.trim?.().toLowerCase() === 'admin'
+        );
+      } else {
+        syncFromStoredUser();
+      }
+    };
+
+    syncFromStoredUser();
+    window.addEventListener('janmitra:profile-updated', handleProfileUpdate);
+
     getMe()
       .then((user) => {
         if (cancelled) return;
         localStorage.setItem('user', JSON.stringify(user));
         setIsAdmin(user?.role === 'Admin');
+        window.dispatchEvent(new CustomEvent('janmitra:profile-updated', { detail: user }));
       })
       .catch(() => {
-        if (!cancelled) setIsAdmin(false);
+        // Keep the cached navigation visible if the refresh is unavailable.
+        // The audit page and API still enforce the current server-side role.
       });
 
     return () => {
       cancelled = true;
+      window.removeEventListener('janmitra:profile-updated', handleProfileUpdate);
     };
   }, []);
 
