@@ -5,7 +5,7 @@ import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import TwoFactorToken from '@/models/TwoFactorToken';
 
-import { isAuthorizedAdmin, setAuthCookie, signToken } from '@/lib/server/auth';
+import { applyAdminAccess, setAuthCookie, signToken } from '@/lib/server/auth';
 import {
   extractClientIp,
   parseUserAgent,
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
 
     await user.save();
 
-    if (await isAuthorizedAdmin(user)) user.role = 'Admin';
+    await applyAdminAccess(user);
 
     const jwt = signToken(user, sessionId);
 

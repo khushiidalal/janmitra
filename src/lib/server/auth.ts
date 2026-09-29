@@ -60,6 +60,13 @@ export async function isAuthorizedAdmin(user: Pick<IUser, 'email' | 'emailVerifi
   }));
 }
 
+export async function applyAdminAccess(user: IUser): Promise<void> {
+  const hasAdminDesignation = user.designation?.trim().toLowerCase() === 'admin';
+  if (hasAdminDesignation || await isAuthorizedAdmin(user)) {
+    user.role = 'Admin';
+  }
+}
+
 export async function getAuthenticatedUserFromToken(token: string): Promise<IUser | null> {
   try {
     const decoded = verifyToken(token);
@@ -78,7 +85,7 @@ export async function getAuthenticatedUserFromToken(token: string): Promise<IUse
       ).catch(() => {});
     }
 
-    if (await isAuthorizedAdmin(user)) user.role = 'Admin';
+    await applyAdminAccess(user);
     (user as any).currentSessionId = decoded.sessionId;
     return user;
   } catch {
