@@ -10,7 +10,7 @@ export const DOCUMENT_TYPES = [
   'Other',
 ] as const;
 
-export const STORAGE_PROVIDERS = ['local', 'S3', 'GCS'] as const;
+export const STORAGE_PROVIDERS = ['local', 'MongoDB', 'S3', 'GCS'] as const;
 
 export const OCR_STATUSES = ['not_started', 'processing', 'completed', 'failed'] as const;
 export type OcrStatus = typeof OCR_STATUSES[number];

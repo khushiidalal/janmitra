@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import fs from 'fs';
 import { connectDB } from '@/lib/db';
 import DocumentModel from '@/models/Document';
-import { getAbsoluteFilePath } from '@/lib/server/storage';
+import { readStoredFile } from '@/lib/server/storage';
 import { getAuthenticatedUser } from '@/lib/server/auth';
 
 interface Context {
@@ -38,17 +37,9 @@ export async function GET(req: NextRequest, context: Context) {
       );
     }
 
-    const filePath = getAbsoluteFilePath(doc);
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json(
-        { success: false, error: 'File not found on storage disk' },
-        { status: 404 }
-      );
-    }
+    const fileBuffer = await readStoredFile(doc);
 
-    const fileBuffer = await fs.promises.readFile(filePath);
-
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       headers: {
         'Content-Type': doc.mimeType || 'application/octet-stream',
         'Content-Disposition': `attachment; filename="${encodeURIComponent(doc.fileName)}"`,

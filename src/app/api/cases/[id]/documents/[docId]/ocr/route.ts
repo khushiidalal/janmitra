@@ -7,6 +7,8 @@ import Audit from '@/models/Audit';
 import { getAuthenticatedUser } from '@/lib/server/auth';
 import { processDocumentOcr, isOcrSupported } from '@/lib/server/ocr';
 
+export const maxDuration = 300;
+
 interface Context {
   params: Promise<{ id: string; docId: string }>;
 }

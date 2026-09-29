@@ -26,6 +26,8 @@ out
 *.sw?
 .env
 *.traineddata
+!ocr-data/eng.traineddata
+!ocr-data/hin.traineddata
 *.tsbuildinfo
 
 uploads/

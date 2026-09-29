@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { createWorker, type Worker } from 'tesseract.js';
+import { createWorker, PSM, type Worker } from 'tesseract.js';
 import { PDFParse } from 'pdf-parse';
 import sharp from 'sharp';
 
@@ -24,6 +24,18 @@ const SUPPORTED_IMAGE_MIMES = [
 ];
 
 const SUPPORTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff', '.pdf'];
+const LANGUAGE_DATA_DIR = path.join(process.cwd(), 'ocr-data');
+
+async function createOcrWorker(): Promise<Worker> {
+  const hasLocalLanguageData = ['eng', 'hin'].every((lang) =>
+    fs.existsSync(path.join(LANGUAGE_DATA_DIR, lang + '.traineddata'))
+  );
+  return createWorker(
+    ['eng', 'hin'],
+    1,
+    hasLocalLanguageData ? { langPath: LANGUAGE_DATA_DIR, gzip: false } : {}
+  );
+}
 
 export function isOcrSupported(mimeType: string, fileName = ''): boolean {
   const normalizedMime = (mimeType || '').toLowerCase();
@@ -138,7 +150,7 @@ export function normalizeLegalText(rawText: string): string {
     .replace(/\bV\s*\/\s*S\b/gi, 'V/S');
 
   // Fix double-period artefact (e.g. "Cr.P.C.." → "Cr.P.C.")
-  text = text.replace(/([A-Z]\.)\.\b/g, '$1');
+  text = text.replace(/([A-Z]\.)\.+/g, '$1');
 
   // Strip isolated single noise characters on their own line (OCR artefacts)
   text = text.replace(/^[^A-Za-z0-9\u0900-\u097F]{1,2}$/gm, '');
@@ -177,11 +189,7 @@ export async function extractTextFromImage(
     preprocessedBuffer = rawBuffer;
   }
 
-  // Use local trained data when available (eng.traineddata / hin.traineddata in project root)
-  const langPath = path.resolve(process.cwd());
-  const worker = existingWorker || (
-    await createWorker(['eng', 'hin'], 1, { langPath, gzip: false })
-  );
+  const worker = existingWorker || await createOcrWorker();
 
   const recognizeBuffer = async (buf: Buffer) => {
     const result = await worker.recognize(buf);
@@ -193,10 +201,28 @@ export async function extractTextFromImage(
   try {
     const first = await recognizeBuffer(preprocessedBuffer);
 
+    // Sparse-text segmentation can recover forms, stamps, and uneven layouts
+    // that the default segmentation misses. Keep the first pass unless better.
+    let best = first;
+    if (first.confidence < 75) {
+      try {
+        await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+        const sparseLayout = await recognizeBuffer(preprocessedBuffer);
+        if (sparseLayout.confidence > best.confidence) best = sparseLayout;
+      } catch (passErr) {
+        console.warn('Alternate OCR segmentation pass failed:', passErr);
+      } finally {
+        try {
+          await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO });
+        } catch {
+          // Keep the primary result if the worker cannot reset its mode.
+        }
+      }
+    }
+
     // Multi-pass orientation recovery for low-confidence results
-    if (first.confidence < 35) {
+    if (best.confidence < 35) {
       const rotations = [90, 270] as const;
-      let best = first;
 
       for (const deg of rotations) {
         try {
@@ -289,8 +315,7 @@ export async function extractTextFromPdf(input: string | Buffer): Promise<{
         const confidences: number[] = [];
 
         try {
-          const langPath = path.resolve(process.cwd());
-          worker = await createWorker(['eng', 'hin'], 1, { langPath, gzip: false });
+          worker = await createOcrWorker();
 
           for (let pIdx = 0; pIdx < screenshotPages.length; pIdx++) {
             const page = screenshotPages[pIdx];

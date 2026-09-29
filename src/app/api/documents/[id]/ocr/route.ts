@@ -4,8 +4,10 @@ import { connectDB } from '@/lib/db';
 import DocumentModel from '@/models/Document';
 import Audit from '@/models/Audit';
 import { getAuthenticatedUser } from '@/lib/server/auth';
-import { getAbsoluteFilePath } from '@/lib/server/storage';
+import { readStoredFile } from '@/lib/server/storage';
 import { processDocumentOcr, isOcrSupported } from '@/lib/server/ocr';
+
+export const maxDuration = 300;
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -107,15 +109,8 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    const filePath = getAbsoluteFilePath(doc);
-    if (!filePath) {
-      return NextResponse.json(
-        { success: false, error: 'Document storage path could not be resolved.' },
-        { status: 404 }
-      );
-    }
+    const fileBuffer = await readStoredFile(doc);
 
-    
     doc.ocrStatus = 'processing';
     doc.ocrError = '';
     await doc.save();
@@ -132,7 +127,7 @@ export async function POST(req: NextRequest, context: Context) {
 
     
     try {
-      const ocrResult = await processDocumentOcr(filePath, doc.mimeType, doc.fileName);
+      const ocrResult = await processDocumentOcr(fileBuffer, doc.mimeType, doc.fileName);
 
       doc.ocrText = ocrResult.rawText;
       doc.normalizedOcrText = ocrResult.normalizedText;
