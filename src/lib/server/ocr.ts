@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { createWorker, PSM, type Worker } from 'tesseract.js';
+import { CanvasFactory } from 'pdf-parse/worker';
 import { PDFParse } from 'pdf-parse';
 import sharp from 'sharp';
 
@@ -262,7 +263,7 @@ export async function extractTextFromPdf(input: string | Buffer): Promise<{
   const buffer = typeof input === 'string' ? await fs.promises.readFile(input) : input;
   let parser: PDFParse | null = null;
   try {
-    parser = new PDFParse({ data: buffer });
+    parser = new PDFParse({ data: buffer, CanvasFactory });
 
     
     let textResult: any = null;
