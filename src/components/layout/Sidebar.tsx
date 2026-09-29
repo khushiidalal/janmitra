@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useEffect, useState } from 'react';
+import { getMe } from '@/lib/api';
 
 import {
   LayoutDashboard,
@@ -55,12 +56,21 @@ export default function Sidebar() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || 'null');
-      setIsAdmin(user?.role === 'Admin');
-    } catch {
-      setIsAdmin(false);
-    }
+    let cancelled = false;
+
+    getMe()
+      .then((user) => {
+        if (cancelled) return;
+        localStorage.setItem('user', JSON.stringify(user));
+        setIsAdmin(user?.role === 'Admin');
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

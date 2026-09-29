@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser, isAuthorizedAdmin } from '@/lib/server/auth';
+import { getAuthenticatedUser } from '@/lib/server/auth';
 
 export async function proxy(request: NextRequest) {
   const user = await getAuthenticatedUser(request);
-  if (!user || !(await isAuthorizedAdmin(user))) {
+  if (!user || user.role !== 'Admin') {
     return NextResponse.json(
       { success: false, error: 'Forbidden: Administrator access required' },
       { status: 403 }

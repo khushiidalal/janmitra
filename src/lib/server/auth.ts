@@ -46,8 +46,14 @@ export function setAuthCookie(response: NextResponse, token: string): void {
 
 export async function isAuthorizedAdmin(user: Pick<IUser, 'email' | 'emailVerified'>): Promise<boolean> {
   if (!user.emailVerified) return false;
+  const email = user.email?.trim();
+  if (!email) return false;
+
+  // Email casing can differ in legacy allowlist records, so compare it
+  // case-insensitively while retaining every existing authorization check.
+  const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return Boolean(await AuthorizedAdmin.exists({
-    email: user.email,
+    email: { $regex: `^${escapedEmail}$`, $options: 'i' },
     active: true,
     verifiedAt: { $type: 'date' },
     verifiedBy: { $type: 'string', $ne: '' },
