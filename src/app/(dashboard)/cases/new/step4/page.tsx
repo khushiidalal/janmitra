@@ -693,7 +693,7 @@ function Step4DocumentsContent() {
               ref={fileInputRef}
               onChange={handleFileChange}
               className="hidden"
-              accept=".pdf,.jpg,.jpeg,.png,.docx"
+              accept=".pdf,.jpg,.jpeg,.png,"
             />
 
             <button
@@ -716,7 +716,7 @@ function Step4DocumentsContent() {
             </button>
 
             <p className="mt-3 text-[10px] text-slate-400">
-              Accepted types: PDF, JPG, PNG, DOCX.
+              Accepted types: PDF, JPG, PNG.
               Max size 20MB per file.
             </p>
           </div>
