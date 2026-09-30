@@ -415,16 +415,16 @@ SMTP_PASS=<your_app_password>
 
 ## 13. Run
 
-# Development server (runs on port 5000)
+Development server (runs on port 5000)
 npm run dev
 
-# Run automated backend test suite (51 passing tests)
+Run automated backend test suite (51 passing tests)
 npm test
 
-# Run code linter
+Run code linter
 npm run lint
 
-# Production build and start
+Production build and start
 npm run build
 npm run start
 ```
