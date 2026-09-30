@@ -18,7 +18,10 @@
 
 ## 2. Problem Statement
 
-Law enforcement agencies and judicial bodies handle a large volume of sensitive documents — FIRs, charge sheets, witness statements, court orders, and investigation reports. Fragmented service channels create bureaucratic friction and backlogs:
+Law enforcement agencies and judicial bodies handle a large volume of sensitive documents — FIRs, charge sheets, witness statements, court orders, and investigation reports. Fragmented service channels create bureaucratic friction and backlogs.India is becoming more digital, but many important processes in police and law enforcement still involve a large amount of paperwork and scattered records. When these records are stored in different files, folders or systems, finding the right information can take a lot of time.
+For example, an officer working on a case may need to find an old document, check some evidence, see who updated a record or find the latest report. If the information is not properly organized, the officer has to search through multiple records.
+There is another important issue: not everyone should be able to access every case or document. Sensitive information needs to be available only to authorized people.
+There is also a need to keep track of what happens to important records. If a document is uploaded, changed or accessed, there should be a record of that activity.
 
 - **No single window** for identity verification, case filing, and multi-sector grievances
 - Scanned and digital records can be **modified without verifiable audit trails**
@@ -65,7 +68,7 @@ Law enforcement agencies and judicial bodies handle a large volume of sensitive 
 | **Backend**    | Next.js API Routes (Node.js runtime)                                             |
 | **Database**   | MongoDB Atlas (Mongoose ODM)                                                     |
 | **OCR**        | Tesseract.js (image OCR with Sharp preprocessing) & pdf-parse (PDF extraction)   |
-| **Auth**       | JWT (`jsonwebtoken`), bcryptjs, Nodemailer / Resend (email OTP), Twilio (SMS OTP)|
+| **Auth**       | JWT (`jsonwebtoken`), bcryptjs, Nodemailer / Resend (email OTP)|
 | **Hashing**    | Node.js built-in `crypto` — SHA-256 for document integrity and token security   |
 | **Deployment** | Vercel                                                                           |
 
@@ -356,7 +359,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ## 9. Final Presentation
 
-📁 [View document on Google Drive](https://drive.google.com/drive/folders/1Dzk9dJvvqN17LXLTXyQOjqNstxrNpN14?usp=drive_link)
+[View document on Google Drive](https://drive.google.com/drive/folders/1Dzk9dJvvqN17LXLTXyQOjqNstxrNpN14?usp=drive_link)
 
 ---
 
@@ -364,7 +367,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ## Documents
 
-📁 [View document on Google Drive](https://drive.google.com/drive/folders/1bqrLbHRrBqGKCheo9prhrcxnNpHqYnB4?usp=drive_link)
+[View document on Google Drive](https://drive.google.com/drive/folders/1bqrLbHRrBqGKCheo9prhrcxnNpHqYnB4?usp=drive_link)
 
 ---
 
@@ -372,7 +375,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ## Project Screenshots
 
-[📁 View all screenshots](uploads/documents/)
+[ View all screenshots](uploads/documents/)
 
 ---
 
@@ -394,9 +397,9 @@ Create a `.env` file at the project root with the following keys:
 ```env
 PORT=5000
 NODE_ENV=development
-CLIENT_URL=http://localhost:5173,http://localhost:5174
+CLIENT_URL=https://janmitra-pbbl.vercel.app
 
-MONGODB_URI=mongodb+srv://goelsia796_db_user:fAZAClX9LzvvlShD@kora.fhjwwq3.mongodb.net/kora?appName=KORA
+MONGODB_URI=<your_mongodb_connection_string>
 
 JWT_SECRET=kora_development_secret_key_38294719284719284719
 JWT_EXPIRES_IN=7d
@@ -404,7 +407,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=goelsia796@gmail.com
 SMTP_PASS=cjkduxrftiencdoh
-APP_URL=http://localhost:5000
+APP_URL=http:https://janmitra-pbbl.vercel.app
 
 ```
 
