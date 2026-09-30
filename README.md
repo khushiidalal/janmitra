@@ -76,7 +76,6 @@ There is also a need to keep track of what happens to important records. If a do
 
 ## 6. Architecture
 
-```
 User (Browser — Law Enforcement Personnel)
       │
       ▼
@@ -117,7 +116,6 @@ User (Browser — Law Enforcement Personnel)
   │ crypto       │          │ • SHA-256 integrity   │
   │ SHA-256      │          │   fingerprint on load │
   └──────────────┘          └───────────────────────┘
-```
 
 ---
 
@@ -125,7 +123,6 @@ User (Browser — Law Enforcement Personnel)
 
 JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchical ranks. Permissions are enforced both in API route handlers via token verification and dynamically in the UI:
 
-```
 ┌──────────────────────────────────────────────────────────────┐
 │                            ADMIN                             │
 │  Full system control · User RBAC & role elevation · Audits   │
@@ -411,7 +408,6 @@ SMTP_USER=<your_email>
 SMTP_PASS=<your_app_password>
 
 ```
-```
 
 ## 13. Run
 
@@ -427,12 +423,10 @@ SMTP_PASS=<your_app_password>
 **Production build and start**
 `npm run build`
 `npm run start`
-```
+
 ```
 The application is live at **[Janmitra](https://janmitra-pbbl.vercel.app)**.
 
-```
-```
 ## 14. Future Scope
 
 JANMITRA can be expanded in the future with features such as:
