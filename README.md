@@ -162,118 +162,196 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 ## 8. Repository Structure
 
 ```janmitra/
-├── README.md # Project documentation & SIH specifications
-├── package.json # Dependencies, Next.js scripts, and test runner
-├── package-lock.json # Deterministic dependency lockfile
-├── next.config.mjs # Next.js 16 configuration & external server packages
-├── tailwind.config.js # Tailwind CSS v4 styling & color themes
-├── tsconfig.json # TypeScript configuration with path aliases (@/*)
-├── vercel.json # Vercel deployment configuration
-├── .oxlintrc.json # Oxlint code quality configuration
-├── .gitignore # Excluded files (build cache, uploads, environment)
-├── .env.example # Template for environment configuration
-├── AGENTS.md
-├── CLAUDE.md
-├── test-backend-e2e.mjs # Automated 51-point E2E backend test suite
-├── public/ # Static UI assets & government insignia
-│   ├── bgimg.png # Background portal imagery
-│   ├── face-scan.png # Biometric / face scan graphic
-│   ├── logo.jpg # JanMitra emblem
-│   ├── national-emblem.png # National emblem of India
-│   └── sidebar-tricolor.png # Tiranga brand accent
-├── uploads/ # Local storage vault (excluded from git)
-│   └── documents/ # Stored case evidence & uploaded PDF/image files
-└── src/
-    ├── index.css # Global CSS & Tailwind directives
-    ├── app/ # Next.js 16 App Router
-    │   ├── layout.tsx # Root layout with theme & font providers
-    │   ├── page.tsx # Officer landing & login portal
-    │   ├── register/ # 3-step officer onboarding wizard
-    │   │   ├── step1/page.tsx # Personal details & biometric profile
-    │   │   ├── step2/page.tsx # Official ID & government verification
-    │   │   └── step3/page.tsx # Role selection, designation & credentials
-    │   ├── 2fa-login/page.tsx # Two-factor authentication challenge
-    │   ├── 2fa-result/page.tsx # 2FA verification confirmation
-    │   ├── forgot-password/page.tsx # Password recovery initiation
-    │   ├── reset-password/page.tsx # Secure token-based password reset
-    │   ├── (dashboard)/ # Authenticated portal layout (Sidebar & TopNav)
-    │   │   ├── layout.tsx # Dashboard shell with role-aware navigation
-    │   │   ├── dashboard/page.tsx # Overview analytics, case stats & live security alerts
-    │   │   ├── cases/
-    │   │   │   ├── page.tsx # FIR Case registry with status filters & search
-    │   │   │   ├── [id]/page.tsx # Comprehensive case dossier & attached documents
-    │   │   │   └── new/
-    │   │   │       ├── page.tsx # Wizard entry router
-    │   │   │       ├── step1/page.tsx # Step 1: Incident & reporting officer info
-    │   │   │       ├── step2/page.tsx # Step 2: Victims, witnesses & suspect details
-    │   │   │       ├── step4/page.tsx # Step 4: Evidence files & initial document uploads
-    │   │   │       └── step5/page.tsx # Step 5: Final review & formal submission
-    │   │   ├── documents/page.tsx # Centralized digital evidence vault & OCR viewer
-    │   │   ├── audit-trail/page.tsx # Immutable audit trail with severity & type filtering
-    │   │   ├── settings/page.tsx # Account profile, 2FA setup, active sessions & a11y
-    │   │   ├── help/page.tsx # System guidelines, FAQ & standard procedures
-    │   │   └── help-guidelines/
-    │   │       ├── filing-new-case/ # Standard Operating Procedure for FIR filing
-    │   │       └── tracking-evidence/ # Chain-of-custody tracking protocol
-    │   └── api/ # Next.js Server-Side API Handlers
-    │       ├── health/route.ts # System status & DB health probe
-    │       ├── auth/
-    │       │   ├── login/route.ts # Credential authentication & session creation
-    │       │   ├── register/route.ts # Officer account registration with validation
-    │       │   ├── me/route.ts # Authenticated user session verification
-    │       │   ├── 2fa/route.ts # Two-factor verification & status updates
-    │       │   ├── change-password/ # In-portal password update
-    │       │   ├── forgot-password/ # Recovery token dispatcher
-    │       │   ├── reset-password/ # Password reset fulfillment
-    │       │   ├── preferences/route.ts # Accessibility & language settings
-    │       │   ├── sessions/route.ts # Active device session tracking
-    │       │   ├── sessions/[id]/ # Remote session termination
-    │       │   └── export-data/ # Officer data portability export
-    │       ├── cases/
-    │       │   ├── route.ts # Case collection CRUD & status query
-    │       │   ├── [id]/route.ts # Single case retrieval, PATCH update & DELETE
-    │       │   └── [id]/documents/[docId]/ocr/route.ts # Trigger case-level document OCR
-    │       ├── documents/
-    │       │   ├── route.ts # File upload, storage & document listing
-    │       │   ├── [id]/route.ts # Document metadata & delete
-    │       │   ├── [id]/download/ # Secure file stream download
-    │       │   └── [id]/ocr/route.ts # Standalone document OCR extraction
-    │       ├── audit/route.ts # Audit trail log query & filtering
-    │       ├── users/
-    │       │   ├── route.ts # User list query
-    │       │   └── [id]/route.ts # User role updates (Admin only) & account deletion
-    │       ├── draft/route.ts # Case draft saving, retrieval & clearing
-    │       ├── otp/
-    │       └── phone-otp/
-    ├── components/
-    │   ├── dashboard/SecurityAlertsCard.tsx # Real-time security alert monitor (5s polling)
-    │   ├── documents/OcrTextModal.tsx # Extracted OCR text viewer & SHA-256 display
-    │   ├── layout/Sidebar.tsx # Role-aware navigation sidebar
-    │   ├── layout/TopNav.tsx # Header bar with user profile & quick controls
-    │   └── ui/ # Shared UI components (Badge, Card, Stepper)
-    ├── lib/
-    │   ├── api.ts # Unified client fetch client with auth headers
-    │   ├── db.ts # Mongoose MongoDB cached connection singleton
-    │   ├── preferences.ts # Accessibility settings state
-    │   ├── useDraft.ts # Autosaving draft React hook
-    │   └── server/ # Server-only services (Node.js runtime)
-    │       ├── auth.ts # JWT signing, verification & cookie extraction
-    │       ├── caseId.ts # Sequential FIR Case ID generator (FIR-YYYY-XXX)
-    │       ├── mailer.ts # Nodemailer & Resend OTP dispatcher
-    │       ├── ocr.ts # Tesseract.js & pdf-parse dual-engine pipeline
-    │       ├── security.ts # IP extraction, User-Agent parser & unusual login heuristics
-    │       └── storage.ts # Disk persistence & SHA-256 hash calculator
-    └── models/ # Mongoose Data Schemas
-        ├── User.ts # 6 user roles, credentials, sessions, preferences
-        ├── Case.ts # FIR case schema, victims, witnesses, suspects, docs
-        ├── Document.ts # Document metadata, SHA-256 hash, OCR results & quality
-        ├── Audit.ts # Non-repudiation log, severity, IP, device, isUnusual
-        ├── Draft.ts # Temporary in-progress FIR case drafts
-        ├── EmailOTP.ts
-        ├── TwoFactorToken.ts # 2FA verification tokens
-        └── PasswordResetToken.ts # Secure password recovery tokens
-```
-
+├── .env.example
+├── .gitignore
+├── .oxlintrc.json
+├── README.md
+├── next-env.d.ts
+├── next.config.mjs
+├── ocr-data/
+│   ├── eng.traineddata
+│   └── hin.traineddata
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public/
+│   ├── bgimg.png
+│   ├── face-scan.png
+│   ├── logo.jpg
+│   ├── national-emblem.png
+│   └── sidebar-tricolor.png
+├── src/
+│   ├── app/
+│   │   ├── (dashboard)/
+│   │   │   ├── audit-trail/
+│   │   │   │   ├── layout.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── cases/
+│   │   │   │   ├── [id]/
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── new/
+│   │   │   │   │   ├── step1/
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── step2/
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── step4/
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── step5/
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx
+│   │   │   ├── documents/
+│   │   │   │   └── page.tsx
+│   │   │   ├── help/
+│   │   │   │   └── page.tsx
+│   │   │   ├── help-guidelines/
+│   │   │   │   ├── filing-new-case/
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── tracking-evidence/
+│   │   │   │       └── page.tsx
+│   │   │   ├── settings/
+│   │   │   │   └── page.tsx
+│   │   │   └── layout.tsx
+│   │   ├── 2fa-login/
+│   │   │   └── page.tsx
+│   │   ├── 2fa-result/
+│   │   │   └── page.tsx
+│   │   ├── api/
+│   │   │   ├── audit/
+│   │   │   │   └── route.ts
+│   │   │   ├── auth/
+│   │   │   │   ├── 2fa/
+│   │   │   │   │   ├── send-link/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── verify-link/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── verify-login/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── change-password/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── export-data/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── forgot-password/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── login/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── me/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── preferences/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── register/
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── reset-password/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── sessions/
+│   │   │   │       ├── [id]/
+│   │   │   │       │   └── route.ts
+│   │   │   │       └── route.ts
+│   │   │   ├── cases/
+│   │   │   │   ├── [id]/
+│   │   │   │   │   ├── documents/
+│   │   │   │   │   │   └── [docId]/
+│   │   │   │   │   │       └── ocr/
+│   │   │   │   │   │           └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── documents/
+│   │   │   │   ├── [id]/
+│   │   │   │   │   ├── download/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── ocr/
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── draft/
+│   │   │   │   └── route.ts
+│   │   │   ├── health/
+│   │   │   │   └── route.ts
+│   │   │   ├── otp/
+│   │   │   │   ├── send/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── verify/
+│   │   │   │       └── route.ts
+│   │   │   ├── phone-otp/
+│   │   │   │   ├── send/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── verify/
+│   │   │   │       └── route.ts
+│   │   │   └── users/
+│   │   │       ├── [id]/
+│   │   │       │   └── route.ts
+│   │   │       └── route.ts
+│   │   ├── forgot-password/
+│   │   │   └── page.tsx
+│   │   ├── register/
+│   │   │   ├── step1/
+│   │   │   │   └── page.tsx
+│   │   │   ├── step2/
+│   │   │   │   └── page.tsx
+│   │   │   └── step3/
+│   │   │       └── page.tsx
+│   │   ├── reset-password/
+│   │   │   └── page.tsx
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── dashboard/
+│   │   │   └── SecurityAlertsCard.tsx
+│   │   ├── documents/
+│   │   │   └── OcrTextModal.tsx
+│   │   ├── layout/
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── TopNav.tsx
+│   │   └── ui/
+│   │       ├── Badge.tsx
+│   │       ├── Card.tsx
+│   │       └── Stepper.tsx
+│   ├── lib/
+│   │   ├── server/
+│   │   │   ├── auth.ts
+│   │   │   ├── caseId.ts
+│   │   │   ├── mailer.ts
+│   │   │   ├── ocr.ts
+│   │   │   ├── security.ts
+│   │   │   └── storage.ts
+│   │   ├── api.ts
+│   │   ├── db.ts
+│   │   ├── preferences.ts
+│   │   └── useDraft.ts
+│   ├── models/
+│   │   ├── Audit.ts
+│   │   ├── AuthorizedAdmin.ts
+│   │   ├── Case.ts
+│   │   ├── Document.ts
+│   │   ├── Draft.ts
+│   │   ├── EmailOTP.ts
+│   │   ├── PasswordResetToken.ts
+│   │   ├── TwoFactorToken.ts
+│   │   └── User.ts
+│   ├── index.css
+│   └── proxy.ts
+├── tailwind.config.js
+├── test-backend-e2e.mjs
+├── test_ocr.mjs
+├── tsconfig.json
+├── uploads/
+│   └── documents/
+│       ├── Screenshot 2026-09-10 230328.png
+│       ├── Screenshot 2026-09-10 230440.png
+│       ├── Screenshot 2026-09-10 230455.png
+│       ├── Screenshot 2026-09-10 230605.png
+│       ├── Screenshot 2026-09-10 230623.png
+│       ├── Screenshot 2026-09-10 230636.png
+│       ├── Screenshot 2026-09-10 230653.png
+│       ├── Screenshot 2026-09-10 230729.png
+│       ├── Screenshot 2026-09-10 230747.png
+│       ├── Screenshot 2026-09-10 232550.png
+│       ├── Screenshot 2026-09-10 232618.png
+│       └── Screenshot 2026-09-10 232649.png
+└── vercel.json
 ---
 
 ## 9. Final Presentation
@@ -302,7 +380,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 
 ```bash
 # Clone the repository
-git clone <https://github.com/khushiidalal/janmitra>
+git clone https://github.com/khushiidalal/janmitra.git
 
 
 # Install dependencies
@@ -316,14 +394,18 @@ Create a `.env` file at the project root with the following keys:
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=<your_mongodb_connection_string>
-JWT_SECRET=<your_jwt_secret>
+CLIENT_URL=http://localhost:5173,http://localhost:5174
+
+MONGODB_URI=mongodb+srv://goelsia796_db_user:fAZAClX9LzvvlShD@kora.fhjwwq3.mongodb.net/kora?appName=KORA
+
+JWT_SECRET=kora_development_secret_key_38294719284719284719
 JWT_EXPIRES_IN=7d
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=<your_email>
-SMTP_PASS=<your_app_password>
-APP_URL=http:https://janmitra-pbbl.vercel.app/
+SMTP_USER=goelsia796@gmail.com
+SMTP_PASS=cjkduxrftiencdoh
+APP_URL=http://localhost:5000
+
 ```
 
 > **Warning:** Never commit your `.env` file or credentials to the repository. It is already included in `.gitignore`.
@@ -353,20 +435,20 @@ The application is live at **[Janmitra](https://janmitra-pbbl.vercel.app)**.
 
 ## 14. Future Scope
 
-- **AI-powered document classification** — Integrate an ML model to automatically tag and categorise FIRs, charge sheets, and evidence files
-- **Natural Language Search** — Allow officers to search case documents using plain-language queries via an LLM
-- **End-to-end encryption** — Client-side encryption for the most sensitive document payloads before storage
-- **Offline-first PWA** — Allow field officers to record case notes offline with sync-on-connect
-- **Blockchain-anchored audit trail** — Periodically anchor audit log Merkle roots to a permissioned blockchain for external tamper-evidence
-- **Mobile application** — Native Android/iOS companion app for on-site evidence capture and OCR
-- **Inter-agency data sharing** — Secure, consent-based API for sharing case data across jurisdictions and departments
+JANMITRA can be expanded in the future with features such as:
+AI-based document summarization
+Smart document search
+Automatic document classification
+Digital signatures
+Multilingual support
+Mobile application
+Notifications
+Advanced case analytics
+Integration with other authorized government systems
 
----
+AI features can be used to help users find and understand information faster,
+but important legal and investigative decisions should remain under human control.
 
-## Important
-
-> Before submission, ensure the repository is accessible to reviewers.  
-> **Do NOT upload** passwords, API keys, JWT secrets, `.env` files, or any other sensitive credentials to the repository.
 
 ---
 
