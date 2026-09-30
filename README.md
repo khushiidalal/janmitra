@@ -1,4 +1,5 @@
-# JanMitra – Secure Case & Document Management for Law Enforcement
+# JANMITRA 
+Unifies Citizen Services & Secure Document Integrity
 
 > A role-based, audit-driven digital platform for managing law-enforcement cases, judicial documents, and investigative records — built for Smart India Hackathon 2026.
 
