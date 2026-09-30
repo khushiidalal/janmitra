@@ -415,18 +415,18 @@ SMTP_PASS=<your_app_password>
 
 ## 13. Run
 
-Development server (runs on port 5000)
-npm run dev
+**Development server (runs on port 5000)**
+`npm run dev`
 
-Run automated backend test suite (51 passing tests)
-npm test
+**Run automated backend test suite (51 passing tests)**
+`npm test`
 
-Run code linter
-npm run lint
+**Run code linter**
+`npm run lint`
 
-Production build and start
-npm run build
-npm run start
+**Production build and start**
+`npm run build`
+`npm run start`
 ```
 ```
 The application is live at **[Janmitra](https://janmitra-pbbl.vercel.app)**.
