@@ -6,23 +6,25 @@
 
 ## 1. Project Information
 
-| Field             | Details                                              |
-|-------------------|------------------------------------------------------|
-| **Project Title** | JanMitra – Secure Case & Document Management         |
-| **PS ID**         | 26190                                     |
-| **PS Title**      |Secure Digital Document Management System for Legal and Investigation Documents|
-| **Category**      | Software                                             |
-| **Theme**         | Blockchain & Cybersecurity                                      |
+| Field             | Details                                                                           |
+|-------------------|-----------------------------------------------------------------------------------|
+| **Project Title** | JanMitra – Secure Case & Document Management                                      |
+| **PS ID**         | 26190                                                                             |
+| **PS Title**      | Secure Digital Document Management System for Legal and Investigation Documents   |
+| **Category**      | Software                                                                          |
+| **Theme**         | Blockchain & Cybersecurity                                                        |
 
 ---
 
 ## 2. Problem Statement
 
-Law enforcement agencies and judicial bodies handle a large volume of sensitive documents — FIRs, charge sheets, witness statements, court orders, and investigation reports. Fragmented service channels create bureaucratic friction and backlogs.India is becoming more digital, but many important processes in police and law enforcement still involve a large amount of paperwork and scattered records. When these records are stored in different files, folders or systems, finding the right information can take a lot of time.
-For example, an officer working on a case may need to find an old document, check some evidence, see who updated a record or find the latest report. If the information is not properly organized, the officer has to search through multiple records.
-There is another important issue: not everyone should be able to access every case or document. Sensitive information needs to be available only to authorized people.
-There is also a need to keep track of what happens to important records. If a document is uploaded, changed or accessed, there should be a record of that activity.
+Law enforcement agencies and judicial bodies handle a large volume of sensitive documents — FIRs, charge sheets, witness statements, court orders, and investigation reports. Fragmented service channels create bureaucratic friction and backlogs.
 
+India is becoming more digital, but many important processes in police and law enforcement still involve a large amount of paperwork and scattered records. When these records are stored in different files, folders, or systems, finding the right information takes a lot of time.
+
+For example, an officer working on a case may need to find an old document, check evidence, see who updated a record, or find the latest report. If the information is not properly organized, the officer has to search through multiple records.
+
+Key Challenges:
 - **No single window** for identity verification, case filing, and multi-sector grievances
 - Scanned and digital records can be **modified without verifiable audit trails**
 - Manual document retrieval is slow and error-prone across isolated government portals/silos
@@ -41,41 +43,41 @@ There is also a need to keep track of what happens to important records. If a do
 - **SHA-256 document fingerprinting** for tamper-evident chain-of-custody records
 - **Real-time security monitoring** — dashboard polls for suspicious logins and unusual activity every 5 seconds
 
-
 ---
 
 ## 4. Key Features
 
 | Feature | Details |
 |---|---|
-|  **Secure Authentication** | JWT login, 2FA ,session management (device/browser/OS/IP tracked per session) |
-|  **Guided Case Management** | Multi-step case creation (5-step wizard), track cases as Active / Pending / Closed, attach Victims, Witnesses, Suspects |
-|  **Document Vault** | Upload FIRs, investigation reports, witness statements, court orders, evidence — with SHA-256 integrity fingerprinting |
-|  **Automated OCR** | Tesseract.js & pdf-parse extract searchable text automatically; OCR quality graded High / Medium / Low with confidence metrics |
-|  **Live Security Monitoring** | Dashboard Security Alerts card polls every 5 seconds — flags failed logins, unusual access patterns, and critical severity events in real time |
-|  **Immutable Audit Trail** | Logs document, review, login, approval, registration, and security events — filterable by type, case, severity, and status |
-|  **Role-Based Access Control** | 6 roles (Admin → Senior Officer → Investigator → Officer → Clerk → Viewer) with per-role data visibility rules |
-|  **Accessibility** | High-contrast UI, adjustable text size (Small / Medium / Large), language preferences |
-|  **Dashboard & Analytics** | Case counts, recent documents, live security alerts, and activity overview |
+| **Secure Authentication** | JWT login, 2FA, session management (device/browser/OS/IP tracked per session) |
+| **Guided Case Management** | Multi-step case creation (5-step wizard), track cases as Active / Pending / Closed, attach Victims, Witnesses, Suspects |
+| **Document Vault** | Upload FIRs, investigation reports, witness statements, court orders, evidence — with SHA-256 integrity fingerprinting |
+| **Automated OCR** | Tesseract.js & pdf-parse extract searchable text automatically; OCR quality graded High / Medium / Low with confidence metrics |
+| **Live Security Monitoring** | Dashboard Security Alerts card polls every 5 seconds — flags failed logins, unusual access patterns, and critical severity events in real time |
+| **Immutable Audit Trail** | Logs document, review, login, approval, registration, and security events — filterable by type, case, severity, and status |
+| **Role-Based Access Control** | 6 roles (Admin → Senior Officer → Investigator → Officer → Clerk → Viewer) with per-role data visibility rules |
+| **Accessibility** | High-contrast UI, adjustable text size (Small / Medium / Large), language preferences |
+| **Dashboard & Analytics** | Case counts, recent documents, live security alerts, and activity overview |
 
 ---
 
 ## 5. Technology Stack
 
-| Layer          | Technology                                                                       |
-|----------------|----------------------------------------------------------------------------------|
-| **Frontend**   | Next.js 16 (Turbopack), React 19, TypeScript, Tailwind CSS v4, Framer Motion, Lucide Icons |
-| **Backend**    | Next.js API Routes (Node.js runtime)                                             |
-| **Database**   | MongoDB Atlas (Mongoose ODM)                                                     |
-| **OCR**        | Tesseract.js (image OCR with Sharp preprocessing) & pdf-parse (PDF extraction)   |
-| **Auth**       | JWT (`jsonwebtoken`), bcryptjs, Nodemailer / Resend (email OTP)|
-| **Hashing**    | Node.js built-in `crypto` — SHA-256 for document integrity and token security   |
-| **Deployment** | Vercel                                                                           |
+| Layer          | Technology                                                                                |
+|----------------|-------------------------------------------------------------------------------------------|
+| **Frontend**   | Next.js 16 (Turbopack), React 19, TypeScript, Tailwind CSS v4, Framer Motion, Lucide Icons|
+| **Backend**    | Next.js API Routes (Node.js runtime)                                                      |
+| **Database**   | MongoDB Atlas (Mongoose ODM)                                                              |
+| **OCR**        | Tesseract.js (image OCR with Sharp preprocessing) & pdf-parse (PDF extraction)            |
+| **Auth**       | JWT (`jsonwebtoken`), bcryptjs, Nodemailer / Resend (email OTP)                           |
+| **Hashing**    | Node.js built-in `crypto` — SHA-256 for document integrity and token security            |
+| **Deployment** | Vercel                                                                                    |
 
 ---
 
 ## 6. Architecture
 
+```
 User (Browser — Law Enforcement Personnel)
       │
       ▼
@@ -116,13 +118,15 @@ User (Browser — Law Enforcement Personnel)
   │ crypto       │          │ • SHA-256 integrity   │
   │ SHA-256      │          │   fingerprint on load │
   └──────────────┘          └───────────────────────┘
+```
 
 ---
 
 ## 7. User Roles & Access Hierarchy
 
-JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchical ranks. Permissions are enforced both in API route handlers via token verification and dynamically in the UI:
+JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchical ranks:
 
+```
 ┌──────────────────────────────────────────────────────────────┐
 │                            ADMIN                             │
 │  Full system control · User RBAC & role elevation · Audits   │
@@ -159,9 +163,12 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
                └───────────────────────────────┘
 ```
 
+---
+
 ## 8. Repository Structure
 
-```janmitra/
+```text
+janmitra/
 ├── .env.example
 ├── .gitignore
 ├── .oxlintrc.json
@@ -190,118 +197,74 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 │   │   │   │   ├── [id]/
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── new/
-│   │   │   │   │   ├── step1/
-│   │   │   │   │   │   └── page.tsx
-│   │   │   │   │   ├── step2/
-│   │   │   │   │   │   └── page.tsx
-│   │   │   │   │   ├── step4/
-│   │   │   │   │   │   └── page.tsx
-│   │   │   │   │   ├── step5/
-│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── step1/page.tsx
+│   │   │   │   │   ├── step2/page.tsx
+│   │   │   │   │   ├── step4/page.tsx
+│   │   │   │   │   ├── step5/page.tsx
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── page.tsx
-│   │   │   ├── dashboard/
-│   │   │   │   └── page.tsx
-│   │   │   ├── documents/
-│   │   │   │   └── page.tsx
-│   │   │   ├── help/
-│   │   │   │   └── page.tsx
+│   │   │   ├── dashboard/page.tsx
+│   │   │   ├── documents/page.tsx
+│   │   │   ├── help/page.tsx
 │   │   │   ├── help-guidelines/
-│   │   │   │   ├── filing-new-case/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── tracking-evidence/
-│   │   │   │       └── page.tsx
-│   │   │   ├── settings/
-│   │   │   │   └── page.tsx
+│   │   │   │   ├── filing-new-case/page.tsx
+│   │   │   │   └── tracking-evidence/page.tsx
+│   │   │   ├── settings/page.tsx
 │   │   │   └── layout.tsx
-│   │   ├── 2fa-login/
-│   │   │   └── page.tsx
-│   │   ├── 2fa-result/
-│   │   │   └── page.tsx
+│   │   ├── 2fa-login/page.tsx
+│   │   ├── 2fa-result/page.tsx
 │   │   ├── api/
-│   │   │   ├── audit/
-│   │   │   │   └── route.ts
+│   │   │   ├── audit/route.ts
 │   │   │   ├── auth/
 │   │   │   │   ├── 2fa/
-│   │   │   │   │   ├── send-link/
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   ├── verify-link/
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   ├── verify-login/
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── send-link/route.ts
+│   │   │   │   │   ├── verify-link/route.ts
+│   │   │   │   │   ├── verify-login/route.ts
 │   │   │   │   │   └── route.ts
-│   │   │   │   ├── change-password/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── export-data/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── forgot-password/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── login/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── me/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── preferences/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── register/
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── reset-password/
-│   │   │   │   │   └── route.ts
+│   │   │   │   ├── change-password/route.ts
+│   │   │   │   ├── export-data/route.ts
+│   │   │   │   ├── forgot-password/route.ts
+│   │   │   │   ├── login/route.ts
+│   │   │   │   ├── me/route.ts
+│   │   │   │   ├── preferences/route.ts
+│   │   │   │   ├── register/route.ts
+│   │   │   │   ├── reset-password/route.ts
 │   │   │   │   └── sessions/
-│   │   │   │       ├── [id]/
-│   │   │   │       │   └── route.ts
+│   │   │   │       ├── [id]/route.ts
 │   │   │   │       └── route.ts
 │   │   │   ├── cases/
 │   │   │   │   ├── [id]/
-│   │   │   │   │   ├── documents/
-│   │   │   │   │   │   └── [docId]/
-│   │   │   │   │   │       └── ocr/
-│   │   │   │   │   │           └── route.ts
+│   │   │   │   │   ├── documents/[docId]/ocr/route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   ├── documents/
 │   │   │   │   ├── [id]/
-│   │   │   │   │   ├── download/
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   ├── ocr/
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── download/route.ts
+│   │   │   │   │   ├── ocr/route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
-│   │   │   ├── draft/
-│   │   │   │   └── route.ts
-│   │   │   ├── health/
-│   │   │   │   └── route.ts
+│   │   │   ├── draft/route.ts
+│   │   │   ├── health/route.ts
 │   │   │   ├── otp/
-│   │   │   │   ├── send/
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── verify/
-│   │   │   │       └── route.ts
+│   │   │   │   ├── send/route.ts
+│   │   │   │   └── verify/route.ts
 │   │   │   ├── phone-otp/
-│   │   │   │   ├── send/
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── verify/
-│   │   │   │       └── route.ts
+│   │   │   │   ├── send/route.ts
+│   │   │   │   └── verify/route.ts
 │   │   │   └── users/
-│   │   │       ├── [id]/
-│   │   │       │   └── route.ts
+│   │   │       ├── [id]/route.ts
 │   │   │       └── route.ts
-│   │   ├── forgot-password/
-│   │   │   └── page.tsx
+│   │   ├── forgot-password/page.tsx
 │   │   ├── register/
-│   │   │   ├── step1/
-│   │   │   │   └── page.tsx
-│   │   │   ├── step2/
-│   │   │   │   └── page.tsx
-│   │   │   └── step3/
-│   │   │       └── page.tsx
-│   │   ├── reset-password/
-│   │   │   └── page.tsx
+│   │   │   ├── step1/page.tsx
+│   │   │   ├── step2/page.tsx
+│   │   │   └── step3/page.tsx
+│   │   ├── reset-password/page.tsx
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/
-│   │   ├── dashboard/
-│   │   │   └── SecurityAlertsCard.tsx
-│   │   ├── documents/
-│   │   │   └── OcrTextModal.tsx
+│   │   ├── dashboard/SecurityAlertsCard.tsx
+│   │   ├── documents/OcrTextModal.tsx
 │   │   ├── layout/
 │   │   │   ├── Sidebar.tsx
 │   │   │   └── TopNav.tsx
@@ -339,38 +302,28 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 ├── tsconfig.json
 ├── uploads/
 │   └── documents/
-│       ├── Screenshot 2026-09-10 230328.png
-│       ├── Screenshot 2026-09-10 230440.png
-│       ├── Screenshot 2026-09-10 230455.png
-│       ├── Screenshot 2026-09-10 230605.png
-│       ├── Screenshot 2026-09-10 230623.png
-│       ├── Screenshot 2026-09-10 230636.png
-│       ├── Screenshot 2026-09-10 230653.png
-│       ├── Screenshot 2026-09-10 230729.png
-│       ├── Screenshot 2026-09-10 230747.png
-│       ├── Screenshot 2026-09-10 232550.png
-│       ├── Screenshot 2026-09-10 232618.png
-│       └── Screenshot 2026-09-10 232649.png
 └── vercel.json
 ```
 
+---
+
 ## 9. Final Presentation
-  **[Final Presentation](https://drive.google.com/drive/folders/1x9BPGXj2eayRisD599VGGVREHyaWW0iI?usp=sharing)**
-```
-```
+
+📁 **[View Final Presentation on Google Drive](https://drive.google.com/drive/folders/1x9BPGXj2eayRisD599VGGVREHyaWW0iI?usp=sharing)**
+
+---
+
 ## 10. Demo Video
 
-The Demo video is live at **[Demo](https://youtu.be/X5MXSVi4sWM)**
+🎥 The Demo video is live at **[YouTube Demo](https://youtu.be/X5MXSVi4sWM)**
 
-```
-```
-## 11. Screenshots / Prototype Photos
+---
 
+## 11. Screenshots & Prototypes
 
-**[View all screenshots](uploads/documents/)**
+📁 **[View All Prototype Screenshots](uploads/documents/)**
 
-```
-```
+---
 
 ## 12. Installation
 
@@ -378,74 +331,74 @@ The Demo video is live at **[Demo](https://youtu.be/X5MXSVi4sWM)**
 # Clone the repository
 git clone https://github.com/khushiidalal/janmitra.git
 
+# Navigate into project directory
+cd janmitra
 
 # Install dependencies
 npm install
 ```
 
-
 ### Environment Variables
 
-Create a `.env` file at the project root with the following keys:
+Create a `.env` file in the project root with the following keys:
 
-
+```env
 PORT=5000
 NODE_ENV=development
-CLIENT_URL= http://localhost:5000
+NEXT_PUBLIC_APP_URL=http://localhost:5000
 
+# Database
 MONGODB_URI=<your_mongodb_connection_string>
 
+# JWT Secret
 JWT_SECRET=<your_jwt_secret>
-
 JWT_EXPIRES_IN=7d
 
+# Email Services (SMTP)
 SMTP_HOST=smtp.gmail.com
-
 SMTP_PORT=587
-
 SMTP_USER=<your_email>
-
 SMTP_PASS=<your_app_password>
-
 ```
+
+---
 
 ## 13. Run
 
-**Development server (runs on port 5000)**
-`npm run dev`
+```bash
+# Development server (runs on port 5000)
+npm run dev
 
-**Run automated backend test suite (51 passing tests)**
-`npm test`
+# Run automated backend test suite (51 passing tests)
+npm test
 
-**Run code linter**
-`npm run lint`
+# Run code linter
+npm run lint
 
-**Production build and start**
-`npm run build`
-`npm run start`
-
+# Production build and start
+npm run build
+npm run start
 ```
-The application is live at **[Janmitra](https://janmitra-pbbl.vercel.app)**.
+
+The application is deployed live at **[JanMitra Production Site](https://janmitra-pbbl.vercel.app)**.
+
+---
 
 ## 14. Future Scope
 
 JANMITRA can be expanded in the future with features such as:
-AI-based document summarization
-Smart document search
-Automatic document classification
-Digital signatures
-Multilingual support
-Mobile application
-Notifications
-Advanced case analytics
-Integration with other authorized government systems
+- AI-based document summarization
+- Smart document search using natural language
+- Automatic document classification
+- Digital signatures
+- Multilingual support
+- Mobile application
+- Real-time notifications
+- Advanced case analytics
+- Integration with other authorized government systems
 
-AI features can be used to help users find and understand information faster,
-but important legal and investigative decisions should remain under human control.
-
+*AI features can help users find and understand information faster, but important legal and investigative decisions will remain under human control.*
 
 ---
 
-*Built for Smart India Hackathon 2026 — `Astrophage` | `Netaji Subhas University of Technology(NSUT)`*
-
-
+*Built for Smart India Hackathon 2026 — `Astrophage` | `Netaji Subhas University of Technology (NSUT)`*
