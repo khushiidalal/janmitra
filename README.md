@@ -160,7 +160,7 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
                │  Read-only case observation   │
                │  Redacted PII / Admin controls│
                └───────────────────────────────┘
-
+```
 
 ## 8. Repository Structure
 
@@ -355,25 +355,25 @@ JanMitra implements strict Role-Based Access Control (RBAC) across six hierarchi
 │       ├── Screenshot 2026-09-10 232618.png
 │       └── Screenshot 2026-09-10 232649.png
 └── vercel.json
----
+```
 
 ## 9. Final Presentation
   **[Final Presentation](https://drive.google.com/drive/folders/1x9BPGXj2eayRisD599VGGVREHyaWW0iI?usp=sharing)**
----
-
+```
+```
 ## 10. Demo Video
 
 The Demo video is live at **[Demo](https://youtu.be/X5MXSVi4sWM)**
 
----
-
+```
+```
 ## 11. Screenshots / Prototype Photos
 
-## Project Screenshots
 
 **[View all screenshots](uploads/documents/)**
 
----
+```
+```
 
 ## 12. Installation
 
@@ -386,24 +386,24 @@ git clone https://github.com/khushiidalal/janmitra.git
 npm install
 ```
 
+
 ### Environment Variables
 
 Create a `.env` file at the project root with the following keys:
 
-```env
+
 PORT=5000
 NODE_ENV=development
-CLIENT_URL=https://janmitra-pbbl.vercel.app
+CLIENT_URL= http://localhost:5000
 
 MONGODB_URI=<your_mongodb_connection_string>
 
-JWT_SECRET=kora_development_secret_key_38294719284719284719
+JWT_SECRET=<your_jwt_secret>
 JWT_EXPIRES_IN=7d
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=goelsia796@gmail.com
-SMTP_PASS=cjkduxrftiencdoh
-APP_URL=http:https://janmitra-pbbl.vercel.app
+SMTP_USER=<your_email>
+SMTP_PASS=<your_app_password>
 
 ```
 
