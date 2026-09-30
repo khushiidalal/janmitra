@@ -399,21 +399,22 @@ CLIENT_URL= http://localhost:5000
 MONGODB_URI=<your_mongodb_connection_string>
 
 JWT_SECRET=<your_jwt_secret>
+
 JWT_EXPIRES_IN=7d
+
 SMTP_HOST=smtp.gmail.com
+
 SMTP_PORT=587
+
 SMTP_USER=<your_email>
+
 SMTP_PASS=<your_app_password>
 
 ```
-
-> **Warning:** Never commit your `.env` file or credentials to the repository. It is already included in `.gitignore`.
-
----
+```
 
 ## 13. Run
 
-```bash
 # Development server (runs on port 5000)
 npm run dev
 
@@ -427,11 +428,11 @@ npm run lint
 npm run build
 npm run start
 ```
-
+```
 The application is live at **[Janmitra](https://janmitra-pbbl.vercel.app)**.
 
----
-
+```
+```
 ## 14. Future Scope
 
 JANMITRA can be expanded in the future with features such as:
